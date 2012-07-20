@@ -1,0 +1,67 @@
+version 2
+run General-0-20120720-00:58:37-13767
+attr configname General
+attr datetime 20120720-00:58:37
+attr experiment General
+attr inifile omnetpp.ini
+attr iterationvars ""
+attr iterationvars2 $repetition=0
+attr measurement ""
+attr network BaseNetwork
+attr processid 13767
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+
+scalar BaseNetwork.node[0].nic.mac 	nbTxFrames 	0
+scalar BaseNetwork.node[0].nic.mac 	nbRxFrames 	0
+scalar BaseNetwork.node[0].nic.mac 	nbDroppedFrames 	0
+scalar BaseNetwork.node[0].nic.mac 	nbMissedAcks 	0
+scalar BaseNetwork.node[0].nic.mac 	nbRecvdAcks 	0
+scalar BaseNetwork.node[0].nic.mac 	nbTxAcks 	0
+scalar BaseNetwork.node[0].nic.mac 	nbDuplicates 	0
+scalar BaseNetwork.node[0].nic.mac 	meanBackoff 	0
+scalar BaseNetwork.node[0].nic.mac 	nbBackoffs 	0
+scalar BaseNetwork.node[0].nic.mac 	backoffDurations 	0
+scalar BaseNetwork.node[1].nic.mac 	nbTxFrames 	0
+scalar BaseNetwork.node[1].nic.mac 	nbRxFrames 	0
+scalar BaseNetwork.node[1].nic.mac 	nbDroppedFrames 	0
+scalar BaseNetwork.node[1].nic.mac 	nbMissedAcks 	0
+scalar BaseNetwork.node[1].nic.mac 	nbRecvdAcks 	0
+scalar BaseNetwork.node[1].nic.mac 	nbTxAcks 	0
+scalar BaseNetwork.node[1].nic.mac 	nbDuplicates 	0
+scalar BaseNetwork.node[1].nic.mac 	meanBackoff 	0
+scalar BaseNetwork.node[1].nic.mac 	nbBackoffs 	0
+scalar BaseNetwork.node[1].nic.mac 	backoffDurations 	0
+scalar BaseNetwork.node[2].nic.mac 	nbTxFrames 	0
+scalar BaseNetwork.node[2].nic.mac 	nbRxFrames 	0
+scalar BaseNetwork.node[2].nic.mac 	nbDroppedFrames 	0
+scalar BaseNetwork.node[2].nic.mac 	nbMissedAcks 	0
+scalar BaseNetwork.node[2].nic.mac 	nbRecvdAcks 	0
+scalar BaseNetwork.node[2].nic.mac 	nbTxAcks 	0
+scalar BaseNetwork.node[2].nic.mac 	nbDuplicates 	0
+scalar BaseNetwork.node[2].nic.mac 	meanBackoff 	0
+scalar BaseNetwork.node[2].nic.mac 	nbBackoffs 	0
+scalar BaseNetwork.node[2].nic.mac 	backoffDurations 	0
+scalar BaseNetwork.node[3].nic.mac 	nbTxFrames 	0
+scalar BaseNetwork.node[3].nic.mac 	nbRxFrames 	0
+scalar BaseNetwork.node[3].nic.mac 	nbDroppedFrames 	0
+scalar BaseNetwork.node[3].nic.mac 	nbMissedAcks 	0
+scalar BaseNetwork.node[3].nic.mac 	nbRecvdAcks 	0
+scalar BaseNetwork.node[3].nic.mac 	nbTxAcks 	0
+scalar BaseNetwork.node[3].nic.mac 	nbDuplicates 	0
+scalar BaseNetwork.node[3].nic.mac 	meanBackoff 	0
+scalar BaseNetwork.node[3].nic.mac 	nbBackoffs 	0
+scalar BaseNetwork.node[3].nic.mac 	backoffDurations 	0
+scalar BaseNetwork.node[4].nic.mac 	nbTxFrames 	0
+scalar BaseNetwork.node[4].nic.mac 	nbRxFrames 	0
+scalar BaseNetwork.node[4].nic.mac 	nbDroppedFrames 	0
+scalar BaseNetwork.node[4].nic.mac 	nbMissedAcks 	0
+scalar BaseNetwork.node[4].nic.mac 	nbRecvdAcks 	0
+scalar BaseNetwork.node[4].nic.mac 	nbTxAcks 	0
+scalar BaseNetwork.node[4].nic.mac 	nbDuplicates 	0
+scalar BaseNetwork.node[4].nic.mac 	meanBackoff 	0
+scalar BaseNetwork.node[4].nic.mac 	nbBackoffs 	0
+scalar BaseNetwork.node[4].nic.mac 	backoffDurations 	0

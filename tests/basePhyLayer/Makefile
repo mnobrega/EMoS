@@ -1,0 +1,234 @@
+#
+# OMNeT++/OMNEST Makefile for basePhyLayer
+#
+# This file was generated with the command:
+#  opp_makemake -f -o basePhyLayer -O out -u CMDENV -I../../src/base/messages -I../../src/base/modules -I../../src/base/phyLayer -I../testUtils -I../../src/base/utils -I../../src/base/connectionManager -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/modules -L../../out/$(CONFIGNAME)/tests/power/utils -lmiximbase -lmiximmodules -lmiximtestUtils
+#
+
+# Name of target to be created (-o option)
+TARGET = basePhyLayer$(EXE_SUFFIX)
+
+# User interface (uncomment one) (-u option)
+#USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(TKENV_LIBS) $(CMDENV_LIBS)
+USERIF_LIBS = $(CMDENV_LIBS)
+#USERIF_LIBS = $(TKENV_LIBS)
+
+# C++ include paths (with -I)
+INCLUDE_PATH = \
+    -I../../src/base/messages \
+    -I../../src/base/modules \
+    -I../../src/base/phyLayer \
+    -I../testUtils \
+    -I../../src/base/utils \
+    -I../../src/base/connectionManager \
+    -I.
+
+# Additional object and library files to link with
+EXTRA_OBJS =
+
+# Additional libraries (-L, -l options)
+LIBS = -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/modules -L../../out/$(CONFIGNAME)/tests/power/utils  -lmiximbase -lmiximmodules -lmiximtestUtils
+LIBS += -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/power/utils`
+
+# Output directory
+PROJECT_OUTPUT_DIR = ../../out
+PROJECTRELATIVE_PATH = tests/basePhyLayer
+O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
+
+# Object files for local .cc and .msg files
+OBJS = $O/TestMacLayer.o $O/TestPhyLayer.o $O/BasePhyTests.o
+
+# Message files
+MSGFILES =
+
+#------------------------------------------------------------------------------
+
+# Pull in OMNeT++ configuration (Makefile.inc or configuser.vc)
+
+ifneq ("$(OMNETPP_CONFIGFILE)","")
+CONFIGFILE = $(OMNETPP_CONFIGFILE)
+else
+ifneq ("$(OMNETPP_ROOT)","")
+CONFIGFILE = $(OMNETPP_ROOT)/Makefile.inc
+else
+CONFIGFILE = $(shell opp_configfilepath)
+endif
+endif
+
+ifeq ("$(wildcard $(CONFIGFILE))","")
+$(error Config file '$(CONFIGFILE)' does not exist -- add the OMNeT++ bin directory to the path so that opp_configfilepath can be found, or set the OMNETPP_CONFIGFILE variable to point to Makefile.inc)
+endif
+
+include $(CONFIGFILE)
+
+# Simulation kernel and user interface libraries
+OMNETPP_LIB_SUBDIR = $(OMNETPP_LIB_DIR)/$(TOOLCHAIN_NAME)
+OMNETPP_LIBS = -L"$(OMNETPP_LIB_SUBDIR)" -L"$(OMNETPP_LIB_DIR)" -loppmain$D $(USERIF_LIBS) $(KERNEL_LIBS) $(SYS_LIBS)
+
+COPTS = $(CFLAGS)  $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
+MSGCOPTS = $(INCLUDE_PATH)
+
+# we want to recompile everything if COPTS changes,
+# so we store COPTS into $COPTS_FILE and have object
+# files depend on it (except when "make depend" was called)
+COPTS_FILE = $O/.last-copts
+ifneq ($(MAKECMDGOALS),depend)
+ifneq ("$(COPTS)","$(shell cat $(COPTS_FILE) 2>/dev/null || echo '')")
+$(shell $(MKPATH) "$O" && echo "$(COPTS)" >$(COPTS_FILE))
+endif
+endif
+
+#------------------------------------------------------------------------------
+# User-supplied makefile fragment(s)
+# >>>
+# <<<
+#------------------------------------------------------------------------------
+
+# Main target
+all: $O/$(TARGET)
+	$(LN) $O/$(TARGET) .
+
+$O/$(TARGET): $(OBJS)  $(wildcard $(EXTRA_OBJS)) Makefile
+	@$(MKPATH) $O
+	$(CXX) $(LDFLAGS) -o $O/$(TARGET)  $(OBJS) $(EXTRA_OBJS) $(AS_NEEDED_OFF) $(WHOLE_ARCHIVE_ON) $(LIBS) $(WHOLE_ARCHIVE_OFF) $(OMNETPP_LIBS)
+
+.PHONY: all clean cleanall depend msgheaders
+
+.SUFFIXES: .cc
+
+$O/%.o: %.cc $(COPTS_FILE)
+	@$(MKPATH) $(dir $@)
+	$(CXX) -c $(COPTS) -o $@ $<
+
+%_m.cc %_m.h: %.msg
+	$(MSGC) -s _m.cc $(MSGCOPTS) $?
+
+msgheaders: $(MSGFILES:.msg=_m.h)
+
+clean:
+	-rm -rf $O
+	-rm -f basePhyLayer basePhyLayer.exe libbasePhyLayer.so libbasePhyLayer.a libbasePhyLayer.dll libbasePhyLayer.dylib
+	-rm -f ./*_m.cc ./*_m.h
+
+cleanall: clean
+	-rm -rf $(PROJECT_OUTPUT_DIR)
+
+depend:
+	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+$O/BasePhyTests.o: BasePhyTests.cc \
+	../../src/base/connectionManager/ChannelAccess.h \
+	../../src/base/messages/AirFrame_m.h \
+	../../src/base/messages/ChannelSenseRequest_m.h \
+	../../src/base/modules/BaseBattery.h \
+	../../src/base/modules/BaseMobility.h \
+	../../src/base/modules/BaseModule.h \
+	../../src/base/modules/BaseWorldUtility.h \
+	../../src/base/modules/BatteryAccess.h \
+	../../src/base/phyLayer/AnalogueModel.h \
+	../../src/base/phyLayer/BasePhyLayer.h \
+	../../src/base/phyLayer/ChannelInfo.h \
+	../../src/base/phyLayer/ChannelState.h \
+	../../src/base/phyLayer/Decider.h \
+	../../src/base/phyLayer/DeciderToPhyInterface.h \
+	../../src/base/phyLayer/Interpolation.h \
+	../../src/base/phyLayer/MacToPhyInterface.h \
+	../../src/base/phyLayer/Mapping.h \
+	../../src/base/phyLayer/MappingBase.h \
+	../../src/base/phyLayer/MappingUtils.h \
+	../../src/base/phyLayer/PhyUtils.h \
+	../../src/base/phyLayer/Signal_.h \
+	../../src/base/utils/Coord.h \
+	../../src/base/utils/FWMath.h \
+	../../src/base/utils/FindModule.h \
+	../../src/base/utils/HostState.h \
+	../../src/base/utils/MiXiMDefs.h \
+	../../src/base/utils/Move.h \
+	../../src/base/utils/miximkerneldefs.h \
+	BasePhyTests.h \
+	TestDecider.h \
+	TestGlobals.h \
+	TestMacLayer.h \
+	TestPhyLayer.h \
+	../testUtils/OmnetTestBase.h \
+	../testUtils/TestManager.h \
+	../testUtils/TestModule.h \
+	../testUtils/asserts.h
+$O/TestMacLayer.o: TestMacLayer.cc \
+	../../src/base/connectionManager/ChannelAccess.h \
+	../../src/base/messages/AirFrame_m.h \
+	../../src/base/messages/ChannelSenseRequest_m.h \
+	../../src/base/messages/MacPkt_m.h \
+	../../src/base/modules/BaseBattery.h \
+	../../src/base/modules/BaseMobility.h \
+	../../src/base/modules/BaseModule.h \
+	../../src/base/modules/BaseWorldUtility.h \
+	../../src/base/modules/BatteryAccess.h \
+	../../src/base/phyLayer/AnalogueModel.h \
+	../../src/base/phyLayer/BasePhyLayer.h \
+	../../src/base/phyLayer/ChannelInfo.h \
+	../../src/base/phyLayer/ChannelState.h \
+	../../src/base/phyLayer/Decider.h \
+	../../src/base/phyLayer/DeciderToPhyInterface.h \
+	../../src/base/phyLayer/Interpolation.h \
+	../../src/base/phyLayer/MacToPhyControlInfo.h \
+	../../src/base/phyLayer/MacToPhyInterface.h \
+	../../src/base/phyLayer/Mapping.h \
+	../../src/base/phyLayer/MappingBase.h \
+	../../src/base/phyLayer/MappingUtils.h \
+	../../src/base/phyLayer/PhyUtils.h \
+	../../src/base/phyLayer/Signal_.h \
+	../../src/base/utils/Coord.h \
+	../../src/base/utils/FWMath.h \
+	../../src/base/utils/FindModule.h \
+	../../src/base/utils/HostState.h \
+	../../src/base/utils/MiXiMDefs.h \
+	../../src/base/utils/Move.h \
+	../../src/base/utils/SimpleAddress.h \
+	../../src/base/utils/miximkerneldefs.h \
+	TestDecider.h \
+	TestGlobals.h \
+	TestMacLayer.h \
+	TestPhyLayer.h \
+	../testUtils/OmnetTestBase.h \
+	../testUtils/TestManager.h \
+	../testUtils/TestModule.h \
+	../testUtils/asserts.h
+$O/TestPhyLayer.o: TestPhyLayer.cc \
+	../../src/base/connectionManager/ChannelAccess.h \
+	../../src/base/messages/AirFrame_m.h \
+	../../src/base/messages/ChannelSenseRequest_m.h \
+	../../src/base/modules/BaseBattery.h \
+	../../src/base/modules/BaseMobility.h \
+	../../src/base/modules/BaseModule.h \
+	../../src/base/modules/BaseWorldUtility.h \
+	../../src/base/modules/BatteryAccess.h \
+	../../src/base/phyLayer/AnalogueModel.h \
+	../../src/base/phyLayer/BasePhyLayer.h \
+	../../src/base/phyLayer/ChannelInfo.h \
+	../../src/base/phyLayer/ChannelState.h \
+	../../src/base/phyLayer/Decider.h \
+	../../src/base/phyLayer/DeciderToPhyInterface.h \
+	../../src/base/phyLayer/Interpolation.h \
+	../../src/base/phyLayer/MacToPhyInterface.h \
+	../../src/base/phyLayer/Mapping.h \
+	../../src/base/phyLayer/MappingBase.h \
+	../../src/base/phyLayer/MappingUtils.h \
+	../../src/base/phyLayer/PhyUtils.h \
+	../../src/base/phyLayer/Signal_.h \
+	../../src/base/utils/Coord.h \
+	../../src/base/utils/FWMath.h \
+	../../src/base/utils/FindModule.h \
+	../../src/base/utils/HostState.h \
+	../../src/base/utils/MiXiMDefs.h \
+	../../src/base/utils/Move.h \
+	../../src/base/utils/miximkerneldefs.h \
+	TestDecider.h \
+	TestGlobals.h \
+	TestPhyLayer.h \
+	../testUtils/OmnetTestBase.h \
+	../testUtils/TestManager.h \
+	../testUtils/TestModule.h \
+	../testUtils/asserts.h
+

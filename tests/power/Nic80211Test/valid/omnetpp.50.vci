@@ -1,0 +1,57 @@
+file 36182 1333376362                                           
+version 2
+run Ten-0-20110329-15:18:29-9097
+attr configname Ten
+attr datetime 20110329-15:18:29
+attr experiment Ten
+attr inifile omnetpp.ini
+attr iterationvars ""
+attr iterationvars2 $repetition=0
+attr measurement ""
+attr network sim
+attr processid 9097
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+vector 2  sim.host[0].batteryStats  capacity(relative)  ETV
+2	1578 1670 0 1246949 0 14.75 60 0.999380914361 1 59.980555879585 59.961120203728
+vector 8  sim.host[1].batteryStats  capacity(relative)  ETV
+8	3248 1670 0 1246950 0 14.75 60 0.999390833557 1 59.980923939777 59.961855994187
+vector 14  sim.host[2].batteryStats  capacity(relative)  ETV
+14	4918 1718 0 1246951 0 14.75 60 0.999389970607 1 59.980883822317 59.961775795365
+vector 20  sim.host[3].batteryStats  capacity(relative)  ETV
+20	6636 1731 0 1246952 0 14.75 60 0.999382288753 1 59.980618095508 59.961244588639
+vector 26  sim.host[4].batteryStats  capacity(relative)  ETV
+26	8367 1722 0 1246953 0 14.75 60 0.999382266606 1 59.98062530732 59.961259008596
+vector 32  sim.host[5].batteryStats  capacity(relative)  ETV
+32	10089 1727 0 1246954 0 14.75 60 0.999383072701 1 59.980673777629 59.961355915161
+vector 38  sim.host[6].batteryStats  capacity(relative)  ETV
+38	11816 1728 0 1246955 0 14.75 60 0.999397511832 1 59.981164971279 59.962337857816
+vector 44  sim.host[7].batteryStats  capacity(relative)  ETV
+44	13544 1728 0 1246956 0 14.75 60 0.999381086622 1 59.980545895783 59.961100237549
+vector 50  sim.host[8].batteryStats  capacity(relative)  ETV
+50	15272 1726 0 1246957 0 14.75 60 0.999393153774 1 59.981029702912 59.962067436497
+vector 56  sim.host[9].batteryStats  capacity(relative)  ETV
+56	16998 1729 0 1246958 0 14.75 60 0.999373068751 1 59.980317780154 59.960644239535
+vector 62  sim.host[10].batteryStats  capacity(relative)  ETV
+62	18727 1726 0 1246959 0 14.75 60 0.99938473009 1 59.98073796195 59.961484230584
+vector 68  sim.host[11].batteryStats  capacity(relative)  ETV
+68	20453 1723 0 1246960 0 14.75 60 0.999383077899 1 59.980662372312 59.96133311015
+vector 74  sim.host[12].batteryStats  capacity(relative)  ETV
+74	22176 1726 0 1246961 0 14.75 60 0.999392403816 1 59.980958123981 59.96192432516
+vector 80  sim.host[13].batteryStats  capacity(relative)  ETV
+80	23902 1729 0 1246962 0 14.75 60 0.999385485955 1 59.980732693109 59.9614736875
+vector 86  sim.host[14].batteryStats  capacity(relative)  ETV
+86	25631 1724 0 1246963 0 14.75 60 0.999382081476 1 59.980602864372 59.961214139562
+vector 92  sim.host[15].batteryStats  capacity(relative)  ETV
+92	27355 1726 0 1246964 0 14.75 60 0.999391979356 1 59.980980384122 59.961968840726
+vector 98  sim.host[16].batteryStats  capacity(relative)  ETV
+98	29081 1731 0 1246965 0 14.75 60 0.999392182172 1 59.980962436517 59.961932951622
+vector 104  sim.host[17].batteryStats  capacity(relative)  ETV
+104	30812 1786 0 1246966 0 14.75 60 0.999373175308 1 59.980248223873 59.96050515909
+vector 110  sim.host[18].batteryStats  capacity(relative)  ETV
+110	32598 1792 0 1246967 0 14.75 60 0.999384874407 1 59.980715513873 59.961439344475
+vector 116  sim.host[19].batteryStats  capacity(relative)  ETV
+116	34390 1792 0 1246968 0 14.75 60 0.999385145511 1 59.98075385247 59.961515998856
