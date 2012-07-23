@@ -1,0 +1,4 @@
+<obstacles>
+   <poly id="wall#0" type="building" color="#F00" shape="0,51 40,51 40,49 0,49" />
+   <poly id="wall#1" type="building" color="#F00" shape="40,51 42,51 42,100 40,100" />
+</obstacles>

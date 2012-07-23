@@ -18,17 +18,21 @@ INCLUDE_PATH = \
     -I. \
     -IanalogueModel \
     -Iapplication \
+    -Iapplication/HoHuT \
     -Iapplication/ieee80211p \
     -Iapplication/traci \
     -IconnectionManager \
     -Imac \
     -Imac/ieee80211p \
     -Imessages \
+    -Imessages/HoHuT \
     -Imobility \
     -Imobility/traci \
     -Inetw \
+    -Inetw/HoHuT \
     -Inic \
     -Inode \
+    -Inode/HoHuT \
     -Iobstacle \
     -Iphy \
     -Ipower \
@@ -66,6 +70,8 @@ OBJS = \
     $O/application/SensorApplLayer.o \
     $O/application/BurstApplLayerBattery.o \
     $O/application/TestApplication.o \
+    $O/application/HoHuT/StaticNodeAppLayer.o \
+    $O/application/HoHuT/MobileNodeAppLayer.o \
     $O/application/ieee80211p/BaseWaveApplLayer.o \
     $O/application/ieee80211p/TestWaveApplLayer.o \
     $O/application/traci/TraCIDemo.o \
@@ -107,6 +113,7 @@ OBJS = \
     $O/netw/AdaptiveProbabilisticBroadcast.o \
     $O/netw/Flood.o \
     $O/netw/ArpHost.o \
+    $O/netw/HoHuT/WiseRouteHoHuT.o \
     $O/obstacle/Obstacle.o \
     $O/obstacle/ObstacleControl.o \
     $O/phy/PhyLayer.o \
@@ -138,7 +145,8 @@ OBJS = \
     $O/messages/AggrPkt_m.o \
     $O/messages/LMacPkt_m.o \
     $O/messages/Mac80211Pkt_m.o \
-    $O/messages/UWBIRMacPkt_m.o
+    $O/messages/UWBIRMacPkt_m.o \
+    $O/messages/HoHuT/HoHuTApplPkt_m.o
 
 # Message files
 MSGFILES = \
@@ -150,7 +158,8 @@ MSGFILES = \
     messages/AggrPkt.msg \
     messages/LMacPkt.msg \
     messages/Mac80211Pkt.msg \
-    messages/UWBIRMacPkt.msg
+    messages/UWBIRMacPkt.msg \
+    messages/HoHuT/HoHuTApplPkt.msg
 
 #------------------------------------------------------------------------------
 
@@ -223,17 +232,21 @@ clean:
 	-rm -f ./*_m.cc ./*_m.h
 	-rm -f analogueModel/*_m.cc analogueModel/*_m.h
 	-rm -f application/*_m.cc application/*_m.h
+	-rm -f application/HoHuT/*_m.cc application/HoHuT/*_m.h
 	-rm -f application/ieee80211p/*_m.cc application/ieee80211p/*_m.h
 	-rm -f application/traci/*_m.cc application/traci/*_m.h
 	-rm -f connectionManager/*_m.cc connectionManager/*_m.h
 	-rm -f mac/*_m.cc mac/*_m.h
 	-rm -f mac/ieee80211p/*_m.cc mac/ieee80211p/*_m.h
 	-rm -f messages/*_m.cc messages/*_m.h
+	-rm -f messages/HoHuT/*_m.cc messages/HoHuT/*_m.h
 	-rm -f mobility/*_m.cc mobility/*_m.h
 	-rm -f mobility/traci/*_m.cc mobility/traci/*_m.h
 	-rm -f netw/*_m.cc netw/*_m.h
+	-rm -f netw/HoHuT/*_m.cc netw/HoHuT/*_m.h
 	-rm -f nic/*_m.cc nic/*_m.h
 	-rm -f node/*_m.cc node/*_m.h
+	-rm -f node/HoHuT/*_m.cc node/HoHuT/*_m.h
 	-rm -f obstacle/*_m.cc obstacle/*_m.h
 	-rm -f phy/*_m.cc phy/*_m.h
 	-rm -f power/*_m.cc power/*_m.h
@@ -247,7 +260,7 @@ cleanall: clean
 	-rm -rf $(PROJECT_OUTPUT_DIR)
 
 depend:
-	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc analogueModel/*.cc application/*.cc application/ieee80211p/*.cc application/traci/*.cc connectionManager/*.cc mac/*.cc mac/ieee80211p/*.cc messages/*.cc mobility/*.cc mobility/traci/*.cc netw/*.cc nic/*.cc node/*.cc obstacle/*.cc phy/*.cc power/*.cc power/battery/*.cc transport/*.cc utility/*.cc world/*.cc world/annotations/*.cc
+	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc analogueModel/*.cc application/*.cc application/HoHuT/*.cc application/ieee80211p/*.cc application/traci/*.cc connectionManager/*.cc mac/*.cc mac/ieee80211p/*.cc messages/*.cc messages/HoHuT/*.cc mobility/*.cc mobility/traci/*.cc netw/*.cc netw/HoHuT/*.cc nic/*.cc node/*.cc node/HoHuT/*.cc obstacle/*.cc phy/*.cc power/*.cc power/battery/*.cc transport/*.cc utility/*.cc world/*.cc world/annotations/*.cc
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 $O/analogueModel/BreakpointPathlossModel.o: analogueModel/BreakpointPathlossModel.cc \
@@ -472,6 +485,26 @@ $O/application/TrafficGen.o: application/TrafficGen.cc \
 	../base/utils/miximkerneldefs.h \
 	application/TrafficGen.h \
 	utility/Packet.h
+$O/application/HoHuT/MobileNodeAppLayer.o: application/HoHuT/MobileNodeAppLayer.cc \
+	../base/messages/ApplPkt_m.h \
+	../base/modules/BaseModule.h \
+	../base/utils/HostState.h \
+	../base/utils/MiXiMDefs.h \
+	../base/utils/NetwControlInfo.h \
+	../base/utils/SimpleAddress.h \
+	../base/utils/miximkerneldefs.h \
+	application/HoHuT/MobileNodeAppLayer.h \
+	messages/HoHuT/HoHuTApplPkt_m.h
+$O/application/HoHuT/StaticNodeAppLayer.o: application/HoHuT/StaticNodeAppLayer.cc \
+	../base/messages/ApplPkt_m.h \
+	../base/modules/BaseModule.h \
+	../base/utils/HostState.h \
+	../base/utils/MiXiMDefs.h \
+	../base/utils/NetwControlInfo.h \
+	../base/utils/SimpleAddress.h \
+	../base/utils/miximkerneldefs.h \
+	application/HoHuT/StaticNodeAppLayer.h \
+	messages/HoHuT/HoHuTApplPkt_m.h
 $O/application/ieee80211p/BaseWaveApplLayer.o: application/ieee80211p/BaseWaveApplLayer.cc \
 	../base/connectionManager/ChannelAccess.h \
 	../base/messages/MacPkt_m.h \
@@ -1001,6 +1034,12 @@ $O/messages/WiseRoutePkt_m.o: messages/WiseRoutePkt_m.cc \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
 	messages/WiseRoutePkt_m.h
+$O/messages/HoHuT/HoHuTApplPkt_m.o: messages/HoHuT/HoHuTApplPkt_m.cc \
+	../base/messages/ApplPkt_m.h \
+	../base/utils/MiXiMDefs.h \
+	../base/utils/SimpleAddress.h \
+	../base/utils/miximkerneldefs.h \
+	messages/HoHuT/HoHuTApplPkt_m.h
 $O/mobility/ANSimMobility.o: mobility/ANSimMobility.cc \
 	../base/modules/BaseBattery.h \
 	../base/modules/BaseMobility.h \
@@ -1338,6 +1377,34 @@ $O/netw/WiseRoute.o: netw/WiseRoute.cc \
 	../base/utils/miximkerneldefs.h \
 	messages/WiseRoutePkt_m.h \
 	netw/WiseRoute.h \
+	utility/Packet.h \
+	utility/SimTracer.h
+$O/netw/HoHuT/WiseRouteHoHuT.o: netw/HoHuT/WiseRouteHoHuT.cc \
+	../base/connectionManager/ChannelAccess.h \
+	../base/messages/ApplPkt_m.h \
+	../base/messages/NetwPkt_m.h \
+	../base/modules/ArpInterface.h \
+	../base/modules/BaseBattery.h \
+	../base/modules/BaseLayer.h \
+	../base/modules/BaseMobility.h \
+	../base/modules/BaseModule.h \
+	../base/modules/BaseNetwLayer.h \
+	../base/modules/BaseWorldUtility.h \
+	../base/modules/BatteryAccess.h \
+	../base/utils/Coord.h \
+	../base/utils/FWMath.h \
+	../base/utils/FindModule.h \
+	../base/utils/HostState.h \
+	../base/utils/MacToNetwControlInfo.h \
+	../base/utils/MiXiMDefs.h \
+	../base/utils/Move.h \
+	../base/utils/NetwControlInfo.h \
+	../base/utils/PassedMessage.h \
+	../base/utils/SimpleAddress.h \
+	../base/utils/miximkerneldefs.h \
+	messages/HoHuT/HoHuTApplPkt_m.h \
+	messages/WiseRoutePkt_m.h \
+	netw/HoHuT/WiseRouteHoHuT.h \
 	utility/Packet.h \
 	utility/SimTracer.h
 $O/obstacle/Obstacle.o: obstacle/Obstacle.cc \
