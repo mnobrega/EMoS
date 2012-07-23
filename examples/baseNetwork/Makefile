@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for baseNetwork
 #
 # This file was generated with the command:
-#  opp_makemake -f -o baseNetwork -O out -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/modules -L../../out/$(CONFIGNAME)/tests/power/utils -lmiximbase -lmiximmodules
+#  opp_makemake -f -o baseNetwork -O out -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/src/modules -lmiximbase -lmiximmodules
 #
 
 # Name of target to be created (-o option)
@@ -20,8 +20,8 @@ INCLUDE_PATH = -I.
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/modules -L../../out/$(CONFIGNAME)/tests/power/utils  -lmiximbase -lmiximmodules
-LIBS += -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/power/utils`
+LIBS = -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/src/modules  -lmiximbase -lmiximmodules
+LIBS += -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/power/utils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/modules`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out

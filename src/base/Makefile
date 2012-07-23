@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libmiximbase
 #
 # This file was generated with the command:
-#  opp_makemake -f --deep --make-so -o miximbase -O out -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/modules -L../../out/$(CONFIGNAME)/tests/power/utils
+#  opp_makemake -f --deep --make-so -o miximbase -O out -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/modules
 #
 
 # Name of target to be created (-o option)
@@ -22,8 +22,8 @@ INCLUDE_PATH = \
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/modules -L../../out/$(CONFIGNAME)/tests/power/utils
-LIBS += -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/power/utils`
+LIBS = -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/modules
+LIBS += -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/power/utils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/modules`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out

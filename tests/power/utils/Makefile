@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libpowerTestUtils
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o powerTestUtils -O out -I../../../src/base/messages -I../../../src/base/phyLayer -I../../../src/base/modules -I../../../src/base/utils -I../../../src/modules/power/battery -I../../../src/base/connectionManager -L../../../out/$(CONFIGNAME)/src/base -L../../../out/$(CONFIGNAME)/tests/testUtils -L../../../out/$(CONFIGNAME)/src/modules -lmiximbase -lmiximmodules
+#  opp_makemake -f --make-so -o powerTestUtils -O out -I../../../src/base/connectionManager -I../../../src/modules/power/battery -I../../../src/base/messages -I../../../src/base/phyLayer -I../../../src/base/modules -I../../../src/base/utils -L../../../out/$(CONFIGNAME)/tests/testUtils -L../../../out/$(CONFIGNAME)/src/base -L../../../out/$(CONFIGNAME)/src/modules -lmiximbase -lmiximmodules
 #
 
 # Name of target to be created (-o option)
@@ -10,20 +10,20 @@ TARGET = libpowerTestUtils$(SHARED_LIB_SUFFIX)
 
 # C++ include paths (with -I)
 INCLUDE_PATH = \
+    -I../../../src/base/connectionManager \
+    -I../../../src/modules/power/battery \
     -I../../../src/base/messages \
     -I../../../src/base/phyLayer \
     -I../../../src/base/modules \
     -I../../../src/base/utils \
-    -I../../../src/modules/power/battery \
-    -I../../../src/base/connectionManager \
     -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../../out/$(CONFIGNAME)/src/base -L../../../out/$(CONFIGNAME)/tests/testUtils -L../../../out/$(CONFIGNAME)/src/modules  -lmiximbase -lmiximmodules
-LIBS += -Wl,-rpath,`abspath ../../../out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../../../out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../../out/$(CONFIGNAME)/src/modules`
+LIBS = -L../../../out/$(CONFIGNAME)/tests/testUtils -L../../../out/$(CONFIGNAME)/src/base -L../../../out/$(CONFIGNAME)/src/modules  -lmiximbase -lmiximmodules
+LIBS += -Wl,-rpath,`abspath ../../../out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../../out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../../../out/$(CONFIGNAME)/src/modules`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../../out

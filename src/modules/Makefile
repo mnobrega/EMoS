@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libmiximmodules
 #
 # This file was generated with the command:
-#  opp_makemake -f --deep --make-so -o miximmodules -O out -I../base/messages -I../base/modules -I../base/phyLayer -I../base/utils -I../base/connectionManager -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/tests/power/utils -lmiximbase
+#  opp_makemake -f --deep --make-so -o miximmodules -O out -I../base/connectionManager -I../base/messages -I../base/phyLayer -I../base/modules -I../base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -lmiximbase
 #
 
 # Name of target to be created (-o option)
@@ -10,11 +10,11 @@ TARGET = libmiximmodules$(SHARED_LIB_SUFFIX)
 
 # C++ include paths (with -I)
 INCLUDE_PATH = \
-    -I../base/messages \
-    -I../base/modules \
-    -I../base/phyLayer \
-    -I../base/utils \
     -I../base/connectionManager \
+    -I../base/messages \
+    -I../base/phyLayer \
+    -I../base/modules \
+    -I../base/utils \
     -I. \
     -IanalogueModel \
     -Iapplication \
@@ -46,8 +46,8 @@ INCLUDE_PATH = \
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/tests/power/utils  -lmiximbase
-LIBS += -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/power/utils`
+LIBS = -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base  -lmiximbase
+LIBS += -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/power/utils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/base`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out

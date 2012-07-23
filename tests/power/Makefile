@@ -1,8 +1,8 @@
 #
-# OMNeT++/OMNEST Makefile for mixim-hohut
+# OMNeT++/OMNEST Makefile for mixim
 #
 # This file was generated with the command:
-#  opp_makemake -f --nolink -O out -d Nic80211Test -d deviceTest -d deviceTestAccts -d utils -d deviceTestMulti -d deviceTestAll -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/modules -L../../out/$(CONFIGNAME)/tests/power/utils
+#  opp_makemake -f --nolink -O out -d deviceTestAll -d utils -d deviceTest -d deviceTestMulti -d Nic80211Test -d deviceTestAccts -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/src/modules
 #
 
 # C++ include paths (with -I)
@@ -71,33 +71,33 @@ deviceTest_dir deviceTestAccts_dir deviceTestAll_dir deviceTestMulti_dir Nic8021
 all: $(OBJS) submakedirs Makefile
 	@# Do nothing
 
-submakedirs:  Nic80211Test_dir deviceTest_dir deviceTestAccts_dir utils_dir deviceTestMulti_dir deviceTestAll_dir
+submakedirs:  deviceTestAll_dir utils_dir deviceTest_dir deviceTestMulti_dir Nic80211Test_dir deviceTestAccts_dir
 
-.PHONY: all clean cleanall depend msgheaders  Nic80211Test deviceTest deviceTestAccts utils deviceTestMulti deviceTestAll
-Nic80211Test: Nic80211Test_dir
-deviceTest: deviceTest_dir
-deviceTestAccts: deviceTestAccts_dir
-utils: utils_dir
-deviceTestMulti: deviceTestMulti_dir
+.PHONY: all clean cleanall depend msgheaders  deviceTestAll utils deviceTest deviceTestMulti Nic80211Test deviceTestAccts
 deviceTestAll: deviceTestAll_dir
+utils: utils_dir
+deviceTest: deviceTest_dir
+deviceTestMulti: deviceTestMulti_dir
+Nic80211Test: Nic80211Test_dir
+deviceTestAccts: deviceTestAccts_dir
 
-Nic80211Test_dir:
-	cd Nic80211Test && $(MAKE) all
-
-deviceTest_dir:
-	cd deviceTest && $(MAKE) all
-
-deviceTestAccts_dir:
-	cd deviceTestAccts && $(MAKE) all
+deviceTestAll_dir:
+	cd deviceTestAll && $(MAKE) all
 
 utils_dir:
 	cd utils && $(MAKE) all
 
+deviceTest_dir:
+	cd deviceTest && $(MAKE) all
+
 deviceTestMulti_dir:
 	cd deviceTestMulti && $(MAKE) all
 
-deviceTestAll_dir:
-	cd deviceTestAll && $(MAKE) all
+Nic80211Test_dir:
+	cd Nic80211Test && $(MAKE) all
+
+deviceTestAccts_dir:
+	cd deviceTestAccts && $(MAKE) all
 
 .SUFFIXES: .cc
 
@@ -109,36 +109,36 @@ $O/%.o: %.cc $(COPTS_FILE)
 	$(MSGC) -s _m.cc $(MSGCOPTS) $?
 
 msgheaders: $(MSGFILES:.msg=_m.h)
-	cd Nic80211Test && $(MAKE) msgheaders
-	cd deviceTest && $(MAKE) msgheaders
-	cd deviceTestAccts && $(MAKE) msgheaders
-	cd utils && $(MAKE) msgheaders
-	cd deviceTestMulti && $(MAKE) msgheaders
 	cd deviceTestAll && $(MAKE) msgheaders
+	cd utils && $(MAKE) msgheaders
+	cd deviceTest && $(MAKE) msgheaders
+	cd deviceTestMulti && $(MAKE) msgheaders
+	cd Nic80211Test && $(MAKE) msgheaders
+	cd deviceTestAccts && $(MAKE) msgheaders
 
 clean:
 	-rm -rf $O
-	-rm -f mixim-hohut mixim-hohut.exe libmixim-hohut.so libmixim-hohut.a libmixim-hohut.dll libmixim-hohut.dylib
+	-rm -f mixim mixim.exe libmixim.so libmixim.a libmixim.dll libmixim.dylib
 	-rm -f ./*_m.cc ./*_m.h
 
-	-cd Nic80211Test && $(MAKE) clean
-	-cd deviceTest && $(MAKE) clean
-	-cd deviceTestAccts && $(MAKE) clean
-	-cd utils && $(MAKE) clean
-	-cd deviceTestMulti && $(MAKE) clean
 	-cd deviceTestAll && $(MAKE) clean
+	-cd utils && $(MAKE) clean
+	-cd deviceTest && $(MAKE) clean
+	-cd deviceTestMulti && $(MAKE) clean
+	-cd Nic80211Test && $(MAKE) clean
+	-cd deviceTestAccts && $(MAKE) clean
 
 cleanall: clean
 	-rm -rf $(PROJECT_OUTPUT_DIR)
 
 depend:
 	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc
-	-cd Nic80211Test && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd deviceTest && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd deviceTestAccts && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd utils && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd deviceTestMulti && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd deviceTestAll && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd utils && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd deviceTest && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd deviceTestMulti && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd Nic80211Test && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd deviceTestAccts && if [ -f Makefile ]; then $(MAKE) depend; fi
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for nicTest
 #
 # This file was generated with the command:
-#  opp_makemake -f -o nicTest -O out -u CMDENV -I../../src/modules -I../../src/modules/analogueModel -I../../src/modules/messages -I../../src/modules/mac -I../../src/modules/utility -I../../src/modules/mac/ieee80211p -I../../src/base/connectionManager -I../../src/modules/obstacle -I../../src/base/messages -I../../src/modules/phy -I../../src/base/modules -I../../src/base/phyLayer -I../../src/base/utils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/modules -L../../out/$(CONFIGNAME)/tests/power/utils -lmiximbase -lmiximmodules -lmiximtestUtils
+#  opp_makemake -f -o nicTest -O out -u CMDENV -I../../src/base/messages -I../../src/modules/phy -I../../src/modules/utility -I../../src/modules -I../../src/modules/analogueModel -I../../src/modules/messages -I../../src/base/connectionManager -I../../src/modules/obstacle -I../../src/modules/mac -I../../src/base/phyLayer -I../../src/base/modules -I../../src/modules/mac/ieee80211p -I../../src/base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/src/modules -lmiximbase -lmiximmodules -lmiximtestUtils
 #
 
 # Name of target to be created (-o option)
@@ -15,18 +15,18 @@ USERIF_LIBS = $(CMDENV_LIBS)
 
 # C++ include paths (with -I)
 INCLUDE_PATH = \
+    -I../../src/base/messages \
+    -I../../src/modules/phy \
+    -I../../src/modules/utility \
     -I../../src/modules \
     -I../../src/modules/analogueModel \
     -I../../src/modules/messages \
-    -I../../src/modules/mac \
-    -I../../src/modules/utility \
-    -I../../src/modules/mac/ieee80211p \
     -I../../src/base/connectionManager \
     -I../../src/modules/obstacle \
-    -I../../src/base/messages \
-    -I../../src/modules/phy \
-    -I../../src/base/modules \
+    -I../../src/modules/mac \
     -I../../src/base/phyLayer \
+    -I../../src/base/modules \
+    -I../../src/modules/mac/ieee80211p \
     -I../../src/base/utils \
     -I.
 
@@ -34,8 +34,8 @@ INCLUDE_PATH = \
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/modules -L../../out/$(CONFIGNAME)/tests/power/utils  -lmiximbase -lmiximmodules -lmiximtestUtils
-LIBS += -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/power/utils`
+LIBS = -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/src/modules  -lmiximbase -lmiximmodules -lmiximtestUtils
+LIBS += -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/power/utils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/src/modules`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out

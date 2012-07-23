@@ -1,3 +1,3 @@
-package mixim_hohut;
+package org.mixim;
 
 @license(LGPL);

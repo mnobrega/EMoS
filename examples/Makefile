@@ -1,8 +1,8 @@
 #
-# OMNeT++/OMNEST Makefile for mixim-hohut
+# OMNeT++/OMNEST Makefile for mixim
 #
 # This file was generated with the command:
-#  opp_makemake -f --nolink -O out -d ieee802154a -d veins -d BaseMoBANNetwork -d ieee802154Narrow -d obstacles -d baseNetwork -d HoHuT -d ieee80211p -d traci_launchd -d multiConnectionManager -d bmac -d WSNRouting -d analogueModels -d twoRayInterference -d CSMAMac -d lmac -d Mac80211 -L../out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/tests/testUtils -L../out/$(CONFIGNAME)/src/modules -L../out/$(CONFIGNAME)/tests/power/utils
+#  opp_makemake -f --nolink -O out -d Mac80211 -d ieee80211p -d multiConnectionManager -d CSMAMac -d bmac -d obstacles -d lmac -d BaseMoBANNetwork -d veins -d ieee802154a -d traci_launchd -d baseNetwork -d WSNRouting -d ieee802154Narrow -d twoRayInterference -d HoHuT -d analogueModels -L../out/$(CONFIGNAME)/tests/power/utils -L../out/$(CONFIGNAME)/tests/testUtils -L../out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/src/modules
 #
 
 # C++ include paths (with -I)
@@ -63,77 +63,77 @@ endif
 all: $(OBJS) submakedirs Makefile
 	@# Do nothing
 
-submakedirs:  ieee802154a_dir veins_dir BaseMoBANNetwork_dir ieee802154Narrow_dir obstacles_dir baseNetwork_dir HoHuT_dir ieee80211p_dir traci_launchd_dir multiConnectionManager_dir bmac_dir WSNRouting_dir analogueModels_dir twoRayInterference_dir CSMAMac_dir lmac_dir Mac80211_dir
+submakedirs:  Mac80211_dir ieee80211p_dir multiConnectionManager_dir CSMAMac_dir bmac_dir obstacles_dir lmac_dir BaseMoBANNetwork_dir veins_dir ieee802154a_dir traci_launchd_dir baseNetwork_dir WSNRouting_dir ieee802154Narrow_dir twoRayInterference_dir HoHuT_dir analogueModels_dir
 
-.PHONY: all clean cleanall depend msgheaders  ieee802154a veins BaseMoBANNetwork ieee802154Narrow obstacles baseNetwork HoHuT ieee80211p traci_launchd multiConnectionManager bmac WSNRouting analogueModels twoRayInterference CSMAMac lmac Mac80211
-ieee802154a: ieee802154a_dir
-veins: veins_dir
-BaseMoBANNetwork: BaseMoBANNetwork_dir
-ieee802154Narrow: ieee802154Narrow_dir
-obstacles: obstacles_dir
-baseNetwork: baseNetwork_dir
-HoHuT: HoHuT_dir
-ieee80211p: ieee80211p_dir
-traci_launchd: traci_launchd_dir
-multiConnectionManager: multiConnectionManager_dir
-bmac: bmac_dir
-WSNRouting: WSNRouting_dir
-analogueModels: analogueModels_dir
-twoRayInterference: twoRayInterference_dir
-CSMAMac: CSMAMac_dir
-lmac: lmac_dir
+.PHONY: all clean cleanall depend msgheaders  Mac80211 ieee80211p multiConnectionManager CSMAMac bmac obstacles lmac BaseMoBANNetwork veins ieee802154a traci_launchd baseNetwork WSNRouting ieee802154Narrow twoRayInterference HoHuT analogueModels
 Mac80211: Mac80211_dir
+ieee80211p: ieee80211p_dir
+multiConnectionManager: multiConnectionManager_dir
+CSMAMac: CSMAMac_dir
+bmac: bmac_dir
+obstacles: obstacles_dir
+lmac: lmac_dir
+BaseMoBANNetwork: BaseMoBANNetwork_dir
+veins: veins_dir
+ieee802154a: ieee802154a_dir
+traci_launchd: traci_launchd_dir
+baseNetwork: baseNetwork_dir
+WSNRouting: WSNRouting_dir
+ieee802154Narrow: ieee802154Narrow_dir
+twoRayInterference: twoRayInterference_dir
+HoHuT: HoHuT_dir
+analogueModels: analogueModels_dir
 
-ieee802154a_dir:
-	cd ieee802154a && $(MAKE) all
-
-veins_dir:
-	cd veins && $(MAKE) all
-
-BaseMoBANNetwork_dir:
-	cd BaseMoBANNetwork && $(MAKE) all
-
-ieee802154Narrow_dir:
-	cd ieee802154Narrow && $(MAKE) all
-
-obstacles_dir:
-	cd obstacles && $(MAKE) all
-
-baseNetwork_dir:
-	cd baseNetwork && $(MAKE) all
-
-HoHuT_dir:
-	cd HoHuT && $(MAKE) all
+Mac80211_dir:
+	cd Mac80211 && $(MAKE) all
 
 ieee80211p_dir:
 	cd ieee80211p && $(MAKE) all
 
-traci_launchd_dir:
-	cd traci_launchd && $(MAKE) all
-
 multiConnectionManager_dir:
 	cd multiConnectionManager && $(MAKE) all
-
-bmac_dir:
-	cd bmac && $(MAKE) all
-
-WSNRouting_dir:
-	cd WSNRouting && $(MAKE) all
-
-analogueModels_dir:
-	cd analogueModels && $(MAKE) all
-
-twoRayInterference_dir:
-	cd twoRayInterference && $(MAKE) all
 
 CSMAMac_dir:
 	cd CSMAMac && $(MAKE) all
 
+bmac_dir:
+	cd bmac && $(MAKE) all
+
+obstacles_dir:
+	cd obstacles && $(MAKE) all
+
 lmac_dir:
 	cd lmac && $(MAKE) all
 
-Mac80211_dir:
-	cd Mac80211 && $(MAKE) all
+BaseMoBANNetwork_dir:
+	cd BaseMoBANNetwork && $(MAKE) all
+
+veins_dir:
+	cd veins && $(MAKE) all
+
+ieee802154a_dir:
+	cd ieee802154a && $(MAKE) all
+
+traci_launchd_dir:
+	cd traci_launchd && $(MAKE) all
+
+baseNetwork_dir:
+	cd baseNetwork && $(MAKE) all
+
+WSNRouting_dir:
+	cd WSNRouting && $(MAKE) all
+
+ieee802154Narrow_dir:
+	cd ieee802154Narrow && $(MAKE) all
+
+twoRayInterference_dir:
+	cd twoRayInterference && $(MAKE) all
+
+HoHuT_dir:
+	cd HoHuT && $(MAKE) all
+
+analogueModels_dir:
+	cd analogueModels && $(MAKE) all
 
 .SUFFIXES: .cc
 
@@ -145,69 +145,69 @@ $O/%.o: %.cc $(COPTS_FILE)
 	$(MSGC) -s _m.cc $(MSGCOPTS) $?
 
 msgheaders: $(MSGFILES:.msg=_m.h)
-	cd ieee802154a && $(MAKE) msgheaders
-	cd veins && $(MAKE) msgheaders
-	cd BaseMoBANNetwork && $(MAKE) msgheaders
-	cd ieee802154Narrow && $(MAKE) msgheaders
-	cd obstacles && $(MAKE) msgheaders
-	cd baseNetwork && $(MAKE) msgheaders
-	cd HoHuT && $(MAKE) msgheaders
-	cd ieee80211p && $(MAKE) msgheaders
-	cd traci_launchd && $(MAKE) msgheaders
-	cd multiConnectionManager && $(MAKE) msgheaders
-	cd bmac && $(MAKE) msgheaders
-	cd WSNRouting && $(MAKE) msgheaders
-	cd analogueModels && $(MAKE) msgheaders
-	cd twoRayInterference && $(MAKE) msgheaders
-	cd CSMAMac && $(MAKE) msgheaders
-	cd lmac && $(MAKE) msgheaders
 	cd Mac80211 && $(MAKE) msgheaders
+	cd ieee80211p && $(MAKE) msgheaders
+	cd multiConnectionManager && $(MAKE) msgheaders
+	cd CSMAMac && $(MAKE) msgheaders
+	cd bmac && $(MAKE) msgheaders
+	cd obstacles && $(MAKE) msgheaders
+	cd lmac && $(MAKE) msgheaders
+	cd BaseMoBANNetwork && $(MAKE) msgheaders
+	cd veins && $(MAKE) msgheaders
+	cd ieee802154a && $(MAKE) msgheaders
+	cd traci_launchd && $(MAKE) msgheaders
+	cd baseNetwork && $(MAKE) msgheaders
+	cd WSNRouting && $(MAKE) msgheaders
+	cd ieee802154Narrow && $(MAKE) msgheaders
+	cd twoRayInterference && $(MAKE) msgheaders
+	cd HoHuT && $(MAKE) msgheaders
+	cd analogueModels && $(MAKE) msgheaders
 
 clean:
 	-rm -rf $O
-	-rm -f mixim-hohut mixim-hohut.exe libmixim-hohut.so libmixim-hohut.a libmixim-hohut.dll libmixim-hohut.dylib
+	-rm -f mixim mixim.exe libmixim.so libmixim.a libmixim.dll libmixim.dylib
 	-rm -f ./*_m.cc ./*_m.h
 
-	-cd ieee802154a && $(MAKE) clean
-	-cd veins && $(MAKE) clean
-	-cd BaseMoBANNetwork && $(MAKE) clean
-	-cd ieee802154Narrow && $(MAKE) clean
-	-cd obstacles && $(MAKE) clean
-	-cd baseNetwork && $(MAKE) clean
-	-cd HoHuT && $(MAKE) clean
-	-cd ieee80211p && $(MAKE) clean
-	-cd traci_launchd && $(MAKE) clean
-	-cd multiConnectionManager && $(MAKE) clean
-	-cd bmac && $(MAKE) clean
-	-cd WSNRouting && $(MAKE) clean
-	-cd analogueModels && $(MAKE) clean
-	-cd twoRayInterference && $(MAKE) clean
-	-cd CSMAMac && $(MAKE) clean
-	-cd lmac && $(MAKE) clean
 	-cd Mac80211 && $(MAKE) clean
+	-cd ieee80211p && $(MAKE) clean
+	-cd multiConnectionManager && $(MAKE) clean
+	-cd CSMAMac && $(MAKE) clean
+	-cd bmac && $(MAKE) clean
+	-cd obstacles && $(MAKE) clean
+	-cd lmac && $(MAKE) clean
+	-cd BaseMoBANNetwork && $(MAKE) clean
+	-cd veins && $(MAKE) clean
+	-cd ieee802154a && $(MAKE) clean
+	-cd traci_launchd && $(MAKE) clean
+	-cd baseNetwork && $(MAKE) clean
+	-cd WSNRouting && $(MAKE) clean
+	-cd ieee802154Narrow && $(MAKE) clean
+	-cd twoRayInterference && $(MAKE) clean
+	-cd HoHuT && $(MAKE) clean
+	-cd analogueModels && $(MAKE) clean
 
 cleanall: clean
 	-rm -rf $(PROJECT_OUTPUT_DIR)
 
 depend:
 	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc
-	-cd ieee802154a && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd veins && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd BaseMoBANNetwork && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd ieee802154Narrow && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd obstacles && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd baseNetwork && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd HoHuT && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd ieee80211p && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd traci_launchd && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd multiConnectionManager && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd bmac && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd WSNRouting && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd analogueModels && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd twoRayInterference && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd CSMAMac && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd lmac && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd Mac80211 && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd ieee80211p && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd multiConnectionManager && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd CSMAMac && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd bmac && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd obstacles && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd lmac && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd BaseMoBANNetwork && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd veins && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd ieee802154a && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd traci_launchd && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd baseNetwork && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd WSNRouting && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd ieee802154Narrow && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd twoRayInterference && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd HoHuT && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd analogueModels && if [ -f Makefile ]; then $(MAKE) depend; fi
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

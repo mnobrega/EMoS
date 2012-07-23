@@ -1,8 +1,8 @@
 #
-# OMNeT++/OMNEST Makefile for mixim-hohut
+# OMNeT++/OMNEST Makefile for mixim
 #
 # This file was generated with the command:
-#  opp_makemake -f --nolink -O out -d tests -d src/base -d examples -d src/modules -L./out/$(CONFIGNAME)/src/base -L./out/$(CONFIGNAME)/tests/testUtils -L./out/$(CONFIGNAME)/src/modules -L./out/$(CONFIGNAME)/tests/power/utils
+#  opp_makemake -f --nolink -O out -d src/base -d src/modules -d examples -d tests -L./out/$(CONFIGNAME)/tests/power/utils -L./out/$(CONFIGNAME)/tests/testUtils -L./out/$(CONFIGNAME)/src/base -L./out/$(CONFIGNAME)/src/modules
 #
 
 # C++ include paths (with -I)
@@ -69,25 +69,25 @@ src__modules_dir: src__base_dir
 all: $(OBJS) submakedirs Makefile
 	@# Do nothing
 
-submakedirs:  tests_dir src__base_dir examples_dir src__modules_dir
+submakedirs:  src__base_dir src__modules_dir examples_dir tests_dir
 
-.PHONY: all clean cleanall depend msgheaders  tests src__base examples src__modules
-tests: tests_dir
+.PHONY: all clean cleanall depend msgheaders  src__base src__modules examples tests
 src__base: src__base_dir
-examples: examples_dir
 src__modules: src__modules_dir
-
-tests_dir:
-	cd tests && $(MAKE) all
+examples: examples_dir
+tests: tests_dir
 
 src__base_dir:
 	cd src/base && $(MAKE) all
 
+src__modules_dir:
+	cd src/modules && $(MAKE) all
+
 examples_dir:
 	cd examples && $(MAKE) all
 
-src__modules_dir:
-	cd src/modules && $(MAKE) all
+tests_dir:
+	cd tests && $(MAKE) all
 
 .SUFFIXES: .cc
 
@@ -99,30 +99,30 @@ $O/%.o: %.cc $(COPTS_FILE)
 	$(MSGC) -s _m.cc $(MSGCOPTS) $?
 
 msgheaders: $(MSGFILES:.msg=_m.h)
-	cd tests && $(MAKE) msgheaders
 	cd src/base && $(MAKE) msgheaders
-	cd examples && $(MAKE) msgheaders
 	cd src/modules && $(MAKE) msgheaders
+	cd examples && $(MAKE) msgheaders
+	cd tests && $(MAKE) msgheaders
 
 clean:
 	-rm -rf $O
-	-rm -f mixim-hohut mixim-hohut.exe libmixim-hohut.so libmixim-hohut.a libmixim-hohut.dll libmixim-hohut.dylib
+	-rm -f mixim mixim.exe libmixim.so libmixim.a libmixim.dll libmixim.dylib
 	-rm -f ./*_m.cc ./*_m.h
 
-	-cd tests && $(MAKE) clean
 	-cd src/base && $(MAKE) clean
-	-cd examples && $(MAKE) clean
 	-cd src/modules && $(MAKE) clean
+	-cd examples && $(MAKE) clean
+	-cd tests && $(MAKE) clean
 
 cleanall: clean
 	-rm -rf $(PROJECT_OUTPUT_DIR)
 
 depend:
 	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc
-	-cd tests && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd src/base && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd examples && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd src/modules && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd examples && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd tests && if [ -f Makefile ]; then $(MAKE) depend; fi
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

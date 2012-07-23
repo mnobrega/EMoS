@@ -1,8 +1,8 @@
 #
-# OMNeT++/OMNEST Makefile for mixim-hohut
+# OMNeT++/OMNEST Makefile for mixim
 #
 # This file was generated with the command:
-#  opp_makemake -f --nolink -O out -d baseMobility -d nicTest -d decider -d coord -d traci -d basePhyLayer -d testUtils -d power -d mapping -d channelInfo -d blackboard -d connectionManager -d radioState -L../out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/tests/testUtils -L../out/$(CONFIGNAME)/src/modules -L../out/$(CONFIGNAME)/tests/power/utils
+#  opp_makemake -f --nolink -O out -d power -d channelInfo -d decider -d blackboard -d coord -d basePhyLayer -d radioState -d connectionManager -d testUtils -d traci -d nicTest -d baseMobility -d mapping -L../out/$(CONFIGNAME)/tests/power/utils -L../out/$(CONFIGNAME)/tests/testUtils -L../out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/src/modules
 #
 
 # C++ include paths (with -I)
@@ -75,61 +75,61 @@ baseMobility_dir basePhyLayer_dir blackboard_dir channelInfo_dir connectionManag
 all: $(OBJS) submakedirs Makefile
 	@# Do nothing
 
-submakedirs:  baseMobility_dir nicTest_dir decider_dir coord_dir traci_dir basePhyLayer_dir testUtils_dir power_dir mapping_dir channelInfo_dir blackboard_dir connectionManager_dir radioState_dir
+submakedirs:  power_dir channelInfo_dir decider_dir blackboard_dir coord_dir basePhyLayer_dir radioState_dir connectionManager_dir testUtils_dir traci_dir nicTest_dir baseMobility_dir mapping_dir
 
-.PHONY: all clean cleanall depend msgheaders  baseMobility nicTest decider coord traci basePhyLayer testUtils power mapping channelInfo blackboard connectionManager radioState
-baseMobility: baseMobility_dir
-nicTest: nicTest_dir
-decider: decider_dir
-coord: coord_dir
-traci: traci_dir
-basePhyLayer: basePhyLayer_dir
-testUtils: testUtils_dir
+.PHONY: all clean cleanall depend msgheaders  power channelInfo decider blackboard coord basePhyLayer radioState connectionManager testUtils traci nicTest baseMobility mapping
 power: power_dir
-mapping: mapping_dir
 channelInfo: channelInfo_dir
+decider: decider_dir
 blackboard: blackboard_dir
-connectionManager: connectionManager_dir
+coord: coord_dir
+basePhyLayer: basePhyLayer_dir
 radioState: radioState_dir
-
-baseMobility_dir:
-	cd baseMobility && $(MAKE) all
-
-nicTest_dir:
-	cd nicTest && $(MAKE) all
-
-decider_dir:
-	cd decider && $(MAKE) all
-
-coord_dir:
-	cd coord && $(MAKE) all
-
-traci_dir:
-	cd traci && $(MAKE) all
-
-basePhyLayer_dir:
-	cd basePhyLayer && $(MAKE) all
-
-testUtils_dir:
-	cd testUtils && $(MAKE) all
+connectionManager: connectionManager_dir
+testUtils: testUtils_dir
+traci: traci_dir
+nicTest: nicTest_dir
+baseMobility: baseMobility_dir
+mapping: mapping_dir
 
 power_dir:
 	cd power && $(MAKE) all
 
-mapping_dir:
-	cd mapping && $(MAKE) all
-
 channelInfo_dir:
 	cd channelInfo && $(MAKE) all
+
+decider_dir:
+	cd decider && $(MAKE) all
 
 blackboard_dir:
 	cd blackboard && $(MAKE) all
 
-connectionManager_dir:
-	cd connectionManager && $(MAKE) all
+coord_dir:
+	cd coord && $(MAKE) all
+
+basePhyLayer_dir:
+	cd basePhyLayer && $(MAKE) all
 
 radioState_dir:
 	cd radioState && $(MAKE) all
+
+connectionManager_dir:
+	cd connectionManager && $(MAKE) all
+
+testUtils_dir:
+	cd testUtils && $(MAKE) all
+
+traci_dir:
+	cd traci && $(MAKE) all
+
+nicTest_dir:
+	cd nicTest && $(MAKE) all
+
+baseMobility_dir:
+	cd baseMobility && $(MAKE) all
+
+mapping_dir:
+	cd mapping && $(MAKE) all
 
 .SUFFIXES: .cc
 
@@ -141,57 +141,57 @@ $O/%.o: %.cc $(COPTS_FILE)
 	$(MSGC) -s _m.cc $(MSGCOPTS) $?
 
 msgheaders: $(MSGFILES:.msg=_m.h)
-	cd baseMobility && $(MAKE) msgheaders
-	cd nicTest && $(MAKE) msgheaders
-	cd decider && $(MAKE) msgheaders
-	cd coord && $(MAKE) msgheaders
-	cd traci && $(MAKE) msgheaders
-	cd basePhyLayer && $(MAKE) msgheaders
-	cd testUtils && $(MAKE) msgheaders
 	cd power && $(MAKE) msgheaders
-	cd mapping && $(MAKE) msgheaders
 	cd channelInfo && $(MAKE) msgheaders
+	cd decider && $(MAKE) msgheaders
 	cd blackboard && $(MAKE) msgheaders
-	cd connectionManager && $(MAKE) msgheaders
+	cd coord && $(MAKE) msgheaders
+	cd basePhyLayer && $(MAKE) msgheaders
 	cd radioState && $(MAKE) msgheaders
+	cd connectionManager && $(MAKE) msgheaders
+	cd testUtils && $(MAKE) msgheaders
+	cd traci && $(MAKE) msgheaders
+	cd nicTest && $(MAKE) msgheaders
+	cd baseMobility && $(MAKE) msgheaders
+	cd mapping && $(MAKE) msgheaders
 
 clean:
 	-rm -rf $O
-	-rm -f mixim-hohut mixim-hohut.exe libmixim-hohut.so libmixim-hohut.a libmixim-hohut.dll libmixim-hohut.dylib
+	-rm -f mixim mixim.exe libmixim.so libmixim.a libmixim.dll libmixim.dylib
 	-rm -f ./*_m.cc ./*_m.h
 
-	-cd baseMobility && $(MAKE) clean
-	-cd nicTest && $(MAKE) clean
-	-cd decider && $(MAKE) clean
-	-cd coord && $(MAKE) clean
-	-cd traci && $(MAKE) clean
-	-cd basePhyLayer && $(MAKE) clean
-	-cd testUtils && $(MAKE) clean
 	-cd power && $(MAKE) clean
-	-cd mapping && $(MAKE) clean
 	-cd channelInfo && $(MAKE) clean
+	-cd decider && $(MAKE) clean
 	-cd blackboard && $(MAKE) clean
-	-cd connectionManager && $(MAKE) clean
+	-cd coord && $(MAKE) clean
+	-cd basePhyLayer && $(MAKE) clean
 	-cd radioState && $(MAKE) clean
+	-cd connectionManager && $(MAKE) clean
+	-cd testUtils && $(MAKE) clean
+	-cd traci && $(MAKE) clean
+	-cd nicTest && $(MAKE) clean
+	-cd baseMobility && $(MAKE) clean
+	-cd mapping && $(MAKE) clean
 
 cleanall: clean
 	-rm -rf $(PROJECT_OUTPUT_DIR)
 
 depend:
 	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc
-	-cd baseMobility && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd nicTest && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd decider && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd coord && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd traci && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd basePhyLayer && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd testUtils && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd power && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd mapping && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd channelInfo && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd decider && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd blackboard && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd connectionManager && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd coord && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd basePhyLayer && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd radioState && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd connectionManager && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd testUtils && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd traci && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd nicTest && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd baseMobility && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd mapping && if [ -f Makefile ]; then $(MAKE) depend; fi
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
