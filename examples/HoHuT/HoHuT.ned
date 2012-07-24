@@ -39,41 +39,41 @@ network HoHuT
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
         double numHostsStatic; // total number of static hosts in the network
         double numHostsMobile; // total number of mobile hosts in the network
-        
+
         @signal[rssiVal](type="float");
         @statistic[arrivedrssi](title="Arrived RSSI"; source="rssiVal"; record=vector,stats; interpolationmode=none);
 
-        @display("bgb=$playgroundSizeX,$playgroundSizeY,white;bgp=10,50;bgs=3,m;");
+        @display("bgb=$playgroundSizeX,$playgroundSizeY,white;bgp=10,50;bgs=50,m");
 
     submodules:
         connectionManager: ConnectionManager {
             parameters:
-                @display("p=132.66667,50.333332;b=0,0,rect,yellow;i=abstract/multicast;is=s");
+                @display("p=30,5;b=0,0,rect,yellow;i=abstract/multicast;is=s");
         }
         obstacles: ObstacleControl {
-            @display("p=171.33333,25.333334");
+            @display("p=30,10");
         }
         annotations: AnnotationManager {
 
-            @display("p=171.33333,50.333332");
+            @display("p=30,15");
         }
         world: BaseWorldUtility {
             parameters:
                 playgroundSizeX = playgroundSizeX;
                 playgroundSizeY = playgroundSizeY;
                 playgroundSizeZ = playgroundSizeZ;
-                @display("p=132.66667,25.333334;i=misc/globe");
+                @display("p=30,20;i=misc/globe");
         }
         staticNode[numHostsStatic]: Host802154_2400MHz_static {
             parameters:
                 numHosts = numHostsStatic;
-                @display("i=micaz_s;p=57.6,50.6;b=12,12");
+                @display("i=micaz_s;p=12,12.5;b=1,1;is=n");
 
         }
         mobileNode[numHostsMobile]: Host802154_2400MHz_mobile {
             parameters:
                 numHosts = numHostsMobile;
-                @display("i=device/palm2_s;p=57.4,32.6;b=6,6;is=n");
+                @display("i=device/palm2_s;p=10,12.5;b=0,0;is=n");
         }
 
     connections allowunconnected:
