@@ -1,18 +1,15 @@
 package org.mixim.modules.node.HoHuT;
 
 import org.mixim.modules.application.HoHuT.MobileNodeAppLayer;
-import org.mixim.modules.netw.HoHuT.WiseRouteHoHuT;
-
-import org.mixim.base.modules.BaseMobility;
 import org.mixim.base.modules.BaseWorldUtility;
 import org.mixim.base.modules.IBaseNetwLayer;
 import org.mixim.modules.netw.ArpHost;
 import org.mixim.modules.transport.Aggregation;
 import org.mixim.modules.utility.phyPER;
-import org.mixim.modules.nic.Nic802154_TI_CC2420;
+import org.mixim.modules.nic.HoHuT.Nic802154_TI_CC2420;
 import org.mixim.modules.power.battery.SimpleBattery;
 import org.mixim.modules.power.battery.BatteryStats;
-import org.mixim.modules.mobility.LinearMobility;
+import org.mixim.base.modules.BaseMobility;
 
 //
 // This NED module defines a host using an IEEE 802.15.4 transceiver at 2.4GHz
@@ -63,9 +60,8 @@ module Host802154_2400MHz_mobile
             publishTime = default(60 s);
             numDevices = default(1);
         }
-        mobility: LinearMobility {
+        mobility: BaseMobility {
             parameters:
-                acceleration = default (0 mpss); 
                 @display("p=292,120;i=block/cogwheel");
         }
         nic: Nic802154_TI_CC2420 {
