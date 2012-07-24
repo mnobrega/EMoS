@@ -39,6 +39,9 @@ network HoHuT
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
         double numHostsStatic; // total number of static hosts in the network
         double numHostsMobile; // total number of mobile hosts in the network
+        
+        @signal[rssiVal](type="float");
+        @statistic[arrivedrssi](title="Arrived RSSI"; source="rssiVal"; record=vector,stats; interpolationmode=none);
 
         @display("bgb=$playgroundSizeX,$playgroundSizeY,white;bgp=10,50;bgs=3,m;");
 

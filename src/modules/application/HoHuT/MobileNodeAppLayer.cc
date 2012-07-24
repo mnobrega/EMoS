@@ -9,6 +9,8 @@ void MobileNodeAppLayer::initialize(int stage)
     BaseModule::initialize(stage);
     if (stage == 0)
     {
+        rssiValSignal = registerSignal("rssiVal");
+
         dataOut = findGate("lowerGateOut");
         dataIn = findGate("lowerGateIn");
         ctrlOut = findGate("lowerControlOut");
@@ -35,6 +37,9 @@ void MobileNodeAppLayer::handleMessage(cMessage * msg)
 	{
 		case STATIC_NODE_SIGNATURE:
 		    staticNodeSignature = check_and_cast<HoHuTApplPkt*>(msg);
+
+		    emit(rssiValSignal, staticNodeSignature->getSignalStrength());
+
 			EV << "MobileNode says: Recebi uma STATIC_NODE_SIGNATURE" << endl;
 			EV << "rssi=" << staticNodeSignature->getSignalStrength() << endl;
 			EV << "src_address=" << staticNodeSignature->getSrcAddr() << endl;
@@ -56,9 +61,6 @@ void MobileNodeAppLayer::handleMessage(cMessage * msg)
                 send(mobileNoteRSSIMean,dataOut);
 			}
 			delete msg;
-			break;
-		default:
-			EV << "Não sei o que recebi" << endl;
 			break;
 	}
 }

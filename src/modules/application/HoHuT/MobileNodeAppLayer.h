@@ -38,6 +38,9 @@ class MobileNodeAppLayer : public BaseModule
         HoHuTApplPkt* staticNodeSignature;
         HoHuTApplPkt* mobileNoteRSSIMean;
 
+        //statistic
+        simsignal_t rssiValSignal;
+
         // structure to store received RSSIs
         typedef std::multimap<int,float> tStaticNodesRSSITable;
         tStaticNodesRSSITable staticNodesRSSITable;
