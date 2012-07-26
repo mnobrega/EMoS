@@ -1,10 +1,10 @@
-#include "MobileNodeAppLayer.h"
+#include "MobileNodeAppLayerHoHuT.h"
 
 using std::make_pair;
 
-Define_Module(MobileNodeAppLayer);
+Define_Module(MobileNodeAppLayerHoHuT);
 
-void MobileNodeAppLayer::initialize(int stage)
+void MobileNodeAppLayerHoHuT::initialize(int stage)
 {
     BaseModule::initialize(stage);
     if (stage == 0)
@@ -26,11 +26,11 @@ void MobileNodeAppLayer::initialize(int stage)
     }
 }
 
-MobileNodeAppLayer::~MobileNodeAppLayer() {}
+MobileNodeAppLayerHoHuT::~MobileNodeAppLayerHoHuT() {}
 
-void MobileNodeAppLayer::finish() {}
+void MobileNodeAppLayerHoHuT::finish() {}
 
-void MobileNodeAppLayer::handleMessage(cMessage * msg)
+void MobileNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 {
 
 	switch(msg->getKind())

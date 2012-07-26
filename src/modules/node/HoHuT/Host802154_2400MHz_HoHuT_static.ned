@@ -1,12 +1,13 @@
 package org.mixim.modules.node.HoHuT;
 
-import org.mixim.modules.application.HoHuT.StaticNodeAppLayer;
+import org.mixim.modules.application.HoHuT.StaticNodeAppLayerHoHuT;
+
 import org.mixim.base.modules.BaseWorldUtility;
 import org.mixim.base.modules.IBaseNetwLayer;
 import org.mixim.modules.netw.ArpHost;
 import org.mixim.modules.transport.Aggregation;
 import org.mixim.modules.utility.phyPER;
-import org.mixim.modules.nic.HoHuT.Nic802154_TI_CC2420;
+import org.mixim.modules.nic.Nic802154_TI_CC2420;
 import org.mixim.modules.power.battery.SimpleBattery;
 import org.mixim.modules.power.battery.BatteryStats;
 import org.mixim.base.modules.BaseMobility;
@@ -30,7 +31,7 @@ import org.mixim.base.modules.BaseMobility;
 //
 // @author Jérôme Rousselot
 //
-module Host802154_2400MHz_static
+module Host802154_2400MHz_HoHuT_static
 {
     parameters:
         double numHosts; // total number of hosts in the network
@@ -79,7 +80,7 @@ module Host802154_2400MHz_static
             parameters:
                 @display("p=202,186");
         }
-        app: StaticNodeAppLayer {
+        app: StaticNodeAppLayerHoHuT {
             parameters:
                 @display("p=86,38;i=block/app");
 

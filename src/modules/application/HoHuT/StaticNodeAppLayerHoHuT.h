@@ -1,15 +1,16 @@
-#ifndef STATIC_NODE_APP_LAYER_H
-#define STATIC_NODE_APP_LAYER_H
+#ifndef STATIC_NODE_APP_LAYER_HOHUT_H
+#define STATIC_NODE_APP_LAYER_HOHUT_H
 
 #include <omnetpp.h>
 #include "BaseModule.h"
 #include "NetwControlInfo.h"
+
 #include "HoHuTApplPkt_m.h"
 
-class StaticNodeAppLayer : public BaseModule
+class StaticNodeAppLayerHoHuT : public BaseModule
 {
     public:
-		virtual ~StaticNodeAppLayer();
+		virtual ~StaticNodeAppLayerHoHuT();
 		virtual void initialize(int stage);
 		virtual void handleMessage(cMessage* msg);
 		virtual void finish();

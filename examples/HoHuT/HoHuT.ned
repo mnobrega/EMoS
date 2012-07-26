@@ -14,11 +14,11 @@ package org.mixim.examples.HoHuT;
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-import org.mixim.modules.node.HoHuT.Host802154_2400MHz_static;
-import org.mixim.modules.node.HoHuT.Host802154_2400MHz_mobile;
+import org.mixim.modules.node.HoHuT.Host802154_2400MHz_HoHuT_static;
+import org.mixim.modules.node.HoHuT.Host802154_2400MHz_HoHuT_mobile;
+
 import org.mixim.modules.obstacle.ObstacleControl;
 import org.mixim.modules.world.annotations.AnnotationManager;
-
 import org.mixim.base.connectionManager.ConnectionManager;
 import org.mixim.base.modules.BaseWorldUtility;
 
@@ -47,14 +47,13 @@ network HoHuT
 
     submodules:
         connectionManager: ConnectionManager {
-            parameters:
-                @display("p=30,5;b=0,0,rect,yellow;i=abstract/multicast;is=s");
-        }
-        obstacles: ObstacleControl {
-            @display("p=30,10");
+            @display("p=30,5;b=0,0,rect,yellow;i=abstract/multicast;is=s");
         }
         annotations: AnnotationManager {
 
+            @display("p=30,10");
+        }
+        obstacles: ObstacleControl {
             @display("p=30,15");
         }
         world: BaseWorldUtility {
@@ -62,18 +61,17 @@ network HoHuT
                 playgroundSizeX = playgroundSizeX;
                 playgroundSizeY = playgroundSizeY;
                 playgroundSizeZ = playgroundSizeZ;
-                @display("p=30,20;i=misc/globe");
+            @display("p=30,20;i=misc/globe");
         }
-        staticNode[numHostsStatic]: Host802154_2400MHz_static {
+        staticNode[numHostsStatic]: Host802154_2400MHz_HoHuT_static {
             parameters:
                 numHosts = numHostsStatic;
-                @display("i=micaz_s;p=12,12.5;b=1,1;is=n");
-
+            @display("i=micaz_s;p=12,12.5;b=1,1;is=n");
         }
-        mobileNode[numHostsMobile]: Host802154_2400MHz_mobile {
+        mobileNode[numHostsMobile]: Host802154_2400MHz_HoHuT_mobile {
             parameters:
                 numHosts = numHostsMobile;
-                @display("i=device/palm2_s;p=10,12.5;b=0,0;is=n");
+            @display("i=device/palm2_s;p=10,12.5;b=0,0;is=n");
         }
 
     connections allowunconnected:

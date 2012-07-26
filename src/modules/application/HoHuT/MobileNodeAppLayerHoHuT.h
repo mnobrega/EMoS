@@ -1,15 +1,16 @@
-#ifndef MOBILE_NODE_APP_LAYER_H
-#define MOBILE_NODE_APP_LAYER_H
+#ifndef MOBILE_NODE_APP_LAYER_HOHUT_H
+#define MOBILE_NODE_APP_LAYER_HOHUT_H
 
 #include <omnetpp.h>
 #include "BaseModule.h"
 #include "NetwControlInfo.h"
+
 #include "HoHuTApplPkt_m.h"
 
-class MobileNodeAppLayer : public BaseModule
+class MobileNodeAppLayerHoHuT : public BaseModule
 {
     public:
-		virtual ~MobileNodeAppLayer();
+		virtual ~MobileNodeAppLayerHoHuT();
 		virtual void initialize(int stage);
 		virtual void handleMessage(cMessage *msg);
 		virtual void finish();

@@ -45,7 +45,7 @@ module Nic802154_TI_CC2420 extends WirelessNicBattery
         rxTxCurrent          = 18.8 mA; // Upper bound
         txRxCurrent          = 18.8 mA; // idem
 
-        phy.decider = xmldoc("Nic802154_TI_CC2420_Decider.xml");
+        phy.decider = default(xmldoc("Nic802154_TI_CC2420_Decider.xml"));
         //publishRSSIAlways = false;
         phy.headerLength = 48 bit; // ieee 802.15.4                
         phy.thermalNoise = -110 dBm;

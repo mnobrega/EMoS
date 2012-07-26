@@ -1,8 +1,8 @@
-#include "StaticNodeAppLayer.h"
+#include "StaticNodeAppLayerHoHuT.h"
 
-Define_Module(StaticNodeAppLayer);
+Define_Module(StaticNodeAppLayerHoHuT);
 
-void StaticNodeAppLayer::initialize(int stage)
+void StaticNodeAppLayerHoHuT::initialize(int stage)
 {
     BaseModule::initialize(stage);
     if (stage == 0)
@@ -27,11 +27,11 @@ void StaticNodeAppLayer::initialize(int stage)
     }
 }
 
-StaticNodeAppLayer::~StaticNodeAppLayer() {}
+StaticNodeAppLayerHoHuT::~StaticNodeAppLayerHoHuT() {}
 
-void StaticNodeAppLayer::finish() {}
+void StaticNodeAppLayerHoHuT::finish() {}
 
-void StaticNodeAppLayer::handleMessage(cMessage * msg)
+void StaticNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 {
 	switch(msg->getKind())
 	{
