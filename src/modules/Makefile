@@ -31,7 +31,6 @@ INCLUDE_PATH = \
     -Inetw \
     -Inetw/HoHuT \
     -Inic \
-    -Inic/HoHuT \
     -Inode \
     -Inode/HoHuT \
     -Iobstacle \
@@ -71,8 +70,8 @@ OBJS = \
     $O/application/SensorApplLayer.o \
     $O/application/BurstApplLayerBattery.o \
     $O/application/TestApplication.o \
-    $O/application/HoHuT/StaticNodeAppLayer.o \
-    $O/application/HoHuT/MobileNodeAppLayer.o \
+    $O/application/HoHuT/MobileNodeAppLayerHoHuT.o \
+    $O/application/HoHuT/StaticNodeAppLayerHoHuT.o \
     $O/application/ieee80211p/BaseWaveApplLayer.o \
     $O/application/ieee80211p/TestWaveApplLayer.o \
     $O/application/traci/TraCIDemo.o \
@@ -246,7 +245,6 @@ clean:
 	-rm -f netw/*_m.cc netw/*_m.h
 	-rm -f netw/HoHuT/*_m.cc netw/HoHuT/*_m.h
 	-rm -f nic/*_m.cc nic/*_m.h
-	-rm -f nic/HoHuT/*_m.cc nic/HoHuT/*_m.h
 	-rm -f node/*_m.cc node/*_m.h
 	-rm -f node/HoHuT/*_m.cc node/HoHuT/*_m.h
 	-rm -f obstacle/*_m.cc obstacle/*_m.h
@@ -262,7 +260,7 @@ cleanall: clean
 	-rm -rf $(PROJECT_OUTPUT_DIR)
 
 depend:
-	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc analogueModel/*.cc application/*.cc application/HoHuT/*.cc application/ieee80211p/*.cc application/traci/*.cc connectionManager/*.cc mac/*.cc mac/ieee80211p/*.cc messages/*.cc messages/HoHuT/*.cc mobility/*.cc mobility/traci/*.cc netw/*.cc netw/HoHuT/*.cc nic/*.cc nic/HoHuT/*.cc node/*.cc node/HoHuT/*.cc obstacle/*.cc phy/*.cc power/*.cc power/battery/*.cc transport/*.cc utility/*.cc world/*.cc world/annotations/*.cc
+	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc analogueModel/*.cc application/*.cc application/HoHuT/*.cc application/ieee80211p/*.cc application/traci/*.cc connectionManager/*.cc mac/*.cc mac/ieee80211p/*.cc messages/*.cc messages/HoHuT/*.cc mobility/*.cc mobility/traci/*.cc netw/*.cc netw/HoHuT/*.cc nic/*.cc node/*.cc node/HoHuT/*.cc obstacle/*.cc phy/*.cc power/*.cc power/battery/*.cc transport/*.cc utility/*.cc world/*.cc world/annotations/*.cc
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 $O/analogueModel/BreakpointPathlossModel.o: analogueModel/BreakpointPathlossModel.cc \
@@ -487,7 +485,7 @@ $O/application/TrafficGen.o: application/TrafficGen.cc \
 	../base/utils/miximkerneldefs.h \
 	application/TrafficGen.h \
 	utility/Packet.h
-$O/application/HoHuT/MobileNodeAppLayer.o: application/HoHuT/MobileNodeAppLayer.cc \
+$O/application/HoHuT/MobileNodeAppLayerHoHuT.o: application/HoHuT/MobileNodeAppLayerHoHuT.cc \
 	../base/messages/ApplPkt_m.h \
 	../base/modules/BaseModule.h \
 	../base/utils/HostState.h \
@@ -495,9 +493,9 @@ $O/application/HoHuT/MobileNodeAppLayer.o: application/HoHuT/MobileNodeAppLayer.
 	../base/utils/NetwControlInfo.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
-	application/HoHuT/MobileNodeAppLayer.h \
+	application/HoHuT/MobileNodeAppLayerHoHuT.h \
 	messages/HoHuT/HoHuTApplPkt_m.h
-$O/application/HoHuT/StaticNodeAppLayer.o: application/HoHuT/StaticNodeAppLayer.cc \
+$O/application/HoHuT/StaticNodeAppLayerHoHuT.o: application/HoHuT/StaticNodeAppLayerHoHuT.cc \
 	../base/messages/ApplPkt_m.h \
 	../base/modules/BaseModule.h \
 	../base/utils/HostState.h \
@@ -505,7 +503,7 @@ $O/application/HoHuT/StaticNodeAppLayer.o: application/HoHuT/StaticNodeAppLayer.
 	../base/utils/NetwControlInfo.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
-	application/HoHuT/StaticNodeAppLayer.h \
+	application/HoHuT/StaticNodeAppLayerHoHuT.h \
 	messages/HoHuT/HoHuTApplPkt_m.h
 $O/application/ieee80211p/BaseWaveApplLayer.o: application/ieee80211p/BaseWaveApplLayer.cc \
 	../base/connectionManager/ChannelAccess.h \
