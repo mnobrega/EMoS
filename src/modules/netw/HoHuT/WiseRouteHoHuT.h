@@ -138,9 +138,7 @@ protected:
 
 
     /** @brief cached variable of my network address */
-//    int myNetwAddr;
     LAddress::L2Type macaddress;
-
     LAddress::L3Type sinkAddress;
 
     bool useSimTracer;

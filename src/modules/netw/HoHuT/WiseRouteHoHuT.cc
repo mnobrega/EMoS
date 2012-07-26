@@ -153,8 +153,7 @@ void WiseRouteHoHuT::handleLowerMsg(cMessage* msg)
 	double rssi = static_cast<MacToNetwControlInfo*>(netwMsg->getControlInfo())->getRSSI();
 	double ber = static_cast<MacToNetwControlInfo*>(netwMsg->getControlInfo())->getBitErrorRate();
 	// Check whether the message is a flood and if it has to be forwarded.
-	floodTypes floodType = updateFloodTable(netwMsg->getIsFlood(), initialSrcAddr, finalDestAddr,
-										    netwMsg->getSeqNum());
+	floodTypes floodType = updateFloodTable(netwMsg->getIsFlood(), initialSrcAddr, finalDestAddr, netwMsg->getSeqNum());
 
 	if(trace) {
 	  allReceivedRSSI.record(rssi);
@@ -170,9 +169,10 @@ void WiseRouteHoHuT::handleLowerMsg(cMessage* msg)
 		if (netwMsg->getKind() == ROUTE_FLOOD)
 			updateRouteTable(initialSrcAddr, srcAddr, rssi, ber);
 
-		if (finalDestAddr == myNetwAddr || LAddress::isL3Broadcast(finalDestAddr)) {
+		if (finalDestAddr == myNetwAddr || LAddress::isL3Broadcast(finalDestAddr))
+		{
 			WiseRoutePkt* msgCopy;
-			if (floodType == FORWARD) {
+			if (floodType == FORWARD && netwMsg->getKind()!=DATA) {
 				// it's a flood. copy for delivery, forward original.
 				// if we are here (see updateFloodTable()), finalDestAddr == IP Broadcast. Hence finalDestAddr,
 				// initialSrcAddr, and destAddr have already been correctly set
@@ -191,6 +191,7 @@ void WiseRouteHoHuT::handleLowerMsg(cMessage* msg)
 				msgCopy = netwMsg;
 			}
 
+			//DATA MSG
 			if (msgCopy->getKind() == DATA)
 			{
 			    //MOD: WiseRoute modified in order to send the rssi UP to the AppLayer
@@ -262,7 +263,7 @@ void WiseRouteHoHuT::handleUpperMsg(cMessage* msg)
 	    finalDestAddr = LAddress::L3BROADCAST;
 	}
 	else {
-		EV <<"WiseRouteHoHuT: CInfo removed, netw addr="<< NetwControlInfo::getAddressFromControlInfo( cInfo ) <<endl;
+		//EV <<"WiseRouteHoHuT: CInfo removed, netw addr="<< NetwControlInfo::getAddressFromControlInfo( cInfo ) <<endl;
 		finalDestAddr = NetwControlInfo::getAddressFromControlInfo( cInfo );
 		delete cInfo;
 	}
@@ -276,6 +277,7 @@ void WiseRouteHoHuT::handleUpperMsg(cMessage* msg)
 		nextHopAddr = LAddress::L3BROADCAST;
 	else
 		nextHopAddr = getRoute(finalDestAddr, true);
+
 	pkt->setDestAddr(nextHopAddr);
 	if (LAddress::isL3Broadcast(nextHopAddr)) {
 		// it's a flood.
@@ -293,6 +295,9 @@ void WiseRouteHoHuT::handleUpperMsg(cMessage* msg)
 		nbPureUnicastSent++;
 		nextHopMacAddr = arp->getMacAddr(nextHopAddr);
 	}
+
+	EV << "WiseRouteHoHuT says: " << "flood=" << pkt->getIsFlood() << endl;
+
 	setDownControlInfo(pkt, nextHopMacAddr);
 	assert(static_cast<cPacket*>(msg));
 	pkt->encapsulate(static_cast<cPacket*>(msg));

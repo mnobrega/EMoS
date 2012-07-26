@@ -32,7 +32,6 @@ void MobileNodeAppLayerHoHuT::finish() {}
 
 void MobileNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 {
-
 	switch(msg->getKind())
 	{
 		case STATIC_NODE_SIGNATURE:
@@ -62,6 +61,9 @@ void MobileNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 			}
 			delete msg;
 			break;
+		default:
+		    delete msg;
+		    break;
 	}
 }
 
