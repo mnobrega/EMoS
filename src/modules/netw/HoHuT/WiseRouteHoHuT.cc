@@ -296,8 +296,6 @@ void WiseRouteHoHuT::handleUpperMsg(cMessage* msg)
 		nextHopMacAddr = arp->getMacAddr(nextHopAddr);
 	}
 
-	EV << "WiseRouteHoHuT says: " << "flood=" << pkt->getIsFlood() << endl;
-
 	setDownControlInfo(pkt, nextHopMacAddr);
 	assert(static_cast<cPacket*>(msg));
 	pkt->encapsulate(static_cast<cPacket*>(msg));

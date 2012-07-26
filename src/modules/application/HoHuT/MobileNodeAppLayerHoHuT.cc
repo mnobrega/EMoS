@@ -7,9 +7,10 @@ Define_Module(MobileNodeAppLayerHoHuT);
 void MobileNodeAppLayerHoHuT::initialize(int stage)
 {
     BaseModule::initialize(stage);
+
     if (stage == 0)
     {
-        rssiValSignal = registerSignal("rssiVal");
+        rssiValSignalId = registerSignal("rssiVal");
 
         dataOut = findGate("lowerGateOut");
         dataIn = findGate("lowerGateIn");
@@ -37,7 +38,7 @@ void MobileNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 		case STATIC_NODE_SIGNATURE:
 		    staticNodeSignature = check_and_cast<HoHuTApplPkt*>(msg);
 
-		    emit(rssiValSignal, staticNodeSignature->getSignalStrength());
+		    emit(rssiValSignalId, staticNodeSignature->getSignalStrength());
 
 			EV << "MobileNode says: Recebi uma STATIC_NODE_SIGNATURE" << endl;
 			EV << "rssi=" << staticNodeSignature->getSignalStrength() << endl;
@@ -62,7 +63,7 @@ void MobileNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 			delete msg;
 			break;
 		default:
-		    delete msg;
+		    error("Unknown msg kind. MsgKind="+msg->getKind());
 		    break;
 	}
 }
