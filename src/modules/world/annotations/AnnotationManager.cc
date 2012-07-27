@@ -186,7 +186,6 @@ void AnnotationManager::drawBubble(Coord p1, std::string text) {
 void AnnotationManager::erase(const Annotation* annotation) {
 	hide(annotation);
 	annotations.remove(const_cast<Annotation*>(annotation));
-	delete annotation;
 }
 
 cModule* AnnotationManager::createDummyModule(std::string displayString) {
