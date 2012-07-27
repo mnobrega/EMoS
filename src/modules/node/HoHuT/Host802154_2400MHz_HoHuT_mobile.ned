@@ -4,13 +4,13 @@ import org.mixim.modules.application.HoHuT.MobileNodeAppLayerHoHuT;
 
 import org.mixim.base.modules.BaseWorldUtility;
 import org.mixim.base.modules.IBaseNetwLayer;
+import org.mixim.base.modules.IMobility;
 import org.mixim.modules.netw.ArpHost;
 import org.mixim.modules.transport.Aggregation;
 import org.mixim.modules.utility.phyPER;
 import org.mixim.modules.nic.Nic802154_TI_CC2420;
 import org.mixim.modules.power.battery.SimpleBattery;
 import org.mixim.modules.power.battery.BatteryStats;
-import org.mixim.base.modules.BaseMobility;
 
 //
 // This NED module defines a host using an IEEE 802.15.4 transceiver at 2.4GHz
@@ -36,6 +36,7 @@ module Host802154_2400MHz_HoHuT_mobile
     parameters:
         double numHosts; // total number of hosts in the network
         string netwType = default("DummyRoute"); //type of the network layer
+		string mobilityType = default("BaseMobility"); //type of the mobility layer
 
         @display("bgb=356,318,white;bgp=10,10;b=40,40,rect;i=device/usb");
     gates:
@@ -61,7 +62,7 @@ module Host802154_2400MHz_HoHuT_mobile
             publishTime = default(60 s);
             numDevices = default(1);
         }
-        mobility: BaseMobility {
+        mobility: <mobilityType> like IMobility {
             parameters:
                 @display("p=292,120;i=block/cogwheel");
         }
