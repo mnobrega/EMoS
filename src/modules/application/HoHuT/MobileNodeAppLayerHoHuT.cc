@@ -49,9 +49,14 @@ void MobileNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 			staticNodesRSSITable.insert(make_pair(staticNodeSignature->getSrcAddr(),staticNodeSignature->getSignalStrength()));
 			EV << "samples available for node: " << staticNodesRSSITable.count(staticNodeSignature->getSrcAddr()) << endl;
 
+			//NOTE: there shouldnt be repetition of positions already collected
 			if (dataCollectionMode)
 			{
 			    EV << "X=" << currentPosition.x << " Y=" << currentPosition.y << endl;
+			    //if position unchanged keep collection the (staticNodeAddress,rssi) pairs
+
+			    //else position changed calculate power mean and save (x,y,P)k for the node k in the correspondent file
+			        //check if new position already collected. error if already collected.
 			}
 			else
 			{

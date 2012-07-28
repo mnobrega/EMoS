@@ -39,6 +39,7 @@ class MobileNodeAppLayerHoHuT : public BaseModule
         // position signal tracking
         static const simsignalwrap_t mobilityStateChangedSignal;
         Coord currentPosition;
+        Coord previousPosition;
 
     private:
         // messages
