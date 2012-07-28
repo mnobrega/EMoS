@@ -1,8 +1,11 @@
 #include "MobileNodeAppLayerHoHuT.h"
+#include "Coord.h"
 
 using std::make_pair;
 
 Define_Module(MobileNodeAppLayerHoHuT);
+
+const simsignalwrap_t MobileNodeAppLayerHoHuT::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
 
 void MobileNodeAppLayerHoHuT::initialize(int stage)
 {
@@ -23,7 +26,7 @@ void MobileNodeAppLayerHoHuT::initialize(int stage)
     }
     else if (stage == 1)
     {
-
+        findHost()->subscribe(mobilityStateChangedSignal, this);
     }
 }
 
@@ -48,7 +51,7 @@ void MobileNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 
 			if (dataCollectionMode)
 			{
-			    //write position, beaconID and RSSI in table
+			    EV << "X=" << currentPosition.x << " Y=" << currentPosition.y << endl;
 			}
 			else
 			{
@@ -66,6 +69,16 @@ void MobileNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 		    error("Unknown msg kind. MsgKind="+msg->getKind());
 		    break;
 	}
+}
+
+void MobileNodeAppLayerHoHuT::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj) {
+    Enter_Method_Silent();
+    BaseMobility* baseMobility;
+    if (signalID == mobilityStateChangedSignal)
+    {
+        baseMobility = dynamic_cast<BaseMobility *>(obj);
+        currentPosition = baseMobility->getCurrentPosition();
+    }
 }
 
 

@@ -487,9 +487,16 @@ $O/application/TrafficGen.o: application/TrafficGen.cc \
 	utility/Packet.h
 $O/application/HoHuT/MobileNodeAppLayerHoHuT.o: application/HoHuT/MobileNodeAppLayerHoHuT.cc \
 	../base/messages/ApplPkt_m.h \
+	../base/modules/BaseBattery.h \
+	../base/modules/BaseMobility.h \
 	../base/modules/BaseModule.h \
+	../base/modules/BaseWorldUtility.h \
+	../base/modules/BatteryAccess.h \
+	../base/utils/Coord.h \
+	../base/utils/FWMath.h \
 	../base/utils/HostState.h \
 	../base/utils/MiXiMDefs.h \
+	../base/utils/Move.h \
 	../base/utils/NetwControlInfo.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
