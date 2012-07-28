@@ -4,6 +4,7 @@ simple MobileNodeAppLayerHoHuT
 {
     parameters:
         bool debug = default(false); 		    	// debug mode
+        bool stats = default(true);					// gather statistical data
         int nodeAddr;								// node address
         bool dataCollectionMode = default(false);	//data collection mode active
         

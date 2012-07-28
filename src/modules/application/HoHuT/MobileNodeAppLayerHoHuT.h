@@ -34,6 +34,7 @@ class MobileNodeAppLayerHoHuT : public BaseModule
         // module parameters
         LAddress::L3Type nodeAddr;
         bool debug;
+        bool stats;
         bool dataCollectionMode;
 
         // position signal tracking

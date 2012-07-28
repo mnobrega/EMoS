@@ -5,7 +5,7 @@ Define_Module(StaticNodeAppLayerHoHuT);
 void StaticNodeAppLayerHoHuT::initialize(int stage)
 {
     BaseModule::initialize(stage);
-    if (stage == 0)
+    if (stage == 0) //read config params
     {
     	debugEV<< "in initialize() stage 0...";
         dataOut = findGate("lowerGateOut");
@@ -15,15 +15,15 @@ void StaticNodeAppLayerHoHuT::initialize(int stage)
 
         nodeAddr = LAddress::L3Type(par("nodeAddr").longValue());
         debug = par("debug").boolValue();
-
-        INITIAL_DELAY = 5;
-        BEACON_INTERVAL = 1;
     }
-    else if (stage == 1)
+    else if (stage == 1) //initialize vars, subscribe signals, etc
     {
     	debugEV << "in initialize() stage 1...";
     	selfTimer = new cMessage("beacon-timer",SELF_TIMER);
     	scheduleAt(simTime() + INITIAL_DELAY +uniform(0,0.001), selfTimer);
+
+    	INITIAL_DELAY = 5;
+    	BEACON_INTERVAL = 1;
     }
 }
 
@@ -56,6 +56,7 @@ void StaticNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 		    delete msg;
 		    break;
 		default:
+		    error("Unknown msg kind. MsgKind="+msg->getKind());
 			break;
 	}
 }
