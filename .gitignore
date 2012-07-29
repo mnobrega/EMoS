@@ -55,5 +55,6 @@ examples/BaseMoBANNetwork/BaseMoBANNetwork
 examples/WSNRouting/WSNRouting
 examples/bmac/bmac
 examples/lmac/lmac
+examples/HoHuT/HoHuT
 **.vci
 
