@@ -58,3 +58,15 @@ examples/lmac/lmac
 examples/HoHuT/HoHuT
 **.vci
 
+/examples/ieee80211p/ieee80211p
+/examples/obstacles/obstacles
+/examples/traci_launchd/traci_launchd
+/examples/twoRayInterference/twoRayInterference
+/examples/veins/veins
+/tests/power/deviceTestAccts/deviceTestAccts
+/tests/power/deviceTestAll/deviceTestAll
+/tests/power/deviceTest/deviceTest
+/tests/power/deviceTestMulti/deviceTestMulti
+/tests/power/Nic80211Test/Nic80211Test
+/tests/power/utils/libpowerTestUtils.so
+/tests/traci/traci
