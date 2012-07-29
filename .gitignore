@@ -70,3 +70,5 @@ examples/HoHuT/HoHuT
 /tests/power/Nic80211Test/Nic80211Test
 /tests/power/utils/libpowerTestUtils.so
 /tests/traci/traci
+/examples/annotations/annotations
+/examples/annotations/mixim
