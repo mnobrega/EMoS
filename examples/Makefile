@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for mixim
 #
 # This file was generated with the command:
-#  opp_makemake -f --nolink -O out -d Mac80211 -d ieee80211p -d multiConnectionManager -d CSMAMac -d bmac -d obstacles -d lmac -d BaseMoBANNetwork -d veins -d ieee802154a -d traci_launchd -d baseNetwork -d WSNRouting -d ieee802154Narrow -d twoRayInterference -d HoHuT -d analogueModels -L../out/$(CONFIGNAME)/tests/power/utils -L../out/$(CONFIGNAME)/tests/testUtils -L../out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/src/modules
+#  opp_makemake -f --nolink -O out -d Mac80211 -d ieee80211p -d multiConnectionManager -d annotations -d CSMAMac -d bmac -d obstacles -d lmac -d BaseMoBANNetwork -d veins -d ieee802154a -d traci_launchd -d baseNetwork -d WSNRouting -d ieee802154Narrow -d twoRayInterference -d HoHuT -d analogueModels -L../out/$(CONFIGNAME)/tests/power/utils -L../out/$(CONFIGNAME)/tests/testUtils -L../out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/src/modules
 #
 
 # C++ include paths (with -I)
@@ -63,12 +63,13 @@ endif
 all: $(OBJS) submakedirs Makefile
 	@# Do nothing
 
-submakedirs:  Mac80211_dir ieee80211p_dir multiConnectionManager_dir CSMAMac_dir bmac_dir obstacles_dir lmac_dir BaseMoBANNetwork_dir veins_dir ieee802154a_dir traci_launchd_dir baseNetwork_dir WSNRouting_dir ieee802154Narrow_dir twoRayInterference_dir HoHuT_dir analogueModels_dir
+submakedirs:  Mac80211_dir ieee80211p_dir multiConnectionManager_dir annotations_dir CSMAMac_dir bmac_dir obstacles_dir lmac_dir BaseMoBANNetwork_dir veins_dir ieee802154a_dir traci_launchd_dir baseNetwork_dir WSNRouting_dir ieee802154Narrow_dir twoRayInterference_dir HoHuT_dir analogueModels_dir
 
-.PHONY: all clean cleanall depend msgheaders  Mac80211 ieee80211p multiConnectionManager CSMAMac bmac obstacles lmac BaseMoBANNetwork veins ieee802154a traci_launchd baseNetwork WSNRouting ieee802154Narrow twoRayInterference HoHuT analogueModels
+.PHONY: all clean cleanall depend msgheaders  Mac80211 ieee80211p multiConnectionManager annotations CSMAMac bmac obstacles lmac BaseMoBANNetwork veins ieee802154a traci_launchd baseNetwork WSNRouting ieee802154Narrow twoRayInterference HoHuT analogueModels
 Mac80211: Mac80211_dir
 ieee80211p: ieee80211p_dir
 multiConnectionManager: multiConnectionManager_dir
+annotations: annotations_dir
 CSMAMac: CSMAMac_dir
 bmac: bmac_dir
 obstacles: obstacles_dir
@@ -92,6 +93,9 @@ ieee80211p_dir:
 
 multiConnectionManager_dir:
 	cd multiConnectionManager && $(MAKE) all
+
+annotations_dir:
+	cd annotations && $(MAKE) all
 
 CSMAMac_dir:
 	cd CSMAMac && $(MAKE) all
@@ -148,6 +152,7 @@ msgheaders: $(MSGFILES:.msg=_m.h)
 	cd Mac80211 && $(MAKE) msgheaders
 	cd ieee80211p && $(MAKE) msgheaders
 	cd multiConnectionManager && $(MAKE) msgheaders
+	cd annotations && $(MAKE) msgheaders
 	cd CSMAMac && $(MAKE) msgheaders
 	cd bmac && $(MAKE) msgheaders
 	cd obstacles && $(MAKE) msgheaders
@@ -171,6 +176,7 @@ clean:
 	-cd Mac80211 && $(MAKE) clean
 	-cd ieee80211p && $(MAKE) clean
 	-cd multiConnectionManager && $(MAKE) clean
+	-cd annotations && $(MAKE) clean
 	-cd CSMAMac && $(MAKE) clean
 	-cd bmac && $(MAKE) clean
 	-cd obstacles && $(MAKE) clean
@@ -194,6 +200,7 @@ depend:
 	-cd Mac80211 && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd ieee80211p && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd multiConnectionManager && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd annotations && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd CSMAMac && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd bmac && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd obstacles && if [ -f Makefile ]; then $(MAKE) depend; fi
