@@ -36,7 +36,7 @@ PROJECTRELATIVE_PATH = tests/basePhyLayer
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
-OBJS = $O/TestMacLayer.o $O/TestPhyLayer.o $O/BasePhyTests.o
+OBJS = $O/TestMacLayer.o $O/BasePhyTests.o $O/TestPhyLayer.o
 
 # Message files
 MSGFILES =

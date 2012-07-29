@@ -56,109 +56,109 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-    $O/analogueModel/SimpleObstacleShadowing.o \
-    $O/analogueModel/JakesFading.o \
-    $O/analogueModel/BreakpointPathlossModel.o \
-    $O/analogueModel/UWBIRStochasticPathlossModel.o \
-    $O/analogueModel/PERModel.o \
-    $O/analogueModel/SimplePathlossModel.o \
     $O/analogueModel/TwoRayInterferenceModel.o \
+    $O/analogueModel/UWBIRStochasticPathlossModel.o \
+    $O/analogueModel/SimplePathlossModel.o \
     $O/analogueModel/UWBIRIEEE802154APathlossModel.o \
+    $O/analogueModel/BreakpointPathlossModel.o \
+    $O/analogueModel/SimpleObstacleShadowing.o \
+    $O/analogueModel/PERModel.o \
     $O/analogueModel/LogNormalShadowing.o \
+    $O/analogueModel/JakesFading.o \
+    $O/application/BurstApplLayerBattery.o \
+    $O/application/TestApplication.o \
     $O/application/TrafficGen.o \
     $O/application/BurstApplLayer.o \
     $O/application/SensorApplLayer.o \
-    $O/application/BurstApplLayerBattery.o \
-    $O/application/TestApplication.o \
-    $O/application/HoHuT/MobileNodeAppLayerHoHuT.o \
     $O/application/HoHuT/StaticNodeAppLayerHoHuT.o \
-    $O/application/ieee80211p/BaseWaveApplLayer.o \
+    $O/application/HoHuT/MobileNodeAppLayerHoHuT.o \
     $O/application/ieee80211p/TestWaveApplLayer.o \
-    $O/application/traci/TraCIDemo.o \
+    $O/application/ieee80211p/BaseWaveApplLayer.o \
     $O/application/traci/TraCIDemo11p.o \
+    $O/application/traci/TraCIDemo.o \
     $O/connectionManager/UnitDisk.o \
-    $O/mac/BMacLayer.o \
-    $O/mac/CSMAMacLayer.o \
-    $O/mac/UWBIRMac.o \
-    $O/mac/LMacLayer.o \
-    $O/mac/AlohaMacLayer.o \
-    $O/mac/Mac80211MultiChannel.o \
-    $O/mac/Mac80211.o \
     $O/mac/CSMA802154.o \
+    $O/mac/CSMAMacLayer.o \
+    $O/mac/Mac80211.o \
+    $O/mac/AlohaMacLayer.o \
+    $O/mac/UWBIRMac.o \
+    $O/mac/BMacLayer.o \
+    $O/mac/Mac80211MultiChannel.o \
+    $O/mac/LMacLayer.o \
     $O/mac/csma.o \
     $O/mac/ieee80211p/Mac1609_4.o \
     $O/messages/UWBIRMacPkt.o \
     $O/messages/AggrPkt.o \
-    $O/mobility/BonnMotionMobility.o \
-    $O/mobility/MoBANCoordinator.o \
-    $O/mobility/MoBANLocal.o \
-    $O/mobility/LinearMobility.o \
+    $O/mobility/LineSegmentsMobilityBase.o \
+    $O/mobility/CircleMobility.o \
+    $O/mobility/Posture.o \
     $O/mobility/RectangleMobility.o \
+    $O/mobility/TractorMobility.o \
+    $O/mobility/MoBANCoordinator.o \
     $O/mobility/ANSimMobility.o \
     $O/mobility/PostureTransition.o \
     $O/mobility/TurtleMobility.o \
-    $O/mobility/MassMobility.o \
     $O/mobility/BonnMotionFileCache.o \
-    $O/mobility/TractorMobility.o \
-    $O/mobility/Posture.o \
-    $O/mobility/LineSegmentsMobilityBase.o \
+    $O/mobility/LinearMobility.o \
+    $O/mobility/BonnMotionMobility.o \
+    $O/mobility/MassMobility.o \
     $O/mobility/ConstSpeedMobility.o \
-    $O/mobility/CircleMobility.o \
+    $O/mobility/MoBANLocal.o \
     $O/mobility/traci/TraCIMobility.o \
     $O/mobility/traci/TraCIScenarioManagerLaunchd.o \
     $O/mobility/traci/TraCIScenarioManager.o \
-    $O/netw/DummyRoute.o \
     $O/netw/ProbabilisticBroadcast.o \
-    $O/netw/WiseRoute.o \
     $O/netw/AdaptiveProbabilisticBroadcast.o \
+    $O/netw/DummyRoute.o \
+    $O/netw/WiseRoute.o \
     $O/netw/Flood.o \
     $O/netw/ArpHost.o \
     $O/netw/HoHuT/WiseRouteHoHuT.o \
-    $O/obstacle/Obstacle.o \
     $O/obstacle/ObstacleControl.o \
+    $O/obstacle/Obstacle.o \
+    $O/phy/PhyLayer80211p.o \
+    $O/phy/SNRThresholdDecider.o \
+    $O/phy/PhyLayerUWBIR.o \
+    $O/phy/DeciderUWBIREDSyncOnAddress.o \
+    $O/phy/DeciderUWBIRED.o \
     $O/phy/PhyLayer.o \
     $O/phy/PhyLayerBattery.o \
-    $O/phy/DeciderUWBIREDSync.o \
-    $O/phy/DeciderUWBIREDSyncOnAddress.o \
-    $O/phy/Decider80211.o \
-    $O/phy/SNRThresholdDecider.o \
-    $O/phy/Decider80211p.o \
-    $O/phy/Decider80211MultiChannel.o \
     $O/phy/Decider80211Battery.o \
-    $O/phy/DeciderUWBIRED.o \
+    $O/phy/Decider80211MultiChannel.o \
     $O/phy/Decider802154Narrow.o \
-    $O/phy/PhyLayer80211p.o \
-    $O/phy/PhyLayerUWBIR.o \
-    $O/power/battery/BatteryStats.o \
+    $O/phy/Decider80211p.o \
+    $O/phy/DeciderUWBIREDSync.o \
+    $O/phy/Decider80211.o \
     $O/power/battery/SimpleBattery.o \
+    $O/power/battery/BatteryStats.o \
     $O/transport/Aggregation.o \
-    $O/utility/IEEE802154A.o \
     $O/utility/SimTracer.o \
+    $O/utility/IEEE802154A.o \
     $O/utility/phyPER.o \
-    $O/world/annotations/AnnotationDummy.o \
     $O/world/annotations/AnnotationManager.o \
+    $O/world/annotations/AnnotationDummy.o \
+    $O/messages/UWBIRMacPkt_m.o \
+    $O/messages/ProbabilisticBroadcastPkt_m.o \
+    $O/messages/WiseRoutePkt_m.o \
     $O/messages/WaveShortMessage_m.o \
     $O/messages/DummyRoutePkt_m.o \
-    $O/messages/AirFrameUWBIR_m.o \
-    $O/messages/WiseRoutePkt_m.o \
-    $O/messages/ProbabilisticBroadcastPkt_m.o \
-    $O/messages/AggrPkt_m.o \
     $O/messages/LMacPkt_m.o \
     $O/messages/Mac80211Pkt_m.o \
-    $O/messages/UWBIRMacPkt_m.o \
+    $O/messages/AirFrameUWBIR_m.o \
+    $O/messages/AggrPkt_m.o \
     $O/messages/HoHuT/HoHuTApplPkt_m.o
 
 # Message files
 MSGFILES = \
+    messages/UWBIRMacPkt.msg \
+    messages/ProbabilisticBroadcastPkt.msg \
+    messages/WiseRoutePkt.msg \
     messages/WaveShortMessage.msg \
     messages/DummyRoutePkt.msg \
-    messages/AirFrameUWBIR.msg \
-    messages/WiseRoutePkt.msg \
-    messages/ProbabilisticBroadcastPkt.msg \
-    messages/AggrPkt.msg \
     messages/LMacPkt.msg \
     messages/Mac80211Pkt.msg \
-    messages/UWBIRMacPkt.msg \
+    messages/AirFrameUWBIR.msg \
+    messages/AggrPkt.msg \
     messages/HoHuT/HoHuTApplPkt.msg
 
 #------------------------------------------------------------------------------
