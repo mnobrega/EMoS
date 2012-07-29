@@ -19,11 +19,10 @@ void StaticNodeAppLayerHoHuT::initialize(int stage)
     else if (stage == 1) //initialize vars, subscribe signals, etc
     {
     	debugEV << "in initialize() stage 1...";
-    	selfTimer = new cMessage("beacon-timer",SELF_TIMER);
-    	scheduleAt(simTime() + INITIAL_DELAY +uniform(0,0.001), selfTimer);
-
     	INITIAL_DELAY = 5;
     	BEACON_INTERVAL = 1;
+    	selfTimer = new cMessage("beacon-timer",SELF_TIMER);
+    	scheduleAt(simTime() + INITIAL_DELAY +uniform(0,0.001), selfTimer);
     }
 }
 
