@@ -6,7 +6,7 @@
 #include "BaseMobility.h"
 #include "NetwControlInfo.h"
 
-#include "HoHuTApplPkt_m.h"
+#include "src/modules/messages/HoHuT/HoHuTApplPkt_m.h"
 
 class MobileNodeAppLayerHoHuT : public BaseModule
 {

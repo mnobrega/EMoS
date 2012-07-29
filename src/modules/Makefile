@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libmiximmodules
 #
 # This file was generated with the command:
-#  opp_makemake -f --deep --make-so -o miximmodules -O out -I../base/connectionManager -I../base/messages -I../base/phyLayer -I../base/modules -I../base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -lmiximbase
+#  opp_makemake -f --deep --make-so -o miximmodules -O out -I../base/connectionManager -I../base/messages -I../base/phyLayer -I../base/modules -I../.. -I../base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -lmiximbase
 #
 
 # Name of target to be created (-o option)
@@ -14,6 +14,7 @@ INCLUDE_PATH = \
     -I../base/messages \
     -I../base/phyLayer \
     -I../base/modules \
+    -I../.. \
     -I../base/utils \
     -I. \
     -IanalogueModel \

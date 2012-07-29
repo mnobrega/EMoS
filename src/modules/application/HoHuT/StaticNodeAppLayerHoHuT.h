@@ -5,7 +5,7 @@
 #include "BaseModule.h"
 #include "NetwControlInfo.h"
 
-#include "HoHuTApplPkt_m.h"
+#include "src/modules/messages/HoHuT/HoHuTApplPkt_m.h"
 
 class StaticNodeAppLayerHoHuT : public BaseModule
 {
