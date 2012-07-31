@@ -13,6 +13,8 @@ class MobileNodeAppLayerHoHuT : public BaseModule
     public:
 		virtual ~MobileNodeAppLayerHoHuT();
 		virtual void initialize(int stage);
+		virtual void handleStaticNodeSig (cMessage *msg);
+		virtual float getStaticNodeSigMean(LAddress::L3Type staticNodeAddress);
 		virtual void handleMessage(cMessage *msg);
 		virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);
 		virtual void finish();
@@ -35,7 +37,9 @@ class MobileNodeAppLayerHoHuT : public BaseModule
         LAddress::L3Type nodeAddr;
         bool debug;
         bool stats;
-        bool dataCollectionMode;
+        bool dataCollectingActive;
+        unsigned int staticNodeSigsCollectingLimit;
+        bool calibrationMode;       //mode in which the node receives static_refs and then writes files with the means for each (x,y)
 
         // position signal tracking
         static const simsignalwrap_t mobilityStateChangedSignal;
@@ -45,7 +49,7 @@ class MobileNodeAppLayerHoHuT : public BaseModule
     private:
         // messages
         HoHuTApplPkt* staticNodeSignature;
-        HoHuTApplPkt* mobileNoteRSSIMean;
+        HoHuTApplPkt* mobileNodeRSSIMean;
 
         //statistic
         simsignal_t rssiValSignalId;

@@ -184,8 +184,9 @@ void AnnotationManager::drawBubble(Coord p1, std::string text) {
 }
 
 void AnnotationManager::erase(const Annotation* annotation) {
-	hide(annotation);
+	//hide(annotation); /* seems to cause seg fault - investigate further */
 	annotations.remove(const_cast<Annotation*>(annotation));
+	//delete annotation; /* seems to cause seg fault - investigate further */
 }
 
 cModule* AnnotationManager::createDummyModule(std::string displayString) {
@@ -263,10 +264,10 @@ void AnnotationManager::show(const Annotation* annotation) {
 }
 
 void AnnotationManager::hide(const Annotation* annotation) {
-	for (std::list<cModule*>::const_iterator i = annotation->dummyObjects.begin(); i != annotation->dummyObjects.end(); ++i) {
-		cModule* mod = *i;
-		mod->deleteModule();
-	}
+//	for (std::list<cModule*>::const_iterator i = annotation->dummyObjects.begin(); i != annotation->dummyObjects.end(); ++i) {
+//		cModule* mod = *i;
+//		mod->deleteModule();
+//	}
 	annotation->dummyObjects.clear();
 }
 

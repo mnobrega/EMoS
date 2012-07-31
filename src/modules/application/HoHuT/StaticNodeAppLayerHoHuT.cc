@@ -52,6 +52,10 @@ void StaticNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 			break;
 		case MOBILE_NODE_RSSI_MEAN:
 		    EV << "WEE! Recebi uma media dos meus node-sigs" << endl;
+		    mobileNodeStaticSigMean = check_and_cast<HoHuTApplPkt*>(msg);
+		    EV << "MobileNode says: Recebi uma STATIC_NODE_SIGNATURE" << endl;
+		    EV << "rssi=" << mobileNodeStaticSigMean->getSignalStrength() << endl;
+		    EV << "src_address=" << mobileNodeStaticSigMean->getSrcAddr() << endl;
 		    delete msg;
 		    break;
 		default:
