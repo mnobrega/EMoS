@@ -53,7 +53,7 @@ simple WiseRouteHoHuT extends BaseNetwLayer
         // the sink directs the tree building procedure with periodic floods.
         // iterationDelay is the period between two floods.
         
-        int nodeAddr;
+        int nodeNetwAddr;
         
         // RSSI threshold for route selection
         double rssiThreshold @unit(dBm) = default(-50 dBm);

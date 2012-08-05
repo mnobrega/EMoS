@@ -48,13 +48,12 @@ void WiseRouteHoHuT::initialize(int stage)
 
 	if(stage == 1) {
 
-	    myNetwAddr = par("nodeAddr").longValue(); //override with the node appAddress
+	    myNetwAddr = par("nodeNetwAddr").longValue(); //override with omnetpp.ini par
 
 		EV << "Host index=" << findHost()->getIndex() << ", Id="
 		<< findHost()->getId() << endl;
 
 		EV << "  host IP address=" << myNetwAddr << endl;
-		EV << "  host macaddress=" << arp->getMacAddr(myNetwAddr) << endl;
 		macaddress = arp->getMacAddr(myNetwAddr);
 
 		sinkAddress = LAddress::L3Type( par("sinkAddress").longValue() ); // 0
