@@ -48,6 +48,8 @@ void WiseRouteHoHuT::initialize(int stage)
 
 	if(stage == 1) {
 
+	    myNetwAddr = par("nodeAddr").longValue(); //override with the node appAddress
+
 		EV << "Host index=" << findHost()->getIndex() << ", Id="
 		<< findHost()->getId() << endl;
 
@@ -198,6 +200,7 @@ void WiseRouteHoHuT::handleLowerMsg(cMessage* msg)
 			    HoHuTApplPkt* decapsulatedMsg;
 			    decapsulatedMsg = check_and_cast<HoHuTApplPkt*>(decapsMsg(msgCopy));
 			    decapsulatedMsg->setSignalStrength(rssi);
+			    decapsulatedMsg->setSrcAddr(initialSrcAddr);
 			    //send up to the appLayer
 				sendUp(decapsulatedMsg);
 				nbDataPacketsReceived++;
@@ -267,6 +270,8 @@ void WiseRouteHoHuT::handleUpperMsg(cMessage* msg)
 		finalDestAddr = NetwControlInfo::getAddressFromControlInfo( cInfo );
 		delete cInfo;
 	}
+
+	EV << "WiseRouteHotHut says: finalDestAddr=" << finalDestAddr;
 
 	pkt->setFinalDestAddr(finalDestAddr);
 	pkt->setInitialSrcAddr(myNetwAddr);
@@ -399,13 +404,13 @@ WiseRouteHoHuT::floodTypes WiseRouteHoHuT::updateFloodTable(bool isFlood, const 
 		return NOTAFLOOD;
 }
 
-WiseRouteHoHuT::tFloodTable::key_type WiseRouteHoHuT::getRoute(const tFloodTable::key_type& destAddr, bool /*iAmOrigin*/) const
+WiseRouteHoHuT::tFloodTable::key_type WiseRouteHoHuT::getRoute(const tFloodTable::key_type& destAddr, bool iAmOrigin)
 {
 	// Find a route to dest address. As in the embedded code, if no route exists, indicate
 	// final destination as next hop. If we'are lucky, final destination is one hop away...
 	// If I am the origin of the packet and no route exists, use flood, hence return broadcast
 	// address for next hop.
-	tRouteTable::const_iterator pos = routeTable.find(destAddr);
+	tRouteTable::iterator pos = routeTable.find(destAddr);
 	if (pos != routeTable.end())
 		return pos->second.nextHop;
 	else

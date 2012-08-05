@@ -12,8 +12,6 @@ void StaticNodeAppLayerHoHuT::initialize(int stage)
         dataIn = findGate("lowerGateIn");
         ctrlOut = findGate("lowerControlOut");
         ctrlIn = findGate("lowerControlIn");
-
-        nodeAddr = LAddress::L3Type(par("nodeAddr").longValue());
         debug = par("debug").boolValue();
     }
     else if (stage == 1) //initialize vars, subscribe signals, etc
@@ -32,13 +30,15 @@ void StaticNodeAppLayerHoHuT::finish() {}
 
 void StaticNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 {
+    EV << "Received msg kind:" << msg->getKind() << " do no " << msg->getSenderGateId() << endl;
+
 	switch(msg->getKind())
 	{
 		case SELF_TIMER:
 		    EV << "Sending SIGNATURE";
 			nodeSignature = new HoHuTApplPkt("node-sig",STATIC_NODE_SIGNATURE);
 			nodeSignature->setSignalStrength(-1);
-			nodeSignature->setSrcAddr(nodeAddr);
+			nodeSignature->setSrcAddr(-1);
 			nodeSignature->setDestAddr(LAddress::L3BROADCAST);
 			NetwControlInfo::setControlInfo(nodeSignature, nodeSignature->getDestAddr());
 			send(nodeSignature, dataOut);

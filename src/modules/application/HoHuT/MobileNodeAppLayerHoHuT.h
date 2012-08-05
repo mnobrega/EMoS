@@ -34,7 +34,6 @@ class MobileNodeAppLayerHoHuT : public BaseModule
         int ctrlIn;
 
         // module parameters
-        LAddress::L3Type nodeAddr;
         bool debug;
         bool stats;
         bool dataCollectingActive;

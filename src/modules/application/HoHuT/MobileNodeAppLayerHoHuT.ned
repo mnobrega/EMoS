@@ -7,7 +7,6 @@ simple MobileNodeAppLayerHoHuT
         bool stats = default(true);							// gather statistical data
         bool calibrationMode = default(false);				// calibration of the static node position table
         int staticNodeSigsCollectingLimit = default(10);	// static node sigs received limit per static node
-        int nodeAddr;										// node addresse
         
     gates:
         input lowerGateIn; // to receive data from communications stack

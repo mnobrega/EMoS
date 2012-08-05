@@ -4,7 +4,6 @@ simple StaticNodeAppLayerHoHuT
 {
     parameters:
         bool debug = default(false); 		// debug switch
-        int nodeAddr;						// node address
         
     gates:
         input lowerGateIn; // to receive data from communications stack

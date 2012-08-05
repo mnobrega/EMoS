@@ -15,8 +15,6 @@ void MobileNodeAppLayerHoHuT::initialize(int stage)
         dataIn = findGate("lowerGateIn");
         ctrlOut = findGate("lowerControlOut");
         ctrlIn = findGate("lowerControlIn");
-
-        nodeAddr = LAddress::L3Type(par("nodeAddr").longValue());
         debug = par("debug").boolValue();
         stats = par("stats").boolValue();
         calibrationMode = par("calibrationMode").boolValue();
@@ -120,9 +118,9 @@ void MobileNodeAppLayerHoHuT::handleStaticNodeSig(cMessage * msg)
                 dataCollectingActive = false;
                 EV << "MobileNode says: Sending response to static node:" << staticNodeSignature->getSrcAddr() << endl;
                 mobileNodeRSSIMean = new HoHuTApplPkt("resp-sig",MOBILE_NODE_RSSI_MEAN);
-                mobileNodeRSSIMean->setDestAddr(staticNodeSignature->getSrcAddr());
-                mobileNodeRSSIMean->setSrcAddr(nodeAddr);
                 mobileNodeRSSIMean->setSignalStrength(this->getStaticNodeSigMean(staticNodeSignature->getSrcAddr()));
+                mobileNodeRSSIMean->setDestAddr(staticNodeSignature->getSrcAddr());
+                mobileNodeRSSIMean->setSrcAddr(-1);
                 NetwControlInfo::setControlInfo(mobileNodeRSSIMean,mobileNodeRSSIMean->getDestAddr());
                 send(mobileNodeRSSIMean,dataOut);
                 staticNodesRSSITable.erase(staticNodeSignature->getSrcAddr());
