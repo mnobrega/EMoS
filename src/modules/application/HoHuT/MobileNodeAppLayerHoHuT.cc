@@ -53,10 +53,6 @@ void MobileNodeAppLayerHoHuT::receiveSignal(cComponent *source, simsignal_t sign
     if (signalID == mobilityStateChangedSignal)
     {
         BaseMobility* baseMobility;
-        if (calibrationMode) //save the old position before updating to new
-        {
-            previousPosition = currentPosition;
-        }
         baseMobility = dynamic_cast<BaseMobility *>(obj);
         currentPosition = baseMobility->getCurrentPosition();
     }
@@ -71,61 +67,94 @@ float MobileNodeAppLayerHoHuT::getStaticNodeSigMean(LAddress::L3Type staticNodeA
     {
         auxSum += (*it).second; //rssi value
     }
-    auxSum = auxSum/staticNodesRSSITable.count(staticNodeAddress);
-    EV << "mean" << auxSum << endl;
-    return auxSum;
+    return auxSum/staticNodesRSSITable.count(staticNodeAddress);
 }
 
 
 void MobileNodeAppLayerHoHuT::handleStaticNodeSig(cMessage * msg)
 {
+    float meanForStaticNode=0;
     staticNodeSignature = check_and_cast<HoHuTApplPkt*>(msg);
 
     EV << "MobileNode says: Recebi uma STATIC_NODE_SIGNATURE" << endl;
     EV << "rssi=" << staticNodeSignature->getSignalStrength() << endl;
     EV << "src_address=" << staticNodeSignature->getSrcAddr() << endl;
 
+    if (stats)
+    {
+        emit(rssiValSignalId, staticNodeSignature->getSignalStrength());
+    }
+
     if (dataCollectingActive)
     {
-        if (stats)
-        {
-            emit(rssiValSignalId, staticNodeSignature->getSignalStrength());
-        }
-
-
         staticNodesRSSITable.insert(std::make_pair(staticNodeSignature->getSrcAddr(),staticNodeSignature->getSignalStrength()));
         EV << "samples available for node: " << staticNodesRSSITable.count(staticNodeSignature->getSrcAddr()) << endl;
+    }
 
-        if (calibrationMode)
+    if (calibrationMode)
+    {
+        EV << "X=" << currentPosition.x << " Y=" << currentPosition.y << endl;
+        //if position changed calculate power mean and save (x,y,P)k for the node k in the correspondent file
+        //- check if new position already collected. error if already collected.
+        if (previousPosition != currentPosition)
         {
-            EV << "X=" << currentPosition.x << " Y=" << currentPosition.y << endl;
-            //if position changed calculate power mean and save (x,y,P)k for the node k in the correspondent file
-            //- check if new position already collected. error if already collected.
-            if (previousPosition != currentPosition)
+            dataCollectingActive = false;
+
+            if (staticNodesRSSITable.size()>=staticNodeSigsCollectingLimit)
             {
-                EV << "Position has changed!!! Write list of received rssis to files";
+                std::multimap<int,float>::iterator it_nodeRSSI;
+                std::map<int,cXMLElement*>::const_iterator it_nodeXML;
+                cXMLElement* rssiSamplesXML;
+
+                EV << "Position has changed and collected enough static nodes!!! Write list of received rssis to files" << endl;
+                //for each static node collected
+                for (std::multimap<int,float>::iterator it_nodeRSSI = staticNodesRSSITable.begin(), end=staticNodesRSSITable.end(); it_nodeRSSI!= end; it_nodeRSSI=staticNodesRSSITable.upper_bound(it_nodeRSSI->first))
+                {
+                    meanForStaticNode = this->getStaticNodeSigMean(it_nodeRSSI->first);
+                    EV << "MobileNode says: (X=" << previousPosition.x << ", Y=" << previousPosition.y << ") rssiMean=" << meanForStaticNode << endl;
+
+                    it_nodeXML = staticNodesRSSIXMLs.find(it_nodeRSSI->first);
+                    if (it_nodeXML==staticNodesRSSIXMLs.end())
+                    {
+                        EV << "nao ha XML. tenho de criar um novo" << endl;
+                        staticNodesRSSIXMLs.insert(std::pair<int,cXMLElement*>(it_nodeRSSI->first,rssiSamplesXML));
+                    }
+                    else
+                    {
+                        EV << "ha XML. utilizar o que já existe" << endl;
+                    }
+                }
+                staticNodesRSSITable.clear();
             }
-            //if position unchanged keep collection the (staticNodeAddress,rssi) pairs
             else
             {
-                EV << "Position has NOT changed!!! Keep collecting static node sigs";
+                EV << "Not enough static node sigs collected for the current position." << endl;
+                staticNodesRSSITable.clear();
             }
+            previousPosition = currentPosition;
         }
+        //if position unchanged keep collecting the (staticNodeAddress,rssi) pairs
         else
         {
-            if (staticNodesRSSITable.count(staticNodeSignature->getSrcAddr())>=staticNodeSigsCollectingLimit)
-            {
-                dataCollectingActive = false;
-                EV << "MobileNode says: Sending response to static node:" << staticNodeSignature->getSrcAddr() << endl;
-                mobileNodeRSSIMean = new HoHuTApplPkt("resp-sig",MOBILE_NODE_RSSI_MEAN);
-                mobileNodeRSSIMean->setSignalStrength(this->getStaticNodeSigMean(staticNodeSignature->getSrcAddr()));
-                mobileNodeRSSIMean->setDestAddr(staticNodeSignature->getSrcAddr());
-                mobileNodeRSSIMean->setSrcAddr(-1);
-                NetwControlInfo::setControlInfo(mobileNodeRSSIMean,mobileNodeRSSIMean->getDestAddr());
-                send(mobileNodeRSSIMean,dataOut);
-                staticNodesRSSITable.erase(staticNodeSignature->getSrcAddr());
-                dataCollectingActive = true;
-            }
+            dataCollectingActive = true;
+            EV << "Position has NOT changed!!! Keep collecting static node sigs";
         }
     }
+    else
+    {
+        if (staticNodesRSSITable.count(staticNodeSignature->getSrcAddr())>=staticNodeSigsCollectingLimit)
+        {
+            dataCollectingActive = false;
+            EV << "MobileNode says: Sending response to static node:" << staticNodeSignature->getSrcAddr() << endl;
+            mobileNodeRSSIMean = new HoHuTApplPkt("resp-sig",MOBILE_NODE_RSSI_MEAN);
+            mobileNodeRSSIMean->setSignalStrength(this->getStaticNodeSigMean(staticNodeSignature->getSrcAddr()));
+            mobileNodeRSSIMean->setDestAddr(staticNodeSignature->getSrcAddr());
+            mobileNodeRSSIMean->setSrcAddr(-1);
+            NetwControlInfo::setControlInfo(mobileNodeRSSIMean,mobileNodeRSSIMean->getDestAddr());
+            send(mobileNodeRSSIMean,dataOut);
+            staticNodesRSSITable.erase(staticNodeSignature->getSrcAddr());
+            dataCollectingActive = true;
+        }
+    }
+
 }

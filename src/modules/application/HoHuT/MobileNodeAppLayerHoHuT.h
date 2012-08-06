@@ -56,6 +56,10 @@ class MobileNodeAppLayerHoHuT : public BaseModule
         // structure to store received RSSIs
         typedef std::multimap<int,float> tStaticNodesRSSITable;
         tStaticNodesRSSITable staticNodesRSSITable;
+
+        // structure to
+        typedef std::map<int,cXMLElement*> tStaticNodesRSSIXMLs;
+        tStaticNodesRSSIXMLs staticNodesRSSIXMLs;
 };
 
 #endif // MOBILE_NODE_APP_LAYER_H

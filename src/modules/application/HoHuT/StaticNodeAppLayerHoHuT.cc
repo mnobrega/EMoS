@@ -30,8 +30,6 @@ void StaticNodeAppLayerHoHuT::finish() {}
 
 void StaticNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 {
-    EV << "Received msg kind:" << msg->getKind() << " do no " << msg->getSenderGateId() << endl;
-
 	switch(msg->getKind())
 	{
 		case SELF_TIMER:

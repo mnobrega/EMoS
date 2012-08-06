@@ -1,0 +1,19 @@
+<movement>
+	<set speed="1"/>
+	<moveto x="9.5" y="12"/>
+	<wait t="10"/>
+	<moveto x="9.5" y="15"/>
+	<wait t="10"/>
+	<moveto x="9.5" y="17"/>
+	<wait t="10"/>
+	<moveto x="9.5" y="19"/>
+	<wait t="10"/>
+	<moveto x="9.5" y="21"/>
+	<wait t="10"/>
+	<moveto x="11.5" y="21"/>
+	<wait t="10"/>
+	<moveto x="13.5" y="21"/>
+	<wait t="10"/>
+	<moveto x="14.5" y="21"/>
+	<wait t="10"/>
+</movement>
