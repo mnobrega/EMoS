@@ -37,12 +37,12 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-    $O/TestCM.o \
     $O/ConnectedBCNodePhyLayer.o \
-    $O/ConnectedRNodePhyLayer.o \
-    $O/CMPhyLayer.o \
+    $O/TestCM.o \
+    $O/NotConnectedBCNodePhyLayer.o \
     $O/NotConnectedRNodePhyLayer.o \
-    $O/NotConnectedBCNodePhyLayer.o
+    $O/CMPhyLayer.o \
+    $O/ConnectedRNodePhyLayer.o
 
 # Message files
 MSGFILES =

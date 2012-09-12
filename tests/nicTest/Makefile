@@ -43,7 +43,7 @@ PROJECTRELATIVE_PATH = tests/nicTest
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
-OBJS = $O/TestApp.o $O/NicTests.o
+OBJS = $O/NicTests.o $O/TestApp.o
 
 # Message files
 MSGFILES =

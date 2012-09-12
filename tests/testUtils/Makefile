@@ -24,7 +24,7 @@ PROJECTRELATIVE_PATH = tests/testUtils
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
-OBJS = $O/TestModule.o $O/OmnetTestBase.o $O/asserts.o $O/Testmanager.o
+OBJS = $O/Testmanager.o $O/OmnetTestBase.o $O/TestModule.o $O/asserts.o
 
 # Message files
 MSGFILES =
