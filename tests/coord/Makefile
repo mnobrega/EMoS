@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for coord
 #
 # This file was generated with the command:
-#  opp_makemake -f -o coord -O out -u CMDENV -I../testUtils -I../../src/base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/src/modules -lmiximbase -lmiximmodules -lmiximtestUtils
+#  opp_makemake -f -o coord -O out -u CMDENV -I/usr/include/libxml2 -I../testUtils -I../../src/base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/src/modules -lmiximbase -lmiximmodules -lmiximtestUtils
 #
 
 # Name of target to be created (-o option)
@@ -14,7 +14,7 @@ USERIF_LIBS = $(CMDENV_LIBS)
 #USERIF_LIBS = $(TKENV_LIBS)
 
 # C++ include paths (with -I)
-INCLUDE_PATH = -I../testUtils -I../../src/base/utils -I.
+INCLUDE_PATH = -I/usr/include/libxml2 -I../testUtils -I../../src/base/utils -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =

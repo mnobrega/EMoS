@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for deviceTestAll
 #
 # This file was generated with the command:
-#  opp_makemake -f -o deviceTestAll -O out -u CMDENV -L../../../out/$(CONFIGNAME)/tests/power/utils -L../../../out/$(CONFIGNAME)/tests/testUtils -L../../../out/$(CONFIGNAME)/src/base -L../../../out/$(CONFIGNAME)/src/modules -lpowerTestUtils -lmiximbase -lmiximmodules
+#  opp_makemake -f -o deviceTestAll -O out -u CMDENV -I/usr/include/libxml2 -L../../../out/$(CONFIGNAME)/tests/power/utils -L../../../out/$(CONFIGNAME)/tests/testUtils -L../../../out/$(CONFIGNAME)/src/base -L../../../out/$(CONFIGNAME)/src/modules -lpowerTestUtils -lmiximbase -lmiximmodules
 #
 
 # Name of target to be created (-o option)
@@ -14,7 +14,7 @@ USERIF_LIBS = $(CMDENV_LIBS)
 #USERIF_LIBS = $(TKENV_LIBS)
 
 # C++ include paths (with -I)
-INCLUDE_PATH = -I.
+INCLUDE_PATH = -I/usr/include/libxml2 -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =

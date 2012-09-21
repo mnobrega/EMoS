@@ -6,15 +6,25 @@
 #include "BaseMobility.h"
 #include "NetwControlInfo.h"
 
+//c++ libs used
+#include "Coord.h"
+#include "libxml/parser.h"
+#include "libxml/tree.h"
+#include "string.h"
+
 #include "src/modules/messages/HoHuT/HoHuTApplPkt_m.h"
 
 class MobileNodeAppLayerHoHuT : public BaseModule
 {
     public:
 		virtual ~MobileNodeAppLayerHoHuT();
+		virtual xmlDocPtr getRadioMapClustered();
 		virtual void initialize(int stage);
 		virtual void handleStaticNodeSig (cMessage *msg);
-		virtual float getStaticNodeSigMean(LAddress::L3Type staticNodeAddress);
+		virtual xmlNodePtr getStaticNodePDFXMLNode(LAddress::L3Type staticNodeAddress);
+		virtual double getStaticNodeMeanRSSI(LAddress::L3Type staticNodeAddress);
+		virtual double convertTodBm(double valueInWatts);
+		virtual const char* convertToString(double value);
 		virtual void handleMessage(cMessage *msg);
 		virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);
 		virtual void finish();
@@ -36,8 +46,7 @@ class MobileNodeAppLayerHoHuT : public BaseModule
         // module parameters
         bool debug;
         bool stats;
-        bool dataCollectingActive;
-        unsigned int staticNodeSigsCollectingLimit;
+        unsigned int minimumStaticNodesForSample;
         bool calibrationMode;       //mode in which the node receives static_refs and then writes files with the means for each (x,y)
 
         // position signal tracking
@@ -54,12 +63,28 @@ class MobileNodeAppLayerHoHuT : public BaseModule
         simsignal_t rssiValSignalId;
 
         // structure to store received RSSIs
-        typedef std::multimap<int,float> tStaticNodesRSSITable;
+        typedef std::multimap<int,double> tStaticNodesRSSITable;
         tStaticNodesRSSITable staticNodesRSSITable;
 
-        // structure to
-        typedef std::map<int,cXMLElement*> tStaticNodesRSSIXMLs;
-        tStaticNodesRSSIXMLs staticNodesRSSIXMLs;
+        //radio map clustering
+        int clusterKeySize;
+        struct clusterKey
+        {
+            int address;
+            double mean;
+        };
+        struct byMean
+        {
+            bool operator() (clusterKey const &left, clusterKey const &right)
+            {
+                return left.mean < right.mean;
+            }
+        };
+
+        // calibrationMode - radio Map XML
+        xmlDocPtr radioMapXML;
+        xmlNodePtr radioMapXMLRoot;
+
 };
 
 #endif // MOBILE_NODE_APP_LAYER_H

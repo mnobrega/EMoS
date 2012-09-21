@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for traci
 #
 # This file was generated with the command:
-#  opp_makemake -f -o traci -O out -u CMDENV -I../../src/base/connectionManager -I../../src/base/messages -I../../src/base/phyLayer -I../../src/base/modules -I../../src/base/utils -I../../src/modules -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/src/modules -lmiximbase -lmiximmodules -lmiximtestUtils
+#  opp_makemake -f -o traci -O out -u CMDENV -I/usr/include/libxml2 -I../../src/base/connectionManager -I../../src/base/messages -I../../src/base/phyLayer -I../../src/base/modules -I../../src/base/utils -I../../src/modules -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/src/modules -lmiximbase -lmiximmodules -lmiximtestUtils
 #
 
 # Name of target to be created (-o option)
@@ -15,6 +15,7 @@ USERIF_LIBS = $(CMDENV_LIBS)
 
 # C++ include paths (with -I)
 INCLUDE_PATH = \
+    -I/usr/include/libxml2 \
     -I../../src/base/connectionManager \
     -I../../src/base/messages \
     -I../../src/base/phyLayer \

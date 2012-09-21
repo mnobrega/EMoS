@@ -10,9 +10,15 @@
 					<builder id="org.omnetpp.cdt.gnu.builder.debug.863134242" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="OMNeT++ Make Builder (opp_makemake)" superClass="org.omnetpp.cdt.gnu.builder.debug"/>
 					<tool id="cdt.managedbuild.tool.gnu.archiver.base.752652679" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 					<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1394815730" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+						<option id="gnu.cpp.compiler.option.include.paths.300895262" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+							<listOptionValue builtIn="false" value="/usr/include/libxml2"/>
+						</option>
 						<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1502874793" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 					</tool>
 					<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.741423791" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+						<option id="gnu.c.compiler.option.include.paths.630130337" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+							<listOptionValue builtIn="false" value="/usr/include/libxml2"/>
+						</option>
 						<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.133374181" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 					</tool>
 					<tool id="cdt.managedbuild.tool.gnu.c.linker.base.548956838" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
@@ -23,6 +29,9 @@
 						</inputType>
 					</tool>
 					<tool id="cdt.managedbuild.tool.gnu.assembler.base.2085767593" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
+						<option id="gnu.both.asm.option.include.paths.638668525" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+							<listOptionValue builtIn="false" value="/usr/include/libxml2"/>
+						</option>
 						<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1551087186" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 					</tool>
 				</toolChain>

@@ -1,5 +1,4 @@
 #include "MobileNodeAppLayerHoHuT.h"
-#include "Coord.h"
 
 Define_Module(MobileNodeAppLayerHoHuT);
 
@@ -18,20 +17,66 @@ void MobileNodeAppLayerHoHuT::initialize(int stage)
         debug = par("debug").boolValue();
         stats = par("stats").boolValue();
         calibrationMode = par("calibrationMode").boolValue();
-        staticNodeSigsCollectingLimit = par("staticNodeSigsCollectingLimit");
+        minimumStaticNodesForSample = par("minimumStaticNodesForSample");
+        clusterKeySize = par("clusterKeySize");
     }
     else if (stage == 1) //initialize vars, subscribe signals, etc
     {
         rssiValSignalId = registerSignal("rssiVal");
         findHost()->subscribe(mobilityStateChangedSignal, this);
-        previousPosition = new Coord(0,0,0);
-        dataCollectingActive = true;
+        previousPosition = new Coord(-1,-1,-1);
+        currentPosition = new Coord(0,0,0);
+
+        if (calibrationMode)
+        {
+            radioMapXML = xmlNewDoc(BAD_CAST "1.0");
+            radioMapXMLRoot = xmlNewNode(NULL,BAD_CAST "radioMap");
+            xmlDocSetRootElement(radioMapXML, radioMapXMLRoot);
+        }
     }
 }
 
 MobileNodeAppLayerHoHuT::~MobileNodeAppLayerHoHuT() {}
 
-void MobileNodeAppLayerHoHuT::finish() {}
+void MobileNodeAppLayerHoHuT::finish()
+{
+    if(calibrationMode)
+    {
+        xmlSaveFormatFileEnc("xml_radio_maps/radioMap.xml",radioMapXML,"UTF-8",1);
+        xmlSaveFormatFileEnc("xml_radio_maps/radioMapClustered.xml",this->getRadioMapClustered(),"UTF-8",1);
+        xmlFreeDoc(radioMapXML);
+        xmlCleanupParser();
+        xmlMemoryDump();
+    }
+}
+
+xmlDocPtr MobileNodeAppLayerHoHuT::getRadioMapClustered()
+{
+    std::vector<clusterKey> coordinateKeys;
+    clusterKey staticNodePDFKey;
+    xmlNodePtr coordinate = NULL;
+    xmlNodePtr staticNodePDF = NULL;
+
+    xmlDocPtr radioMapClusteredXML = xmlNewDoc(BAD_CAST "1.0");
+    xmlNodePtr radioMapClusteredXMLRoot = xmlNewNode(NULL,BAD_CAST "radioMapClustered");
+    xmlDocSetRootElement(radioMapClusteredXML, radioMapClusteredXMLRoot);
+
+    //TODO
+    //circle radioMapXML and create clusters. in the end add them to radioMapClusteredXMLRoot
+//    for (coordinate=radioMapXMLRoot->children; coordinate; coordinate=coordinate->next)
+//    {
+//        for (staticNodePDF=coordinate->children; staticNodePDF; staticNodePDF=staticNodePDF->next)
+//        {
+//            staticNodePDFKey.address = (int) xmlGetProp(staticNodePDF,BAD_CAST "address");
+//            staticNodePDFKey.mean = (double) xmlGetProp(staticNodePDF,BAD_CAST "mean");
+//            coordinateKeys.insert(staticNodePDFKey);
+//        }
+//
+//        std::sort(coordinateKeys.begin(), coordinateKeys.end(), byMean());
+//    }
+
+    return radioMapClusteredXML;
+}
 
 void MobileNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 {
@@ -58,25 +103,58 @@ void MobileNodeAppLayerHoHuT::receiveSignal(cComponent *source, simsignal_t sign
     }
 }
 
-float MobileNodeAppLayerHoHuT::getStaticNodeSigMean(LAddress::L3Type staticNodeAddress)
+double MobileNodeAppLayerHoHuT::getStaticNodeMeanRSSI(LAddress::L3Type staticNodeAddress)
 {
-    float auxSum = 0;
-    std::pair<std::multimap<int,float>::iterator, std::multimap<int,float>::iterator> ppp;
+    cStdDev stat("staticNodeStat");
+
+    std::pair<std::multimap<int,double>::iterator, std::multimap<int,double>::iterator> ppp;
     ppp = staticNodesRSSITable.equal_range(staticNodeAddress);
-    for (std::multimap<int,float>::iterator it=ppp.first; it != ppp.second; ++it)
+    for (std::multimap<int,double>::iterator it=ppp.first; it != ppp.second; ++it)
     {
-        auxSum += (*it).second; //rssi value
+        stat.collect((*it).second);
     }
-    return auxSum/staticNodesRSSITable.count(staticNodeAddress);
+    return stat.getMean();
 }
 
+xmlNodePtr MobileNodeAppLayerHoHuT::getStaticNodePDFXMLNode(LAddress::L3Type staticNodeAddress)
+{
+    cStdDev stat("staticNodeStat");
+
+    xmlNodePtr staticNodePDFXMLNode = xmlNewNode(NULL,BAD_CAST "staticNodePDF");
+    xmlNewProp(staticNodePDFXMLNode,BAD_CAST "address", BAD_CAST this->convertToString(staticNodeAddress));
+
+    std::pair<std::multimap<int,double>::iterator, std::multimap<int,double>::iterator> ppp;
+    ppp = staticNodesRSSITable.equal_range(staticNodeAddress);
+    for (std::multimap<int,double>::iterator it=ppp.first; it != ppp.second; ++it)
+    {
+        stat.collect((*it).second);
+    }
+
+    xmlNewProp(staticNodePDFXMLNode,BAD_CAST "mean", BAD_CAST this->convertToString(this->convertTodBm(stat.getMean())));
+    xmlNewProp(staticNodePDFXMLNode,BAD_CAST "stdDev", BAD_CAST this->convertToString(this->convertTodBm(stat.getStddev())));
+
+    return staticNodePDFXMLNode;
+}
+
+double MobileNodeAppLayerHoHuT::convertTodBm(double valueInWatts)
+{
+    return 10*log10(valueInWatts/0.001);
+}
+
+const char* MobileNodeAppLayerHoHuT::convertToString(double value)
+{
+    std::ostringstream s;
+    s << value;
+    std::string output = s.str();
+    const char* inCharPointerFormat = output.c_str();
+    return inCharPointerFormat;
+}
 
 void MobileNodeAppLayerHoHuT::handleStaticNodeSig(cMessage * msg)
 {
-    float meanForStaticNode=0;
     staticNodeSignature = check_and_cast<HoHuTApplPkt*>(msg);
 
-    EV << "MobileNode says: Recebi uma STATIC_NODE_SIGNATURE" << endl;
+    EV << "MobileNode says: Received STATIC_NODE_SIGNATURE" << endl;
     EV << "rssi=" << staticNodeSignature->getSignalStrength() << endl;
     EV << "src_address=" << staticNodeSignature->getSrcAddr() << endl;
 
@@ -85,76 +163,60 @@ void MobileNodeAppLayerHoHuT::handleStaticNodeSig(cMessage * msg)
         emit(rssiValSignalId, staticNodeSignature->getSignalStrength());
     }
 
-    if (dataCollectingActive)
+    //calibrationMode and new position
+    if (calibrationMode && previousPosition != currentPosition)
     {
-        staticNodesRSSITable.insert(std::make_pair(staticNodeSignature->getSrcAddr(),staticNodeSignature->getSignalStrength()));
-        EV << "samples available for node: " << staticNodesRSSITable.count(staticNodeSignature->getSrcAddr()) << endl;
-    }
+        EV << "Position has changed! previousPosition:" << previousPosition.x << previousPosition.y << " currentPosition:" << currentPosition.x << currentPosition.y << endl;
 
-    if (calibrationMode)
-    {
-        EV << "X=" << currentPosition.x << " Y=" << currentPosition.y << endl;
-        //if position changed calculate power mean and save (x,y,P)k for the node k in the correspondent file
-        //- check if new position already collected. error if already collected.
-        if (previousPosition != currentPosition)
+        xmlNodePtr coordinateNode = NULL;
+        bool addCoordinateToRadioMap = false;
+        std::multimap<int,double>::iterator it_nodeRSSI;
+
+        //for each static node collected
+        for (std::multimap<int,double>::iterator it_nodeRSSI = staticNodesRSSITable.begin(), end=staticNodesRSSITable.end(); it_nodeRSSI!= end; it_nodeRSSI=staticNodesRSSITable.upper_bound(it_nodeRSSI->first))
         {
-            dataCollectingActive = false;
-
-            if (staticNodesRSSITable.size()>=staticNodeSigsCollectingLimit)
+            if (staticNodesRSSITable.count(it_nodeRSSI->first)>=minimumStaticNodesForSample)
             {
-                std::multimap<int,float>::iterator it_nodeRSSI;
-                std::map<int,cXMLElement*>::const_iterator it_nodeXML;
-                cXMLElement* rssiSamplesXML;
-
-                EV << "Position has changed and collected enough static nodes!!! Write list of received rssis to files" << endl;
-                //for each static node collected
-                for (std::multimap<int,float>::iterator it_nodeRSSI = staticNodesRSSITable.begin(), end=staticNodesRSSITable.end(); it_nodeRSSI!= end; it_nodeRSSI=staticNodesRSSITable.upper_bound(it_nodeRSSI->first))
+                addCoordinateToRadioMap = true;
+                if (coordinateNode==NULL)
                 {
-                    meanForStaticNode = this->getStaticNodeSigMean(it_nodeRSSI->first);
-                    EV << "MobileNode says: (X=" << previousPosition.x << ", Y=" << previousPosition.y << ") rssiMean=" << meanForStaticNode << endl;
-
-                    it_nodeXML = staticNodesRSSIXMLs.find(it_nodeRSSI->first);
-                    if (it_nodeXML==staticNodesRSSIXMLs.end())
-                    {
-                        EV << "nao ha XML. tenho de criar um novo" << endl;
-                        staticNodesRSSIXMLs.insert(std::pair<int,cXMLElement*>(it_nodeRSSI->first,rssiSamplesXML));
-                    }
-                    else
-                    {
-                        EV << "ha XML. utilizar o que já existe" << endl;
-                    }
+                    coordinateNode = xmlNewNode(NULL, BAD_CAST "coordinate");
+                    xmlNewProp(coordinateNode, BAD_CAST "x", BAD_CAST this->convertToString(previousPosition.x));
+                    xmlNewProp(coordinateNode, BAD_CAST "y", BAD_CAST this->convertToString(previousPosition.y));
                 }
-                staticNodesRSSITable.clear();
+                xmlAddChild(coordinateNode, this->getStaticNodePDFXMLNode(it_nodeRSSI->first));
+                EV << "MobileNode says: (X=" << previousPosition.x << ", Y=" << previousPosition.y << ") nodeId:" << it_nodeRSSI->first << " rssiMean=" << 0 << endl;
             }
             else
             {
-                EV << "Not enough static node sigs collected for the current position." << endl;
-                staticNodesRSSITable.clear();
+                EV << "Not enough static node signatures collected for the current position for the node " << it_nodeRSSI->first << endl;
             }
-            previousPosition = currentPosition;
         }
-        //if position unchanged keep collecting the (staticNodeAddress,rssi) pairs
-        else
+
+        if (addCoordinateToRadioMap)
         {
-            dataCollectingActive = true;
-            EV << "Position has NOT changed!!! Keep collecting static node sigs";
+            xmlAddChild(radioMapXMLRoot, coordinateNode);
         }
+
+        staticNodesRSSITable.clear();
+        previousPosition = currentPosition;
     }
-    else
+    else if (!calibrationMode) //not calibration mode
     {
-        if (staticNodesRSSITable.count(staticNodeSignature->getSrcAddr())>=staticNodeSigsCollectingLimit)
+        if (staticNodesRSSITable.count(staticNodeSignature->getSrcAddr())>=minimumStaticNodesForSample)
         {
-            dataCollectingActive = false;
             EV << "MobileNode says: Sending response to static node:" << staticNodeSignature->getSrcAddr() << endl;
             mobileNodeRSSIMean = new HoHuTApplPkt("resp-sig",MOBILE_NODE_RSSI_MEAN);
-            mobileNodeRSSIMean->setSignalStrength(this->getStaticNodeSigMean(staticNodeSignature->getSrcAddr()));
+            mobileNodeRSSIMean->setSignalStrength(this->getStaticNodeMeanRSSI(staticNodeSignature->getSrcAddr()));
             mobileNodeRSSIMean->setDestAddr(staticNodeSignature->getSrcAddr());
             mobileNodeRSSIMean->setSrcAddr(-1);
             NetwControlInfo::setControlInfo(mobileNodeRSSIMean,mobileNodeRSSIMean->getDestAddr());
             send(mobileNodeRSSIMean,dataOut);
             staticNodesRSSITable.erase(staticNodeSignature->getSrcAddr());
-            dataCollectingActive = true;
         }
     }
 
+    //collect static nodes signatures
+    staticNodesRSSITable.insert(std::make_pair(staticNodeSignature->getSrcAddr(),staticNodeSignature->getSignalStrength()));
+    EV << "samples available for node: " << staticNodesRSSITable.count(staticNodeSignature->getSrcAddr()) << endl;
 }

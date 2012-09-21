@@ -2,14 +2,14 @@
 # OMNeT++/OMNEST Makefile for libmiximtestUtils
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o miximtestUtils -O out -I../../src/base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/src/modules
+#  opp_makemake -f --make-so -o miximtestUtils -O out -I/usr/include/libxml2 -I../../src/base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/src/modules
 #
 
 # Name of target to be created (-o option)
 TARGET = libmiximtestUtils$(SHARED_LIB_SUFFIX)
 
 # C++ include paths (with -I)
-INCLUDE_PATH = -I../../src/base/utils -I.
+INCLUDE_PATH = -I/usr/include/libxml2 -I../../src/base/utils -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =

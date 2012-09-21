@@ -2,11 +2,11 @@
 # OMNeT++/OMNEST Makefile for mixim
 #
 # This file was generated with the command:
-#  opp_makemake -f --nolink -O out -d power -d channelInfo -d decider -d blackboard -d coord -d basePhyLayer -d radioState -d connectionManager -d testUtils -d traci -d nicTest -d baseMobility -d mapping -L../out/$(CONFIGNAME)/tests/power/utils -L../out/$(CONFIGNAME)/tests/testUtils -L../out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/src/modules
+#  opp_makemake -f --nolink -O out -d power -d channelInfo -d decider -d blackboard -d coord -d basePhyLayer -d radioState -d connectionManager -d testUtils -d traci -d nicTest -d baseMobility -d mapping -I/usr/include/libxml2 -L../out/$(CONFIGNAME)/tests/power/utils -L../out/$(CONFIGNAME)/tests/testUtils -L../out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/src/modules
 #
 
 # C++ include paths (with -I)
-INCLUDE_PATH = -I.
+INCLUDE_PATH = -I/usr/include/libxml2 -I.
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../out

@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libmiximmodules
 #
 # This file was generated with the command:
-#  opp_makemake -f --deep --make-so -o miximmodules -O out -I../base/connectionManager -I../base/messages -I../base/phyLayer -I../base/modules -I../.. -I../base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -lmiximbase
+#  opp_makemake -f --deep --make-so -o miximmodules -O out -I/usr/include/libxml2 -I../base/connectionManager -I../base/messages -I../base/phyLayer -I../base/modules -I../.. -I../base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -lmiximbase
 #
 
 # Name of target to be created (-o option)
@@ -10,6 +10,7 @@ TARGET = libmiximmodules$(SHARED_LIB_SUFFIX)
 
 # C++ include paths (with -I)
 INCLUDE_PATH = \
+    -I/usr/include/libxml2 \
     -I../base/connectionManager \
     -I../base/messages \
     -I../base/phyLayer \

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<radioMap>
+  <coordinate x="9.5" y="12">
+    <staticNodePDF address="200" mean="-43.4285" stdDev="-40.2419"/>
+  </coordinate>
+  <coordinate x="9.5" y="15">
+    <staticNodePDF address="200" mean="-44.3315" stdDev="-44.172"/>
+  </coordinate>
+  <coordinate x="9.5" y="17">
+    <staticNodePDF address="200" mean="-51.4332" stdDev="-49.0309"/>
+  </coordinate>
+  <coordinate x="9.5" y="19">
+    <staticNodePDF address="200" mean="-36.37810" stdDev="-36.26460"/>
+  </coordinate>
+  <coordinate x="9.5" y="21">
+    <staticNodePDF address="200" mean="-31.56510" stdDev="-30.95290"/>
+  </coordinate>
+  <coordinate x="11.5" y="21">
+    <staticNodePDF address="200" mean="-30.9302" stdDev="-32.6855"/>
+  </coordinate>
+  <coordinate x="13.5" y="21">
+    <staticNodePDF address="200" mean="-26.4718" stdDev="-26.5721"/>
+  </coordinate>
+</radioMap>

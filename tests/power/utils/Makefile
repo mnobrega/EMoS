@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libpowerTestUtils
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o powerTestUtils -O out -I../../../src/base/connectionManager -I../../../src/modules/power/battery -I../../../src/base/messages -I../../../src/base/phyLayer -I../../../src/base/modules -I../../../src/base/utils -L../../../out/$(CONFIGNAME)/tests/testUtils -L../../../out/$(CONFIGNAME)/src/base -L../../../out/$(CONFIGNAME)/src/modules -lmiximbase -lmiximmodules
+#  opp_makemake -f --make-so -o powerTestUtils -O out -I/usr/include/libxml2 -I../../../src/base/connectionManager -I../../../src/modules/power/battery -I../../../src/base/messages -I../../../src/base/phyLayer -I../../../src/base/modules -I../../../src/base/utils -L../../../out/$(CONFIGNAME)/tests/testUtils -L../../../out/$(CONFIGNAME)/src/base -L../../../out/$(CONFIGNAME)/src/modules -lmiximbase -lmiximmodules
 #
 
 # Name of target to be created (-o option)
@@ -10,6 +10,7 @@ TARGET = libpowerTestUtils$(SHARED_LIB_SUFFIX)
 
 # C++ include paths (with -I)
 INCLUDE_PATH = \
+    -I/usr/include/libxml2 \
     -I../../../src/base/connectionManager \
     -I../../../src/modules/power/battery \
     -I../../../src/base/messages \

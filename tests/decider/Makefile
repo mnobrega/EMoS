@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for decider
 #
 # This file was generated with the command:
-#  opp_makemake -f -o decider -O out -u CMDENV -I../testUtils -I../../src/base/messages -I../../src/modules/phy -I../../src/modules/utility -I../../src/modules -I../../src/base/connectionManager -I../../src/modules/analogueModel -I../../src/modules/messages -I../../src/modules/obstacle -I../../src/base/phyLayer -I../../src/base/modules -I../../src/modules/mac/ieee80211p -I../../src/base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/src/modules -lmiximbase -lmiximmodules -lmiximtestUtils
+#  opp_makemake -f -o decider -O out -u CMDENV -I/usr/include/libxml2 -I../testUtils -I../../src/base/messages -I../../src/modules/phy -I../../src/modules/utility -I../../src/modules -I../../src/base/connectionManager -I../../src/modules/analogueModel -I../../src/modules/messages -I../../src/modules/obstacle -I../../src/base/phyLayer -I../../src/base/modules -I../../src/modules/mac/ieee80211p -I../../src/base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/src/modules -lmiximbase -lmiximmodules -lmiximtestUtils
 #
 
 # Name of target to be created (-o option)
@@ -15,6 +15,7 @@ USERIF_LIBS = $(CMDENV_LIBS)
 
 # C++ include paths (with -I)
 INCLUDE_PATH = \
+    -I/usr/include/libxml2 \
     -I../testUtils \
     -I../../src/base/messages \
     -I../../src/modules/phy \
