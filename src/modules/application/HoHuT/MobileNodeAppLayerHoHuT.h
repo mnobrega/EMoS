@@ -11,6 +11,9 @@
 #include "libxml/parser.h"
 #include "libxml/tree.h"
 #include "string.h"
+#include "algorithm"
+#include <vector>
+#include <map>
 
 #include "src/modules/messages/HoHuT/HoHuTApplPkt_m.h"
 
@@ -23,11 +26,13 @@ class MobileNodeAppLayerHoHuT : public BaseModule
 		virtual void handleStaticNodeSig (cMessage *msg);
 		virtual xmlNodePtr getStaticNodePDFXMLNode(LAddress::L3Type staticNodeAddress);
 		virtual double getStaticNodeMeanRSSI(LAddress::L3Type staticNodeAddress);
-		virtual double convertTodBm(double valueInWatts);
-		virtual const char* convertToString(double value);
 		virtual void handleMessage(cMessage *msg);
 		virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);
 		virtual void finish();
+
+		virtual double convertTodBm(double valueInWatts);
+        virtual const char* convertNumberToString(double number);
+        virtual bool inArray(const int needle,const std::vector<int> haystack);
 
 		enum APPl_MSG_TYPES
 		{
@@ -63,28 +68,17 @@ class MobileNodeAppLayerHoHuT : public BaseModule
         simsignal_t rssiValSignalId;
 
         // structure to store received RSSIs
-        typedef std::multimap<int,double> tStaticNodesRSSITable;
-        tStaticNodesRSSITable staticNodesRSSITable;
+        std::vector<int> staticNodeAddressesDetected;
+        std::multimap<int,double> staticNodesRSSITable;
 
         //radio map clustering
         int clusterKeySize;
-        struct clusterKey
-        {
-            int address;
-            double mean;
-        };
-        struct byMean
-        {
-            bool operator() (clusterKey const &left, clusterKey const &right)
-            {
-                return left.mean < right.mean;
-            }
-        };
+        typedef std::vector<int> clusterKey;
+        typedef std::multimap<clusterKey,xmlNodePtr> pairClusterKeyXMLNodePtr;
 
         // calibrationMode - radio Map XML
         xmlDocPtr radioMapXML;
         xmlNodePtr radioMapXMLRoot;
-
 };
 
 #endif // MOBILE_NODE_APP_LAYER_H

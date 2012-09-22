@@ -52,28 +52,35 @@ void MobileNodeAppLayerHoHuT::finish()
 
 xmlDocPtr MobileNodeAppLayerHoHuT::getRadioMapClustered()
 {
-    std::vector<clusterKey> coordinateKeys;
-    clusterKey staticNodePDFKey;
-    xmlNodePtr coordinate = NULL;
-    xmlNodePtr staticNodePDF = NULL;
+    std::map<double,int> pairsMeanStaticNodeAddress;
+    pairClusterKeyXMLNodePtr clusteredRadioMap;
+    clusterKey clusterKey;
+    double mean;
+    int staticNodeAddress;
 
+    xmlNodePtr position = NULL;
+    xmlNodePtr staticNodePDF = NULL;
     xmlDocPtr radioMapClusteredXML = xmlNewDoc(BAD_CAST "1.0");
     xmlNodePtr radioMapClusteredXMLRoot = xmlNewNode(NULL,BAD_CAST "radioMapClustered");
     xmlDocSetRootElement(radioMapClusteredXML, radioMapClusteredXMLRoot);
 
-    //TODO
-    //circle radioMapXML and create clusters. in the end add them to radioMapClusteredXMLRoot
-//    for (coordinate=radioMapXMLRoot->children; coordinate; coordinate=coordinate->next)
-//    {
-//        for (staticNodePDF=coordinate->children; staticNodePDF; staticNodePDF=staticNodePDF->next)
-//        {
-//            staticNodePDFKey.address = (int) xmlGetProp(staticNodePDF,BAD_CAST "address");
-//            staticNodePDFKey.mean = (double) xmlGetProp(staticNodePDF,BAD_CAST "mean");
-//            coordinateKeys.insert(staticNodePDFKey);
-//        }
-//
-//        std::sort(coordinateKeys.begin(), coordinateKeys.end(), byMean());
-//    }
+    for (position=radioMapXMLRoot->children; position; position=position->next)
+    {
+        for (staticNodePDF=position->children; staticNodePDF; staticNodePDF=staticNodePDF->next)
+        {
+            mean = atof(reinterpret_cast<const char*>(xmlGetProp(staticNodePDF, BAD_CAST "mean")));
+            staticNodeAddress = atoi(reinterpret_cast<const char*>(xmlGetProp(staticNodePDF,BAD_CAST "address")));
+            pairsMeanStaticNodeAddress.insert(std::make_pair(mean,staticNodeAddress));
+        }
+
+        //std::sort(pairsMeanStaticNodeAddress.begin(), pairsMeanStaticNodeAddress.end());
+        //sort the clusterKeysVec and define a clusterKey
+        //std::sort(positionKeys.begin(), positionKeys.end(), byMean());
+
+        //save pair (key,position) into clusteredRadio
+    }
+
+    //circle in clusteredRadioMap and convert it to radioMapClusteredXML
 
     return radioMapClusteredXML;
 }
@@ -119,35 +126,22 @@ double MobileNodeAppLayerHoHuT::getStaticNodeMeanRSSI(LAddress::L3Type staticNod
 xmlNodePtr MobileNodeAppLayerHoHuT::getStaticNodePDFXMLNode(LAddress::L3Type staticNodeAddress)
 {
     cStdDev stat("staticNodeStat");
+    std::multimap<int,double>::iterator it;
 
     xmlNodePtr staticNodePDFXMLNode = xmlNewNode(NULL,BAD_CAST "staticNodePDF");
-    xmlNewProp(staticNodePDFXMLNode,BAD_CAST "address", BAD_CAST this->convertToString(staticNodeAddress));
+    xmlNewProp(staticNodePDFXMLNode,BAD_CAST "address", BAD_CAST this->convertNumberToString(staticNodeAddress));
 
     std::pair<std::multimap<int,double>::iterator, std::multimap<int,double>::iterator> ppp;
     ppp = staticNodesRSSITable.equal_range(staticNodeAddress);
-    for (std::multimap<int,double>::iterator it=ppp.first; it != ppp.second; ++it)
+    for (it=ppp.first; it != ppp.second; ++it)
     {
         stat.collect((*it).second);
     }
 
-    xmlNewProp(staticNodePDFXMLNode,BAD_CAST "mean", BAD_CAST this->convertToString(this->convertTodBm(stat.getMean())));
-    xmlNewProp(staticNodePDFXMLNode,BAD_CAST "stdDev", BAD_CAST this->convertToString(this->convertTodBm(stat.getStddev())));
+    xmlNewProp(staticNodePDFXMLNode,BAD_CAST "mean", BAD_CAST this->convertNumberToString(this->convertTodBm(stat.getMean())));
+    xmlNewProp(staticNodePDFXMLNode,BAD_CAST "stdDev", BAD_CAST this->convertNumberToString(this->convertTodBm(stat.getStddev())));
 
     return staticNodePDFXMLNode;
-}
-
-double MobileNodeAppLayerHoHuT::convertTodBm(double valueInWatts)
-{
-    return 10*log10(valueInWatts/0.001);
-}
-
-const char* MobileNodeAppLayerHoHuT::convertToString(double value)
-{
-    std::ostringstream s;
-    s << value;
-    std::string output = s.str();
-    const char* inCharPointerFormat = output.c_str();
-    return inCharPointerFormat;
 }
 
 void MobileNodeAppLayerHoHuT::handleStaticNodeSig(cMessage * msg)
@@ -155,53 +149,40 @@ void MobileNodeAppLayerHoHuT::handleStaticNodeSig(cMessage * msg)
     staticNodeSignature = check_and_cast<HoHuTApplPkt*>(msg);
 
     EV << "MobileNode says: Received STATIC_NODE_SIGNATURE" << endl;
-    EV << "rssi=" << staticNodeSignature->getSignalStrength() << endl;
-    EV << "src_address=" << staticNodeSignature->getSrcAddr() << endl;
-
-    if (stats)
-    {
-        emit(rssiValSignalId, staticNodeSignature->getSignalStrength());
-    }
 
     //calibrationMode and new position
     if (calibrationMode && previousPosition != currentPosition)
     {
-        EV << "Position has changed! previousPosition:" << previousPosition.x << previousPosition.y << " currentPosition:" << currentPosition.x << currentPosition.y << endl;
-
-        xmlNodePtr coordinateNode = NULL;
-        bool addCoordinateToRadioMap = false;
-        std::multimap<int,double>::iterator it_nodeRSSI;
+        xmlNodePtr positionNode = NULL;
+        xmlNodePtr staticNodePDFXML = NULL;
+        bool addPositionToRadioMap = false;
 
         //for each static node collected
-        for (std::multimap<int,double>::iterator it_nodeRSSI = staticNodesRSSITable.begin(), end=staticNodesRSSITable.end(); it_nodeRSSI!= end; it_nodeRSSI=staticNodesRSSITable.upper_bound(it_nodeRSSI->first))
+        for (unsigned int i=0; i<staticNodeAddressesDetected.size();i++)
         {
-            if (staticNodesRSSITable.count(it_nodeRSSI->first)>=minimumStaticNodesForSample)
+            if (staticNodesRSSITable.count(staticNodeAddressesDetected[i])>=minimumStaticNodesForSample)
             {
-                addCoordinateToRadioMap = true;
-                if (coordinateNode==NULL)
+                addPositionToRadioMap = true;
+                if (positionNode==NULL)
                 {
-                    coordinateNode = xmlNewNode(NULL, BAD_CAST "coordinate");
-                    xmlNewProp(coordinateNode, BAD_CAST "x", BAD_CAST this->convertToString(previousPosition.x));
-                    xmlNewProp(coordinateNode, BAD_CAST "y", BAD_CAST this->convertToString(previousPosition.y));
+                    positionNode = xmlNewNode(NULL, BAD_CAST "position");
+                    xmlNewProp(positionNode, BAD_CAST "x", BAD_CAST this->convertNumberToString(previousPosition.x));
+                    xmlNewProp(positionNode, BAD_CAST "y", BAD_CAST this->convertNumberToString(previousPosition.y));
                 }
-                xmlAddChild(coordinateNode, this->getStaticNodePDFXMLNode(it_nodeRSSI->first));
-                EV << "MobileNode says: (X=" << previousPosition.x << ", Y=" << previousPosition.y << ") nodeId:" << it_nodeRSSI->first << " rssiMean=" << 0 << endl;
-            }
-            else
-            {
-                EV << "Not enough static node signatures collected for the current position for the node " << it_nodeRSSI->first << endl;
+                staticNodePDFXML = this->getStaticNodePDFXMLNode(staticNodeAddressesDetected[i]);
+                xmlAddChild(positionNode, staticNodePDFXML);
             }
         }
 
-        if (addCoordinateToRadioMap)
+        if (addPositionToRadioMap)
         {
-            xmlAddChild(radioMapXMLRoot, coordinateNode);
+            xmlAddChild(radioMapXMLRoot, positionNode);
         }
 
         staticNodesRSSITable.clear();
         previousPosition = currentPosition;
     }
-    else if (!calibrationMode) //not calibration mode
+    else if (!calibrationMode) //not calibration mode TODO - fix this in order to send a vector of measurements
     {
         if (staticNodesRSSITable.count(staticNodeSignature->getSrcAddr())>=minimumStaticNodesForSample)
         {
@@ -216,7 +197,49 @@ void MobileNodeAppLayerHoHuT::handleStaticNodeSig(cMessage * msg)
         }
     }
 
-    //collect static nodes signatures
+    // COLLECT
     staticNodesRSSITable.insert(std::make_pair(staticNodeSignature->getSrcAddr(),staticNodeSignature->getSignalStrength()));
+    if (!this->inArray(staticNodeSignature->getSrcAddr(),staticNodeAddressesDetected))
+    {
+        staticNodeAddressesDetected.push_back(staticNodeSignature->getSrcAddr());
+    }
+    if (stats)
+    {
+       emit(rssiValSignalId, staticNodeSignature->getSignalStrength());
+    }
+
     EV << "samples available for node: " << staticNodesRSSITable.count(staticNodeSignature->getSrcAddr()) << endl;
 }
+
+
+
+/*** AUX functions TODO remove this to another class common to all HoHuT app layers***/
+double MobileNodeAppLayerHoHuT::convertTodBm(double valueInWatts)
+{
+    return 10*log10(valueInWatts/0.001);
+}
+
+const char* MobileNodeAppLayerHoHuT::convertNumberToString(double number)
+{
+    std::ostringstream s;
+    s << number;
+    std::string output = s.str();
+    const char* inCharPointerFormat = output.c_str();
+    return inCharPointerFormat;
+}
+
+bool MobileNodeAppLayerHoHuT::inArray(const int needle,const std::vector<int> haystack)
+{
+    int max = haystack.size();
+    if (max==0) return false;
+    for (int i=0; i<max; i++)
+    {
+        if (haystack[i]==needle)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+
