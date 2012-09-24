@@ -25,7 +25,6 @@ INCLUDE_PATH = \
     -Iapplication/traci \
     -IconnectionManager \
     -Imac \
-    -Imac/HoHuT \
     -Imac/ieee80211p \
     -Imessages \
     -Imessages/HoHuT \
@@ -89,7 +88,6 @@ OBJS = \
     $O/mac/csma.o \
     $O/mac/AlohaMacLayer.o \
     $O/mac/CSMA802154.o \
-    $O/mac/HoHuT/CSMA802154HoHuT.o \
     $O/mac/ieee80211p/Mac1609_4.o \
     $O/messages/UWBIRMacPkt.o \
     $O/messages/AggrPkt.o \
@@ -241,7 +239,6 @@ clean:
 	-rm -f application/traci/*_m.cc application/traci/*_m.h
 	-rm -f connectionManager/*_m.cc connectionManager/*_m.h
 	-rm -f mac/*_m.cc mac/*_m.h
-	-rm -f mac/HoHuT/*_m.cc mac/HoHuT/*_m.h
 	-rm -f mac/ieee80211p/*_m.cc mac/ieee80211p/*_m.h
 	-rm -f messages/*_m.cc messages/*_m.h
 	-rm -f messages/HoHuT/*_m.cc messages/HoHuT/*_m.h
@@ -265,7 +262,7 @@ cleanall: clean
 	-rm -rf $(PROJECT_OUTPUT_DIR)
 
 depend:
-	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc analogueModel/*.cc application/*.cc application/HoHuT/*.cc application/ieee80211p/*.cc application/traci/*.cc connectionManager/*.cc mac/*.cc mac/HoHuT/*.cc mac/ieee80211p/*.cc messages/*.cc messages/HoHuT/*.cc mobility/*.cc mobility/traci/*.cc netw/*.cc netw/HoHuT/*.cc nic/*.cc node/*.cc node/HoHuT/*.cc obstacle/*.cc phy/*.cc power/*.cc power/battery/*.cc transport/*.cc utility/*.cc world/*.cc world/annotations/*.cc
+	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc analogueModel/*.cc application/*.cc application/HoHuT/*.cc application/ieee80211p/*.cc application/traci/*.cc connectionManager/*.cc mac/*.cc mac/ieee80211p/*.cc messages/*.cc messages/HoHuT/*.cc mobility/*.cc mobility/traci/*.cc netw/*.cc netw/HoHuT/*.cc nic/*.cc node/*.cc node/HoHuT/*.cc obstacle/*.cc phy/*.cc power/*.cc power/battery/*.cc transport/*.cc utility/*.cc world/*.cc world/annotations/*.cc
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 $O/analogueModel/BreakpointPathlossModel.o: analogueModel/BreakpointPathlossModel.cc \
@@ -917,32 +914,6 @@ $O/mac/csma.o: mac/csma.cc \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
 	mac/csma.h \
-	utility/DroppedPacket.h
-$O/mac/HoHuT/CSMA802154HoHuT.o: mac/HoHuT/CSMA802154HoHuT.cc \
-	../base/messages/ChannelSenseRequest_m.h \
-	../base/messages/MacPkt_m.h \
-	../base/modules/BaseBattery.h \
-	../base/modules/BaseLayer.h \
-	../base/modules/BaseMacLayer.h \
-	../base/modules/BaseModule.h \
-	../base/modules/BatteryAccess.h \
-	../base/phyLayer/BaseDecider.h \
-	../base/phyLayer/ChannelState.h \
-	../base/phyLayer/Decider.h \
-	../base/phyLayer/DeciderToPhyInterface.h \
-	../base/phyLayer/Interpolation.h \
-	../base/phyLayer/MappingBase.h \
-	../base/phyLayer/PhyToMacControlInfo.h \
-	../base/utils/HostState.h \
-	../base/utils/MacToNetwControlInfo.h \
-	../base/utils/MiXiMDefs.h \
-	../base/utils/PassedMessage.h \
-	../base/utils/SimpleAddress.h \
-	../base/utils/miximkerneldefs.h \
-	mac/HoHuT/CSMA802154HoHuT.h \
-	mac/csma.h \
-	phy/Decider802154Narrow.h \
-	phy/DeciderResult802154Narrow.h \
 	utility/DroppedPacket.h
 $O/mac/ieee80211p/Mac1609_4.o: mac/ieee80211p/Mac1609_4.cc \
 	../base/connectionManager/BaseConnectionManager.h \

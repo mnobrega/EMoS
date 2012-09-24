@@ -21,7 +21,7 @@ package org.mixim.tests.traci;
 import org.mixim.base.connectionManager.ConnectionManager;
 import org.mixim.base.modules.BaseWorldUtility;
 import org.mixim.modules.mobility.traci.TraCIScenarioManagerLaunchd;
-import org.mixim.tests.traci.TraCITestApp;
+
 
 module Highway
 {

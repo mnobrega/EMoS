@@ -16,7 +16,7 @@
 package org.mixim.base.modules;
 
 import org.mixim.base.connectionManager.ConnectionManager;
-import org.mixim.base.modules.BaseWorldUtility;
+
 
 network BaseNetwork
 {

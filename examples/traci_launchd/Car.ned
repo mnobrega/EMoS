@@ -18,7 +18,11 @@
 
 package org.mixim.examples.traci_launchd;
 
-import org.mixim.base.modules.*;
+import org.mixim.base.modules.BaseArp;
+import org.mixim.base.modules.IBaseApplLayer;
+import org.mixim.base.modules.IBaseNetwLayer;
+import org.mixim.base.modules.IMobility;
+
 
 module Car
 {

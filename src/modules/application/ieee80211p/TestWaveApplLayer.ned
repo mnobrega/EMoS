@@ -19,8 +19,6 @@
 //
 
 package org.mixim.modules.application.ieee80211p;
-import org.mixim.base.modules.IBaseApplLayer;
-
 simple TestWaveApplLayer extends BaseWaveApplLayer
 {
     parameters:

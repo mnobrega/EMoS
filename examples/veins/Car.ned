@@ -20,8 +20,11 @@
 
 package org.mixim.examples.veins;
 
-import org.mixim.base.modules.*;
+import org.mixim.base.modules.BaseArp;
+import org.mixim.base.modules.IBaseApplLayer;
+import org.mixim.base.modules.IMobility;
 import org.mixim.modules.nic.Nic80211p;
+
 
 module Car
 {

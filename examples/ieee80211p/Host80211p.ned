@@ -20,10 +20,10 @@
 
 package org.mixim.examples.ieee80211p;
 
-import org.mixim.base.modules.IMobility;
 import org.mixim.base.modules.IBaseApplLayer;
+import org.mixim.base.modules.IMobility;
 import org.mixim.modules.nic.Nic80211p;
-import org.mixim.modules.application.ieee80211p.TestWaveApplLayer;
+
 
 //
 // Example host module using an 802.11p Network interface card.
