@@ -30,6 +30,9 @@ void StaticNodeAppLayerHoHuT::finish() {}
 
 void StaticNodeAppLayerHoHuT::handleMessage(cMessage * msg)
 {
+    HoHuTApplPkt* nodeSignature;
+    HoHuTApplPkt* mobileNodeStaticSigMean;
+
 	switch(msg->getKind())
 	{
 		case SELF_TIMER:

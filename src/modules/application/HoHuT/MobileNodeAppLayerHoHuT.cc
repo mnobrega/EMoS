@@ -52,8 +52,8 @@ void MobileNodeAppLayerHoHuT::finish()
 
 xmlDocPtr MobileNodeAppLayerHoHuT::getRadioMapClustered()
 {
-    std::map<double,int> pairsMeanStaticNodeAddress;
-    pairClusterKeyXMLNodePtr clusteredRadioMap;
+    std::map<double, int> pairsMeanStaticNodeAddress;
+    std::multimap<clusterKey,xmlNodePtr> clusteredRadioMap;
     clusterKey clusterKey;
     double mean;
     int staticNodeAddress;
@@ -73,14 +73,14 @@ xmlDocPtr MobileNodeAppLayerHoHuT::getRadioMapClustered()
             pairsMeanStaticNodeAddress.insert(std::make_pair(mean,staticNodeAddress));
         }
 
-        //std::sort(pairsMeanStaticNodeAddress.begin(), pairsMeanStaticNodeAddress.end());
-        //sort the clusterKeysVec and define a clusterKey
-        //std::sort(positionKeys.begin(), positionKeys.end(), byMean());
+        //TODO: sorting map<double,int>
 
-        //save pair (key,position) into clusteredRadio
+        //TODO: sorting by address the clusterkeys
+
+        //TODO: save pair(clusterkey, xmlnodeptr) in the clusteredRadioMap
     }
 
-    //circle in clusteredRadioMap and convert it to radioMapClusteredXML
+    //TODO: circle thru the clusteredRadioMap and put the result in the XML file
 
     return radioMapClusteredXML;
 }
@@ -146,9 +146,9 @@ xmlNodePtr MobileNodeAppLayerHoHuT::getStaticNodePDFXMLNode(LAddress::L3Type sta
 
 void MobileNodeAppLayerHoHuT::handleStaticNodeSig(cMessage * msg)
 {
-    staticNodeSignature = check_and_cast<HoHuTApplPkt*>(msg);
+    HoHuTApplPkt* staticNodeSignature = check_and_cast<HoHuTApplPkt*>(msg);
 
-    EV << "MobileNode says: Received STATIC_NODE_SIGNATURE" << endl;
+    EV << "MobileNode says: Received STATIC_NODE_SIGNATURE from node: " << staticNodeSignature->getSrcAddr() << endl;
 
     //calibrationMode and new position
     if (calibrationMode && previousPosition != currentPosition)
@@ -184,17 +184,7 @@ void MobileNodeAppLayerHoHuT::handleStaticNodeSig(cMessage * msg)
     }
     else if (!calibrationMode) //not calibration mode TODO - fix this in order to send a vector of measurements
     {
-        if (staticNodesRSSITable.count(staticNodeSignature->getSrcAddr())>=minimumStaticNodesForSample)
-        {
-            EV << "MobileNode says: Sending response to static node:" << staticNodeSignature->getSrcAddr() << endl;
-            mobileNodeRSSIMean = new HoHuTApplPkt("resp-sig",MOBILE_NODE_RSSI_MEAN);
-            mobileNodeRSSIMean->setSignalStrength(this->getStaticNodeMeanRSSI(staticNodeSignature->getSrcAddr()));
-            mobileNodeRSSIMean->setDestAddr(staticNodeSignature->getSrcAddr());
-            mobileNodeRSSIMean->setSrcAddr(-1);
-            NetwControlInfo::setControlInfo(mobileNodeRSSIMean,mobileNodeRSSIMean->getDestAddr());
-            send(mobileNodeRSSIMean,dataOut);
-            staticNodesRSSITable.erase(staticNodeSignature->getSrcAddr());
-        }
+        //collect samples during t=x and when x is reached send the result to the closest static node
     }
 
     // COLLECT

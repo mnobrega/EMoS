@@ -30,7 +30,7 @@ protected:
     virtual void handleUpperMsg(cMessage* msg);
     virtual void handleLowerMsg(cMessage* msg);
     virtual void handleSelfMsg(cMessage* msg) { };
-    virtual void handleLowerControl(cMessage* msg);
+    virtual void handleLowerControl(cMessage* msg){ delete msg; }
     virtual void handleUpperControl(cMessage* msg) { delete msg; }
     WiseRoutePkt* encapsMsg(HoHuTApplPkt *pkt);
     HoHuTApplPkt* decapsMsg(WiseRoutePkt *pkt);

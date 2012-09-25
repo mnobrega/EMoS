@@ -8,5 +8,6 @@ simple MobileHoHuT extends BaseNetwLayer
         bool trace = default(false);
         stats = default(true);
         headerLength = default(0);
+        @display("i=block/fork");
         @class(MobileHoHuT);
 }

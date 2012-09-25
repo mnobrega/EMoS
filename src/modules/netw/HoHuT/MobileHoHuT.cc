@@ -37,11 +37,6 @@ void MobileHoHuT::initialize(int stage)
 	}
 }
 
-void MobileHoHuT::handleLowerControl(cMessage *msg)
-{
-    sendControlUp(msg);
-}
-
 void MobileHoHuT::handleLowerMsg(cMessage* msg)
 {
     if (msg->getKind()==DATA)

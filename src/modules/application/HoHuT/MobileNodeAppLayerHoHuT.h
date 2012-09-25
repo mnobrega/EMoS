@@ -60,10 +60,6 @@ class MobileNodeAppLayerHoHuT : public BaseModule
         Coord previousPosition;
 
     private:
-        // messages
-        HoHuTApplPkt* staticNodeSignature;
-        HoHuTApplPkt* mobileNodeRSSIMean;
-
         //statistic
         simsignal_t rssiValSignalId;
 
@@ -74,7 +70,6 @@ class MobileNodeAppLayerHoHuT : public BaseModule
         //radio map clustering
         int clusterKeySize;
         typedef std::vector<int> clusterKey;
-        typedef std::multimap<clusterKey,xmlNodePtr> pairClusterKeyXMLNodePtr;
 
         // calibrationMode - radio Map XML
         xmlDocPtr radioMapXML;

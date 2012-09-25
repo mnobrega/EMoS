@@ -40,8 +40,6 @@ class StaticNodeAppLayerHoHuT : public BaseModule
 
         // timers
         cMessage* selfTimer;
-        HoHuTApplPkt* nodeSignature;
-        HoHuTApplPkt* mobileNodeStaticSigMean;
 };
 
 #endif // STATIC_NODE_APP_LAYER_H

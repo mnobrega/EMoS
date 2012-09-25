@@ -1,24 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <radioMap>
   <position x="9.5" y="12">
-    <staticNodePDF address="200" mean="-43.42850" stdDev="-40.24190"/>
+    <staticNodePDF address="1000" mean="-29.6707" stdDev="-26.7457"/>
+    <staticNodePDF address="1003" mean="-28.0722" stdDev="-25.0707"/>
+    <staticNodePDF address="1002" mean="-34.4515" stdDev="-30.7274"/>
+    <staticNodePDF address="1001" mean="-27.5927" stdDev="-23.1027"/>
   </position>
   <position x="9.5" y="15">
-    <staticNodePDF address="200" mean="-44.3315" stdDev="-44.172"/>
+    <staticNodePDF address="1000" mean="-46.7165" stdDev="-43.6276"/>
+    <staticNodePDF address="1003" mean="-46.352" stdDev="-44.4002"/>
+    <staticNodePDF address="1002" mean="-48.6298" stdDev="-46.7972"/>
+    <staticNodePDF address="1001" mean="-45.5332" stdDev="-43.5332"/>
   </position>
   <position x="9.5" y="17">
-    <staticNodePDF address="200" mean="-51.4332" stdDev="-49.0309"/>
+    <staticNodePDF address="1000" mean="-31.4687" stdDev="-27.8021"/>
+    <staticNodePDF address="1003" mean="-33.0583" stdDev="-29.3576"/>
+    <staticNodePDF address="1002" mean="-25.7943" stdDev="-21.712"/>
+    <staticNodePDF address="1001" mean="-26.3032" stdDev="-23.0145"/>
   </position>
   <position x="9.5" y="19">
-    <staticNodePDF address="200" mean="-36.37810" stdDev="-36.26460"/>
+    <staticNodePDF address="1000" mean="-24.7761" stdDev="-22.4298"/>
+    <staticNodePDF address="1003" mean="-30.9481" stdDev="-27.7144"/>
+    <staticNodePDF address="1002" mean="-29.8836" stdDev="-27.2578"/>
+    <staticNodePDF address="1001" mean="-23.2192" stdDev="-21.1327"/>
   </position>
   <position x="9.5" y="21">
-    <staticNodePDF address="200" mean="-31.5651" stdDev="-30.9529"/>
+    <staticNodePDF address="1000" mean="-28.9979" stdDev="-27.2047"/>
+    <staticNodePDF address="1003" mean="-28.5699" stdDev="-26.1854"/>
+    <staticNodePDF address="1002" mean="-30.2069" stdDev="-29.1449"/>
+    <staticNodePDF address="1001" mean="-28.8921" stdDev="-27.745"/>
   </position>
   <position x="11.5" y="21">
-    <staticNodePDF address="200" mean="-30.9302" stdDev="-32.6855"/>
+    <staticNodePDF address="1000" mean="-28.1743" stdDev="-25.7879"/>
+    <staticNodePDF address="1003" mean="-29.2451" stdDev="-27.5854"/>
+    <staticNodePDF address="1002" mean="-25.4198" stdDev="-21.5996"/>
+    <staticNodePDF address="1001" mean="-25.7935" stdDev="-24.2486"/>
   </position>
   <position x="13.5" y="21">
-    <staticNodePDF address="200" mean="-26.4718" stdDev="-26.5721"/>
+    <staticNodePDF address="1000" mean="-25.9046" stdDev="-24.7371"/>
+    <staticNodePDF address="1003" mean="-28.6538" stdDev="-28.1391"/>
+    <staticNodePDF address="1002" mean="-28.3248" stdDev="-26.0614"/>
+    <staticNodePDF address="1001" mean="-29.5018" stdDev="-28.6254"/>
   </position>
 </radioMap>
