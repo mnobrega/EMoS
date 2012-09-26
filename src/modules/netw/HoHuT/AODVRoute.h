@@ -24,12 +24,10 @@ protected:
 
     //stats stuff
     int totalSend;
-    int totalRreqSend;
-    int totalRreqRec;
-    int totalRrepSend;
-    int totalRrepRec;
-    int totalRrepAckSend;
-    int totalRrepAckRec;
+    int totalRreqSend; //seq for sent RREQ
+    int totalRreqRec; //seq for received RREQ
+    int totalRrepSend; //seq for sent RREP
+    int totalRrepRec; //seq for received RREP
     int totalRerrSend;
     int totalRerrRec;
 

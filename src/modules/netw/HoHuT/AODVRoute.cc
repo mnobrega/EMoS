@@ -67,8 +67,6 @@ void AODVRoute::finish()
         recordScalar("rreq rec", totalRreqRec);
         recordScalar("rrep send", totalRrepSend);
         recordScalar("rrep rec", totalRrepRec);
-        recordScalar("rrep ack send", totalRrepAckSend);
-        recordScalar("rrep ack rec", totalRrepAckRec);
         recordScalar("rerr send", totalRerrSend);
         recordScalar("rerr rec", totalRerrRec);
     }
