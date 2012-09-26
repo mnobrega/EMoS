@@ -116,6 +116,7 @@ OBJS = \
     $O/netw/WiseRoute.o \
     $O/netw/AdaptiveProbabilisticBroadcast.o \
     $O/netw/HoHuT/MobileHoHuT.o \
+    $O/netw/HoHuT/AODVRoute.o \
     $O/obstacle/ObstacleControl.o \
     $O/obstacle/Obstacle.o \
     $O/phy/PhyLayerBattery.o \
@@ -1388,6 +1389,25 @@ $O/netw/WiseRoute.o: netw/WiseRoute.cc \
 	netw/WiseRoute.h \
 	utility/Packet.h \
 	utility/SimTracer.h
+$O/netw/HoHuT/AODVRoute.o: netw/HoHuT/AODVRoute.cc \
+	../base/messages/ApplPkt_m.h \
+	../base/messages/NetwPkt_m.h \
+	../base/modules/ArpInterface.h \
+	../base/modules/BaseBattery.h \
+	../base/modules/BaseLayer.h \
+	../base/modules/BaseModule.h \
+	../base/modules/BaseNetwLayer.h \
+	../base/modules/BatteryAccess.h \
+	../base/utils/HostState.h \
+	../base/utils/MacToNetwControlInfo.h \
+	../base/utils/MiXiMDefs.h \
+	../base/utils/NetwControlInfo.h \
+	../base/utils/PassedMessage.h \
+	../base/utils/SimpleAddress.h \
+	../base/utils/miximkerneldefs.h \
+	messages/HoHuT/HoHuTApplPkt_m.h \
+	messages/WiseRoutePkt_m.h \
+	netw/HoHuT/AODVRoute.h
 $O/netw/HoHuT/MobileHoHuT.o: netw/HoHuT/MobileHoHuT.cc \
 	../base/messages/ApplPkt_m.h \
 	../base/messages/NetwPkt_m.h \
