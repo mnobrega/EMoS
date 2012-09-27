@@ -2,9 +2,6 @@
 #include "MiXiMDefs.h"
 #include "BaseNetwLayer.h"
 
-class HoHuTApplPkt;
-class WiseRoutePkt;
-
 class MIXIM_API AODVRoute : public BaseNetwLayer
 {
 public:
@@ -24,10 +21,10 @@ protected:
 
     //stats stuff
     int totalSend;
-    int totalRreqSend; //seq for sent RREQ
-    int totalRreqRec; //seq for received RREQ
-    int totalRrepSend; //seq for sent RREP
-    int totalRrepRec; //seq for received RREP
+    int totalRreqSend;
+    int totalRreqRec;
+    int totalRrepSend;
+    int totalRrepRec;
     int totalRerrSend;
     int totalRerrRec;
 
@@ -36,14 +33,16 @@ protected:
     virtual void handleSelfMsg(cMessage* msg) { };
     virtual void handleLowerControl(cMessage* msg){ delete msg; }
     virtual void handleUpperControl(cMessage* msg) { delete msg; }
-    WiseRoutePkt* encapsMsg(HoHuTApplPkt *pkt);
-    HoHuTApplPkt* decapsMsg(WiseRoutePkt *pkt);
+    NetwPkt* encapsMsg(cPacket *appPkt);
+    cMessage* decapsMsg(NetwPkt *msg);
 
     //route table
     typedef struct routeTableEntry
     {
+        LAddress::L3Type destAddr;
+        int destSeqNo;
         LAddress::L3Type nextHop;
-        int numHops;
+        int hopCount;
     };
     typedef std::map<LAddress::L3Type,routeTableEntry> tRouteTable;
     tRouteTable routeTable;

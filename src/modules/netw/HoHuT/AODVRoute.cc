@@ -72,7 +72,7 @@ void AODVRoute::finish()
     }
 }
 
-WiseRoutePkt* AODVRoute::encapsMsg(HoHuTApplPkt *appPkt)
+NetwPkt* AODVRoute::encapsMsg(cPacket *appPkt)
 {
     LAddress::L2Type macAddr;
     LAddress::L3Type netwAddr;
@@ -110,7 +110,7 @@ WiseRoutePkt* AODVRoute::encapsMsg(HoHuTApplPkt *appPkt)
     return pkt;
 }
 
-HoHuTApplPkt* AODVRoute::decapsMsg(WiseRoutePkt *msg)
+cMessage* AODVRoute::decapsMsg(NetwPkt *msg)
 {
     HoHuTApplPkt *pkt = static_cast<HoHuTApplPkt*>(msg->decapsulate());
     setUpControlInfo(pkt, msg->getSrcAddr());
