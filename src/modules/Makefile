@@ -28,7 +28,6 @@ INCLUDE_PATH = \
     -Imac/ieee80211p \
     -Imessages \
     -Imessages/HoHuT \
-    -Imessages/HoHuT/AODV \
     -Imobility \
     -Imobility/traci \
     -Inetw \
@@ -150,10 +149,10 @@ OBJS = \
     $O/messages/AirFrameUWBIR_m.o \
     $O/messages/UWBIRMacPkt_m.o \
     $O/messages/ProbabilisticBroadcastPkt_m.o \
+    $O/messages/HoHuT/AODVRouteResponse_m.o \
     $O/messages/HoHuT/HoHuTApplPkt_m.o \
-    $O/messages/HoHuT/AODV/RREQ_m.o \
-    $O/messages/HoHuT/AODV/RERR_m.o \
-    $O/messages/HoHuT/AODV/RREP_m.o
+    $O/messages/HoHuT/AODVRouteRequest_m.o \
+    $O/messages/HoHuT/AODVRouteError_m.o
 
 # Message files
 MSGFILES = \
@@ -166,10 +165,10 @@ MSGFILES = \
     messages/AirFrameUWBIR.msg \
     messages/UWBIRMacPkt.msg \
     messages/ProbabilisticBroadcastPkt.msg \
+    messages/HoHuT/AODVRouteResponse.msg \
     messages/HoHuT/HoHuTApplPkt.msg \
-    messages/HoHuT/AODV/RREQ.msg \
-    messages/HoHuT/AODV/RERR.msg \
-    messages/HoHuT/AODV/RREP.msg
+    messages/HoHuT/AODVRouteRequest.msg \
+    messages/HoHuT/AODVRouteError.msg
 
 #------------------------------------------------------------------------------
 
@@ -250,7 +249,6 @@ clean:
 	-rm -f mac/ieee80211p/*_m.cc mac/ieee80211p/*_m.h
 	-rm -f messages/*_m.cc messages/*_m.h
 	-rm -f messages/HoHuT/*_m.cc messages/HoHuT/*_m.h
-	-rm -f messages/HoHuT/AODV/*_m.cc messages/HoHuT/AODV/*_m.h
 	-rm -f mobility/*_m.cc mobility/*_m.h
 	-rm -f mobility/traci/*_m.cc mobility/traci/*_m.h
 	-rm -f netw/*_m.cc netw/*_m.h
@@ -271,7 +269,7 @@ cleanall: clean
 	-rm -rf $(PROJECT_OUTPUT_DIR)
 
 depend:
-	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc analogueModel/*.cc application/*.cc application/HoHuT/*.cc application/ieee80211p/*.cc application/traci/*.cc connectionManager/*.cc mac/*.cc mac/ieee80211p/*.cc messages/*.cc messages/HoHuT/*.cc messages/HoHuT/AODV/*.cc mobility/*.cc mobility/traci/*.cc netw/*.cc netw/HoHuT/*.cc nic/*.cc node/*.cc node/HoHuT/*.cc obstacle/*.cc phy/*.cc power/*.cc power/battery/*.cc transport/*.cc utility/*.cc world/*.cc world/annotations/*.cc
+	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc analogueModel/*.cc application/*.cc application/HoHuT/*.cc application/ieee80211p/*.cc application/traci/*.cc connectionManager/*.cc mac/*.cc mac/ieee80211p/*.cc messages/*.cc messages/HoHuT/*.cc mobility/*.cc mobility/traci/*.cc netw/*.cc netw/HoHuT/*.cc nic/*.cc node/*.cc node/HoHuT/*.cc obstacle/*.cc phy/*.cc power/*.cc power/battery/*.cc transport/*.cc utility/*.cc world/*.cc world/annotations/*.cc
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 $O/analogueModel/BreakpointPathlossModel.o: analogueModel/BreakpointPathlossModel.cc \
@@ -515,10 +513,15 @@ $O/application/HoHuT/MobileNodeAppLayerHoHuT.o: application/HoHuT/MobileNodeAppL
 	messages/HoHuT/HoHuTApplPkt_m.h
 $O/application/HoHuT/StaticNodeAppLayerHoHuT.o: application/HoHuT/StaticNodeAppLayerHoHuT.cc \
 	../base/messages/ApplPkt_m.h \
+	../base/modules/BaseApplLayer.h \
+	../base/modules/BaseBattery.h \
+	../base/modules/BaseLayer.h \
 	../base/modules/BaseModule.h \
+	../base/modules/BatteryAccess.h \
 	../base/utils/HostState.h \
 	../base/utils/MiXiMDefs.h \
 	../base/utils/NetwControlInfo.h \
+	../base/utils/PassedMessage.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
 	application/HoHuT/StaticNodeAppLayerHoHuT.h \
@@ -1052,30 +1055,30 @@ $O/messages/WiseRoutePkt_m.o: messages/WiseRoutePkt_m.cc \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
 	messages/WiseRoutePkt_m.h
+$O/messages/HoHuT/AODVRouteError_m.o: messages/HoHuT/AODVRouteError_m.cc \
+	../base/messages/NetwPkt_m.h \
+	../base/utils/MiXiMDefs.h \
+	../base/utils/SimpleAddress.h \
+	../base/utils/miximkerneldefs.h \
+	messages/HoHuT/AODVRouteError_m.h
+$O/messages/HoHuT/AODVRouteRequest_m.o: messages/HoHuT/AODVRouteRequest_m.cc \
+	../base/messages/NetwPkt_m.h \
+	../base/utils/MiXiMDefs.h \
+	../base/utils/SimpleAddress.h \
+	../base/utils/miximkerneldefs.h \
+	messages/HoHuT/AODVRouteRequest_m.h
+$O/messages/HoHuT/AODVRouteResponse_m.o: messages/HoHuT/AODVRouteResponse_m.cc \
+	../base/messages/NetwPkt_m.h \
+	../base/utils/MiXiMDefs.h \
+	../base/utils/SimpleAddress.h \
+	../base/utils/miximkerneldefs.h \
+	messages/HoHuT/AODVRouteResponse_m.h
 $O/messages/HoHuT/HoHuTApplPkt_m.o: messages/HoHuT/HoHuTApplPkt_m.cc \
 	../base/messages/ApplPkt_m.h \
 	../base/utils/MiXiMDefs.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
 	messages/HoHuT/HoHuTApplPkt_m.h
-$O/messages/HoHuT/AODV/RERR_m.o: messages/HoHuT/AODV/RERR_m.cc \
-	../base/messages/NetwPkt_m.h \
-	../base/utils/MiXiMDefs.h \
-	../base/utils/SimpleAddress.h \
-	../base/utils/miximkerneldefs.h \
-	messages/HoHuT/AODV/RERR_m.h
-$O/messages/HoHuT/AODV/RREP_m.o: messages/HoHuT/AODV/RREP_m.cc \
-	../base/messages/NetwPkt_m.h \
-	../base/utils/MiXiMDefs.h \
-	../base/utils/SimpleAddress.h \
-	../base/utils/miximkerneldefs.h \
-	messages/HoHuT/AODV/RREP_m.h
-$O/messages/HoHuT/AODV/RREQ_m.o: messages/HoHuT/AODV/RREQ_m.cc \
-	../base/messages/NetwPkt_m.h \
-	../base/utils/MiXiMDefs.h \
-	../base/utils/SimpleAddress.h \
-	../base/utils/miximkerneldefs.h \
-	messages/HoHuT/AODV/RREQ_m.h
 $O/mobility/ANSimMobility.o: mobility/ANSimMobility.cc \
 	../base/modules/BaseBattery.h \
 	../base/modules/BaseMobility.h \

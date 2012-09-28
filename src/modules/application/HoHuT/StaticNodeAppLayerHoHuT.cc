@@ -19,7 +19,7 @@ void StaticNodeAppLayerHoHuT::initialize(int stage)
     	debugEV << "in initialize() stage 1...";
     	INITIAL_DELAY = 5;
     	BEACON_INTERVAL = 1;
-    	selfTimer = new cMessage("beacon-timer",SELF_TIMER);
+    	selfTimer = new cMessage("beacon-timer",STATIC_NODE_SIG_TIMER);
     	scheduleAt(simTime() + INITIAL_DELAY +uniform(0,0.001), selfTimer);
     }
 }
@@ -28,39 +28,68 @@ StaticNodeAppLayerHoHuT::~StaticNodeAppLayerHoHuT() {}
 
 void StaticNodeAppLayerHoHuT::finish() {}
 
-void StaticNodeAppLayerHoHuT::handleMessage(cMessage * msg)
+void StaticNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
 {
-    HoHuTApplPkt* nodeSignature;
-    HoHuTApplPkt* mobileNodeStaticSigMean;
+    switch (msg->getKind())
+    {
+        case STATIC_NODE_SIG_TIMER:
+            //sendStaticNodeMsg();
+            if (this->getParentModule()->getIndex()==0)
+            {
+                sendStaticNodeMsg("test");
+            }
+            delete (msg);
+//            if (!selfTimer->isScheduled())
+//            {
+//                scheduleAt(simTime()+BEACON_INTERVAL,selfTimer);
+//            }
+            break;
+        default:
+            error("Unknown msg kind. MsgKind="+msg->getKind());
+            break;
+    }
+}
 
-	switch(msg->getKind())
-	{
-		case SELF_TIMER:
-		    EV << "Sending SIGNATURE";
-			nodeSignature = new HoHuTApplPkt("node-sig",STATIC_NODE_SIGNATURE);
-			nodeSignature->setSignalStrength(-1);
-			nodeSignature->setSrcAddr(-1);
-			nodeSignature->setDestAddr(LAddress::L3BROADCAST);
-			NetwControlInfo::setControlInfo(nodeSignature, nodeSignature->getDestAddr());
-			send(nodeSignature, dataOut);
-			if (!selfTimer->isScheduled())
-			{
-				scheduleAt(simTime()+BEACON_INTERVAL,selfTimer);
-			}
-			break;
-		case STATIC_NODE_SIGNATURE:
-			delete msg;  //not for me. im a static node
-			break;
-		case MOBILE_NODE_RSSI_MEAN:
-		    EV << "WEE! Recebi uma media dos meus node-sigs" << endl;
-		    mobileNodeStaticSigMean = check_and_cast<HoHuTApplPkt*>(msg);
-		    EV << "MobileNode says: Recebi uma STATIC_NODE_SIGNATURE" << endl;
-		    EV << "rssi=" << mobileNodeStaticSigMean->getSignalStrength() << endl;
-		    EV << "src_address=" << mobileNodeStaticSigMean->getSrcAddr() << endl;
-		    delete msg;
-		    break;
-		default:
-		    error("Unknown msg kind. MsgKind="+msg->getKind());
-			break;
-	}
+void StaticNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
+{
+    HoHuTApplPkt* m = static_cast<HoHuTApplPkt*>(msg);
+    switch (msg->getKind())
+    {
+        case STATIC_NODE_MSG:
+            debugEV << "Received a node msg from node: " << m->getSrcAddr() << endl;
+            break;
+        case STATIC_NODE_SIG:
+            debugEV << "Received a node msg from node: " << m->getSrcAddr() << endl;
+            break;
+        default:
+            error("Unknown msg type received.");
+            break;
+    }
+}
+
+void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
+{
+    //TODO - this should be used for failed msg deliveries by the netwlayer due to not founding a route in acceptable time
+}
+
+/**** APP ****/
+
+void StaticNodeAppLayerHoHuT::sendStaticNodeSig()
+{
+    debugEV << "Sending SIGNATURE" << endl;
+    HoHuTApplPkt* nodeSignature = new HoHuTApplPkt("node-sig",STATIC_NODE_SIG);
+    nodeSignature->setSignalStrength(-1);
+    nodeSignature->setSrcAddr(-1);
+    nodeSignature->setDestAddr(LAddress::L3BROADCAST);
+    NetwControlInfo::setControlInfo(nodeSignature, nodeSignature->getDestAddr());
+    send(nodeSignature, dataOut);
+}
+
+void StaticNodeAppLayerHoHuT::sendStaticNodeMsg(const char* msgData)
+{
+    debugEV << "Sending static node msg" << endl;
+    HoHuTApplPkt* aodvTestDataMsg = new HoHuTApplPkt("aodv-test",STATIC_NODE_MSG);
+    aodvTestDataMsg->setData(msgData);
+    NetwControlInfo::setControlInfo(aodvTestDataMsg, 1003);
+    send(aodvTestDataMsg, dataOut);
 }

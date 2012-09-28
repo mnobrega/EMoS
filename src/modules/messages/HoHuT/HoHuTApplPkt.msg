@@ -3,9 +3,10 @@ cplusplus {{
 }}
 
 class ApplPkt;
-class LAddress::L3Type extends void;
+class LAddress::L3Type;
 
 message HoHuTApplPkt extends ApplPkt
 {
-    double signalStrength;
+    double signalStrength = -1;
+    string data;
 }

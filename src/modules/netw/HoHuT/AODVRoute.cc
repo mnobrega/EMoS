@@ -4,11 +4,15 @@
 #include <algorithm>
 #include <cassert>
 
+// todo delete
 #include "HoHuTApplPkt_m.h"
 #include "WiseRoutePkt_m.h"
+// todo delete
+
 #include "ArpInterface.h"
 #include "MacToNetwControlInfo.h"
 #include "NetwControlInfo.h"
+#include "ApplPkt_m.h"
 
 using std::endl;
 
@@ -20,15 +24,47 @@ void AODVRoute::initialize(int stage)
 	if (stage == 0)
 	{
 		trace = par("trace");
+		debug = par("debug").boolValue();
+		pktQueueElementLifetime = par("pktQueueElementLifetime");
+		pktQueueCheckingPeriod = par("pktQueueCheckingPeriod");
 	}
 	else if (stage == 1)
 	{
-	    EV << "Host index=" << findHost()->getIndex() << ", Id=" << findHost()->getId() << endl;
-	    EV << "  host IP address=" << myNetwAddr << endl;
-	    EV << "  host macaddress=" << arp->getMacAddr(myNetwAddr) << endl;
+	    debugEV << "Host index=" << findHost()->getIndex() << ", Id=" << findHost()->getId() << endl;
+	    debugEV << "  host IP address=" << myNetwAddr << endl;
+	    debugEV << "  host macaddress=" << arp->getMacAddr(myNetwAddr) << endl;
 	}
 }
 
+void AODVRoute::finish()
+{
+    if (stats)
+    {
+        recordScalar("Aodv totalSend ", totalSend);
+        recordScalar("rreq send", totalRreqSend);
+        recordScalar("rreq rec", totalRreqRec);
+        recordScalar("rrep send", totalRrepSend);
+        recordScalar("rrep rec", totalRrepRec);
+        recordScalar("rerr send", totalRerrSend);
+        recordScalar("rerr rec", totalRerrRec);
+    }
+    destroyPktQueue(); //had error. not prioritary so commented
+}
+
+/// MSG HANDLING
+void AODVRoute::handleSelfMsg(cMessage * msg)
+{
+   switch (msg->getKind())
+   {
+       case CHECK_PKT_QUEUE_TIMER:
+           checkPktQueue();
+           delete msg;
+           break;
+       default:
+           delete msg;
+           break;
+   }
+}
 void AODVRoute::handleLowerMsg(cMessage* msg)
 {
     if (msg->getKind()==DATA)
@@ -51,38 +87,38 @@ void AODVRoute::handleLowerMsg(cMessage* msg)
         delete msg;
     }
 }
-
 void AODVRoute::handleUpperMsg(cMessage * msg)
 {
-    HoHuTApplPkt* m = static_cast<HoHuTApplPkt*>(msg);
-	sendDown(encapsMsg(m));
-}
+    ApplPkt* appPkt = static_cast<ApplPkt*>(msg);
+    NetwPkt* netwPkt = encapsMsg(appPkt);
 
-void AODVRoute::finish()
-{
-    if (stats)
+    if (hasRouteForDestination(netwPkt->getDestAddr()))
     {
-        recordScalar("Aodv totalSend ", totalSend);
-        recordScalar("rreq send", totalRreqSend);
-        recordScalar("rreq rec", totalRreqRec);
-        recordScalar("rrep send", totalRrepSend);
-        recordScalar("rrep rec", totalRrepRec);
-        recordScalar("rerr send", totalRerrSend);
-        recordScalar("rerr rec", totalRerrRec);
+        debugEV << "route found for destination:" << netwPkt->getDestAddr() << endl;
+        sendDown(netwPkt);
+    }
+    else
+    {
+        debugEV << "route not found for destination:" << netwPkt->getDestAddr() << endl;
+        cMessage* selfTimer = new cMessage("beacon-timer",CHECK_PKT_QUEUE_TIMER);
+        scheduleAt(simTime() + pktQueueCheckingPeriod, selfTimer);
+        addToPktQueue(netwPkt);
+
+        //find route
     }
 }
 
-NetwPkt* AODVRoute::encapsMsg(cPacket *appPkt)
+/// ENCAPSULATION
+NetwPkt* AODVRoute::encapsMsg(cPacket* appPkt)
 {
     LAddress::L2Type macAddr;
     LAddress::L3Type netwAddr;
 
-    WiseRoutePkt *pkt = new WiseRoutePkt(appPkt->getName(), appPkt->getKind());
-    pkt->setBitLength(headerLength);
-    pkt->setInitialSrcAddr(myNetwAddr);
-    pkt->setSrcAddr(myNetwAddr);
-
     cObject* cInfo = appPkt->removeControlInfo();
+
+    NetwPkt *pkt = new NetwPkt(appPkt->getName(), appPkt->getKind());
+    pkt->setBitLength(headerLength);
+    pkt->setSrcAddr(myNetwAddr);
 
     if(cInfo == NULL)
     {
@@ -94,7 +130,6 @@ NetwPkt* AODVRoute::encapsMsg(cPacket *appPkt)
         delete cInfo;
     }
     pkt->setDestAddr(netwAddr);
-    pkt->setFinalDestAddr(netwAddr);
 
     if(LAddress::isL3Broadcast(netwAddr))
     {
@@ -104,16 +139,60 @@ NetwPkt* AODVRoute::encapsMsg(cPacket *appPkt)
     {
         macAddr = arp->getMacAddr(netwAddr);
     }
-
     setDownControlInfo(pkt, macAddr);
+
     pkt->encapsulate(appPkt);
     return pkt;
 }
-
-cMessage* AODVRoute::decapsMsg(NetwPkt *msg)
+cPacket* AODVRoute::decapsMsg(NetwPkt *msg)
 {
-    HoHuTApplPkt *pkt = static_cast<HoHuTApplPkt*>(msg->decapsulate());
-    setUpControlInfo(pkt, msg->getSrcAddr());
+    ApplPkt *pkt = static_cast<ApplPkt*>(msg->decapsulate());
     delete msg;
     return pkt;
 }
+
+
+/// ROUTE TABLE
+bool AODVRoute::hasRouteForDestination(LAddress::L3Type destAddr)
+{
+    return false;
+}
+void AODVRoute::checkRouteTable()
+{
+    //todo - checks the route table for routes with expired lifetime
+}
+
+
+/// PACKET QUEUE
+void AODVRoute::destroyPktQueue()
+{
+    int count = 0;
+    while (!pktQueue.empty())
+    {
+        pktQueueElement *qEl = pktQueue.back();
+        pktQueue.pop_back();
+        EV << qEl->destAddr;
+        EV << qEl->lifeTime;
+        EV << qEl->packet->getDestAddr();
+        //delete decapsMsg(qEl->packet);
+        //delete qEl->packet;
+        //free(qEl);
+        count++;
+    }
+    debugEV << count << " pkts were destroyed" << endl;
+}
+void AODVRoute::addToPktQueue(NetwPkt * pkt)
+{
+    debugEV << "Adding packet to queue!" << endl;
+    pktQueueElement qEl;
+    qEl.destAddr = pkt->getDestAddr();
+    qEl.lifeTime = simTime()+pktQueueElementLifetime;
+    qEl.packet = pkt;
+    pktQueue.push_back(&qEl);
+}
+void AODVRoute::checkPktQueue()
+{
+    debugEV << "Checking packet queue for packets to send or expire!" << endl;
+}
+
+

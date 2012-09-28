@@ -189,7 +189,7 @@ void MobileNodeAppLayerHoHuT::handleStaticNodeSig(cMessage * msg)
 
     // COLLECT
     staticNodesRSSITable.insert(std::make_pair(staticNodeSignature->getSrcAddr(),staticNodeSignature->getSignalStrength()));
-    if (!this->inArray(staticNodeSignature->getSrcAddr(),staticNodeAddressesDetected))
+    if (!inArray(staticNodeSignature->getSrcAddr(),staticNodeAddressesDetected))
     {
         staticNodeAddressesDetected.push_back(staticNodeSignature->getSrcAddr());
     }

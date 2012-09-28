@@ -9,17 +9,17 @@ public:
     virtual void finish();
 
 protected:
-    enum messagesTypes
+    enum AODV_MSG_TYPES
     {
-        DATA,
         RREQ,
         RREP,
-        RERR
+        RERR,
+        DATA,
+        CHECK_PKT_QUEUE_TIMER
     };
 
     bool stats, trace;
 
-    //stats stuff
     int totalSend;
     int totalRreqSend;
     int totalRreqRec;
@@ -28,23 +28,39 @@ protected:
     int totalRerrSend;
     int totalRerrRec;
 
-    virtual void handleUpperMsg(cMessage* msg);
-    virtual void handleLowerMsg(cMessage* msg);
-    virtual void handleSelfMsg(cMessage* msg) { };
-    virtual void handleLowerControl(cMessage* msg){ delete msg; }
-    virtual void handleUpperControl(cMessage* msg) { delete msg; }
-    NetwPkt* encapsMsg(cPacket *appPkt);
-    cMessage* decapsMsg(NetwPkt *msg);
+    void handleUpperMsg(cMessage *);
+    void handleLowerMsg(cMessage *);
+    void handleSelfMsg(cMessage *);
+    void handleLowerControl(cMessage * msg){ delete msg; }
+    void handleUpperControl(cMessage * msg) { delete msg; }
+    NetwPkt* encapsMsg(cPacket *);
+    cPacket* decapsMsg(NetwPkt *);
 
     //route table
-    typedef struct routeTableEntry
+    struct routeTableEntry
     {
         LAddress::L3Type destAddr;
         int destSeqNo;
         LAddress::L3Type nextHop;
         int hopCount;
+        int lifeTime;
     };
-    typedef std::map<LAddress::L3Type,routeTableEntry> tRouteTable;
-    tRouteTable routeTable;
-    virtual void updateRouteTable(const tRouteTable::key_type& destAddress, const LAddress::L3Type& nextHop, int numHops);
+    std::map<LAddress::L3Type,routeTableEntry> routeTable;
+    bool hasRouteForDestination(LAddress::L3Type);
+    void checkRouteTable();
+
+
+    // packets queue
+    int pktQueueElementLifetime;
+    int pktQueueCheckingPeriod;
+    struct pktQueueElement
+    {
+        LAddress::L3Type    destAddr;
+        simtime_t   lifeTime;
+        NetwPkt*    packet;
+    };
+    std::vector<pktQueueElement*> pktQueue;
+    void destroyPktQueue();
+    void addToPktQueue(NetwPkt *);
+    void checkPktQueue();
 };
