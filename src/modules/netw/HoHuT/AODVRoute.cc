@@ -48,7 +48,7 @@ void AODVRoute::finish()
         recordScalar("rerr send", totalRerrSend);
         recordScalar("rerr rec", totalRerrRec);
     }
-    destroyPktQueue(); //had error. not prioritary so commented
+    //destroyPktQueue(); //had error. not prioritary so commented
 }
 
 /// MSG HANDLING
