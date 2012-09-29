@@ -150,6 +150,7 @@ OBJS = \
     $O/messages/UWBIRMacPkt_m.o \
     $O/messages/ProbabilisticBroadcastPkt_m.o \
     $O/messages/HoHuT/AODVRouteResponse_m.o \
+    $O/messages/HoHuT/AODVData_m.o \
     $O/messages/HoHuT/HoHuTApplPkt_m.o \
     $O/messages/HoHuT/AODVRouteRequest_m.o \
     $O/messages/HoHuT/AODVRouteError_m.o
@@ -166,6 +167,7 @@ MSGFILES = \
     messages/UWBIRMacPkt.msg \
     messages/ProbabilisticBroadcastPkt.msg \
     messages/HoHuT/AODVRouteResponse.msg \
+    messages/HoHuT/AODVData.msg \
     messages/HoHuT/HoHuTApplPkt.msg \
     messages/HoHuT/AODVRouteRequest.msg \
     messages/HoHuT/AODVRouteError.msg
@@ -1056,6 +1058,12 @@ $O/messages/WiseRoutePkt_m.o: messages/WiseRoutePkt_m.cc \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
 	messages/WiseRoutePkt_m.h
+$O/messages/HoHuT/AODVData_m.o: messages/HoHuT/AODVData_m.cc \
+	../base/messages/NetwPkt_m.h \
+	../base/utils/MiXiMDefs.h \
+	../base/utils/SimpleAddress.h \
+	../base/utils/miximkerneldefs.h \
+	messages/HoHuT/AODVData_m.h
 $O/messages/HoHuT/AODVRouteError_m.o: messages/HoHuT/AODVRouteError_m.cc \
 	../base/messages/NetwPkt_m.h \
 	../base/utils/MiXiMDefs.h \
@@ -1437,6 +1445,7 @@ $O/netw/HoHuT/AODVRoute.o: netw/HoHuT/AODVRoute.cc \
 	../base/utils/PassedMessage.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
+	messages/HoHuT/AODVData_m.h \
 	messages/HoHuT/AODVRouteRequest_m.h \
 	netw/HoHuT/AODVRoute.h
 $O/obstacle/Obstacle.o: obstacle/Obstacle.cc \

@@ -47,22 +47,29 @@ void AODVRoute::handleSelfMsg(cMessage * msg)
 }
 void AODVRoute::handleLowerMsg(cMessage* msg)
 {
-
-    NetwPkt* m = static_cast<NetwPkt*>(msg);
-
     switch (msg->getKind())
     {
         case DATA:
             {
+                AODVData* m = static_cast<AODVData*>(msg);
                 ApplPkt* pkt = static_cast<ApplPkt*>(decapsMsg(m));
                 sendUp(pkt);
             }
             break;
         case RREQ:
             {
-                AODVRouteRequest* pkt = static_cast<AODVRouteRequest*>(decapsMsg(m));
+                AODVRouteRequest* pkt = static_cast<AODVRouteRequest*>(msg);
                 debugEV << "received a RREQ from node:" << pkt->getSrcAddr() << endl;
-                delete msg;
+                if (LAddress::isL3Broadcast(pkt->getDestAddr()))
+                {
+                    pkt->removeControlInfo();
+                    NetwToMacControlInfo::setControlInfo(pkt,LAddress::L2BROADCAST);
+                    sendDown(pkt);
+                }
+                else
+                {
+                    delete msg;
+                }
             }
             break;
         default:
@@ -78,9 +85,9 @@ void AODVRoute::handleUpperMsg(cMessage * msg)
 
     if (destAddress==LAddress::L3BROADCAST || hasRouteForDestination(destAddress))
     {
-        NetwPkt* netwPkt = encapsMsg(appPkt);
+        AODVData* m = encapsMsg(appPkt);
         debugEV << "using route and sending down to destAddr:" << destAddress << endl;
-        sendDown(netwPkt);
+        sendDown(m);
     }
     else
     {
@@ -108,11 +115,13 @@ void AODVRoute::handleUpperControl(cMessage* msg)
                 debugEV << "Route not found for destAddr: " << ctrlPkt->getDestAddr() << endl;
                 debugEV << "Sending RREQ" << endl;
                 AODVRouteRequest* pkt = new AODVRouteRequest("RREQ",RREQ);
-                pkt->setDestAddr(ctrlPkt->getDestAddr());
+                pkt->setInitialSrcAddr(myNetwAddr);
+                pkt->setFinalDestAddr(ctrlPkt->getDestAddr());
                 pkt->setSrcAddr(myNetwAddr);
                 pkt->setDestSeqNo(0);
                 pkt->setSrcSeqNo(0);
                 pkt->setHopCount(0);
+                pkt->setDestAddr(LAddress::L3BROADCAST);
                 NetwToMacControlInfo::setControlInfo(pkt,LAddress::L2BROADCAST);
                 sendDown(pkt);
             }
@@ -158,15 +167,17 @@ void AODVRoute::checkRouteTable()
 }
 
 /// ENCAPSULATION
-NetwPkt* AODVRoute::encapsMsg(cPacket* cPkt)
+AODVData* AODVRoute::encapsMsg(cPacket* cPkt)
 {
     ApplPkt* appPkt = static_cast<ApplPkt*>(cPkt);
-    NetwPkt* pkt = new NetwPkt(appPkt->getName(), DATA);
+    AODVData* pkt = new AODVData(appPkt->getName(), DATA);
     cObject* cInfo = appPkt->removeControlInfo();
 
     LAddress::L3Type netwDestAddr = NetwControlInfo::getAddressFromControlInfo(cInfo);
     LAddress::L2Type macDestAddr = (LAddress::isL3Broadcast(netwDestAddr))?(LAddress::L2BROADCAST):(arp->getMacAddr(netwDestAddr));
 
+    pkt->setInitialSrcAddr(myNetwAddr);
+    pkt->setFinalDestAddr(netwDestAddr);
     pkt->setSrcAddr(myNetwAddr);
     pkt->setDestAddr(netwDestAddr);
     pkt->setBitLength(headerLength);
@@ -175,7 +186,7 @@ NetwPkt* AODVRoute::encapsMsg(cPacket* cPkt)
 
     return pkt;
 }
-cPacket* AODVRoute::decapsMsg(NetwPkt *msg)
+cPacket* AODVRoute::decapsMsg(AODVData *msg)
 {
     ApplPkt* pkt = static_cast<ApplPkt*>(msg->decapsulate());
     MacToNetwControlInfo* cInfo = static_cast<MacToNetwControlInfo*>(msg->removeControlInfo());

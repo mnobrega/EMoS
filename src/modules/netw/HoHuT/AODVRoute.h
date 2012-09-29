@@ -6,7 +6,7 @@
 #include "MiXiMDefs.h"
 #include "BaseNetwLayer.h"
 #include "ApplPkt_m.h"
-#include "NetwPkt_m.h"
+#include "AODVData_m.h"
 #include "AODVRouteRequest_m.h"
 #include "ArpInterface.h"
 #include "MacToNetwControlInfo.h"
@@ -57,8 +57,8 @@ protected:
     void handleSelfMsg(cMessage *);
     void handleLowerControl(cMessage * msg);
     void handleUpperControl(cMessage * msg);
-    NetwPkt* encapsMsg(cPacket *);
-    cPacket* decapsMsg(NetwPkt *);
+    AODVData* encapsMsg(cPacket *);
+    cPacket* decapsMsg(AODVData *);
 
     //route table
     struct routeTableEntry

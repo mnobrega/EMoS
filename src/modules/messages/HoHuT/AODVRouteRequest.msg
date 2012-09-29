@@ -3,11 +3,14 @@ cplusplus {{
 }}
 
 class NetwPkt;
+class LAddress::L3Type extends void;
 
 message AODVRouteRequest extends NetwPkt
 {
-	int 				RREQ_ID;	//RREQ ID
-	int 				destSeqNo; 	//destination sequence number
-	int 				srcSeqNo; 	//source sequence number
-	int					hopCount;	//hop count
+	int 				RREQ_ID;			//RREQ ID
+	LAddress::L3Type	finalDestAddr;		//final destination node
+	int 				destSeqNo; 			//destination sequence number
+	LAddress::L3Type	initialSrcAddr;		//initial source node
+	int 				srcSeqNo; 			//source sequence number
+	int					hopCount;			//hop count
 }
