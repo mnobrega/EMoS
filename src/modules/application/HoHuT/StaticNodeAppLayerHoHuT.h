@@ -26,7 +26,8 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
         {
 		    HAS_ROUTE,
 		    HAS_ROUTE_ACK,
-		    DELIVERY_ACK
+		    DELIVERY_ACK,
+		    DELIVERY_ERROR
         };
 
     protected:
@@ -52,6 +53,7 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
         // packets queue
         int pktQueueElementLifetime;
         int pktQueueCheckingPeriod;
+        int maxPacketDeliveryTries;
         struct pktQueueElement
         {
             LAddress::L3Type    destAddr;
@@ -59,8 +61,11 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
             HoHuTApplPkt*    packet;
         };
         std::vector<pktQueueElement*> pktQueue;
+        HoHuTApplPkt* sentPktQueueBuffer;
+        int sentPktQueueTriesCounter;
         void destroyPktQueue();
         void addToPktQueue(HoHuTApplPkt *);
+        HoHuTApplPkt* getPktQueueByDestAddr(LAddress::L3Type);
         void checkPktQueue();
 };
 

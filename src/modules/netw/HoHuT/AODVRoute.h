@@ -7,6 +7,7 @@
 #include "BaseNetwLayer.h"
 #include "ApplPkt_m.h"
 #include "NetwPkt_m.h"
+#include "AODVRouteRequest_m.h"
 #include "ArpInterface.h"
 #include "MacToNetwControlInfo.h"
 #include "NetwToMacControlInfo.h"
@@ -31,7 +32,14 @@ protected:
     {
         HAS_ROUTE,
         HAS_ROUTE_ACK,
-        DELIVERY_ACK
+        DELIVERY_ACK,
+        DELIVERY_ERROR
+    };
+    enum BaseMacControlKinds
+    {
+        TX_OVER = 23500,
+        PACKET_DROPPED,
+        LAST_BASE_MAC_CONTROL_KIND
     };
 
     bool stats, trace;
@@ -47,7 +55,7 @@ protected:
     void handleUpperMsg(cMessage *);
     void handleLowerMsg(cMessage *);
     void handleSelfMsg(cMessage *);
-    void handleLowerControl(cMessage * msg){ delete msg; }
+    void handleLowerControl(cMessage * msg);
     void handleUpperControl(cMessage * msg);
     NetwPkt* encapsMsg(cPacket *);
     cPacket* decapsMsg(NetwPkt *);
@@ -62,6 +70,7 @@ protected:
         int lifeTime;
     };
     std::map<LAddress::L3Type,routeTableEntry> routeTable;
+    void getRoute(LAddress::L3Type destAddr);
     bool hasRouteForDestination(LAddress::L3Type);
     void checkRouteTable();
 };

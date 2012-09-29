@@ -1437,6 +1437,7 @@ $O/netw/HoHuT/AODVRoute.o: netw/HoHuT/AODVRoute.cc \
 	../base/utils/PassedMessage.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
+	messages/HoHuT/AODVRouteRequest_m.h \
 	netw/HoHuT/AODVRoute.h
 $O/obstacle/Obstacle.o: obstacle/Obstacle.cc \
 	../base/utils/Coord.h \

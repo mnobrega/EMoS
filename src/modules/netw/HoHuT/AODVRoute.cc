@@ -47,6 +47,7 @@ void AODVRoute::handleSelfMsg(cMessage * msg)
 }
 void AODVRoute::handleLowerMsg(cMessage* msg)
 {
+
     NetwPkt* m = static_cast<NetwPkt*>(msg);
 
     switch (msg->getKind())
@@ -55,6 +56,13 @@ void AODVRoute::handleLowerMsg(cMessage* msg)
             {
                 ApplPkt* pkt = static_cast<ApplPkt*>(decapsMsg(m));
                 sendUp(pkt);
+            }
+            break;
+        case RREQ:
+            {
+                AODVRouteRequest* pkt = static_cast<AODVRouteRequest*>(decapsMsg(m));
+                debugEV << "received a RREQ from node:" << pkt->getSrcAddr() << endl;
+                delete msg;
             }
             break;
         default:
@@ -71,7 +79,7 @@ void AODVRoute::handleUpperMsg(cMessage * msg)
     if (destAddress==LAddress::L3BROADCAST || hasRouteForDestination(destAddress))
     {
         NetwPkt* netwPkt = encapsMsg(appPkt);
-        debugEV << "route found for destination:" << destAddress << endl;
+        debugEV << "using route and sending down to destAddr:" << destAddress << endl;
         sendDown(netwPkt);
     }
     else
@@ -90,15 +98,49 @@ void AODVRoute::handleUpperControl(cMessage* msg)
             debugEV << "HAS_ROUTE received for destAddr: " << ctrlPkt->getDestAddr() << endl;
             if (hasRouteForDestination(ctrlPkt->getDestAddr()))
             {
-
+                debugEV << "Route found for destAddr: " << ctrlPkt->getDestAddr() << endl;
+                ApplPkt* ctrlPktResponse = new ApplPkt("has-route-ACK",HAS_ROUTE_ACK);
+                ctrlPktResponse->setDestAddr(ctrlPkt->getDestAddr());
+                sendControlUp(ctrlPktResponse);
             }
             else
             {
-                //getRoute
+                debugEV << "Route not found for destAddr: " << ctrlPkt->getDestAddr() << endl;
+                debugEV << "Sending RREQ" << endl;
+                AODVRouteRequest* pkt = new AODVRouteRequest("RREQ",RREQ);
+                pkt->setDestAddr(ctrlPkt->getDestAddr());
+                pkt->setSrcAddr(myNetwAddr);
+                pkt->setDestSeqNo(0);
+                pkt->setSrcSeqNo(0);
+                pkt->setHopCount(0);
+                NetwToMacControlInfo::setControlInfo(pkt,LAddress::L2BROADCAST);
+                sendDown(pkt);
             }
             break;
         default:
             error("Unknown message of kind: "+msg->getKind());
+            break;
+    }
+    delete msg;
+}
+void AODVRoute::handleLowerControl(cMessage* msg)
+{
+    ApplPkt* pkt;
+    switch(msg->getKind())
+    {
+        case PACKET_DROPPED:
+            debugEV << "MAC ERROR detected! Inform app layer!" << endl;
+            pkt = new ApplPkt("last-transmitted-packet-dropped",DELIVERY_ERROR);
+            sendControlUp(pkt);
+            break;
+        case TX_OVER:
+            debugEV << "Transmission success!" << endl;
+            pkt = new ApplPkt("last-transmitted-packet-success",DELIVERY_ACK);
+            sendControlUp(pkt);
+            break;
+        default:
+            error("Unknown message of kind: "+msg->getKind());
+            delete msg;
             break;
     }
     delete msg;
