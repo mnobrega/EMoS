@@ -1,19 +1,5 @@
 #include "AODVRoute.h"
 
-#include <limits>
-#include <algorithm>
-#include <cassert>
-
-// todo delete
-#include "HoHuTApplPkt_m.h"
-#include "WiseRoutePkt_m.h"
-// todo delete
-
-#include "ArpInterface.h"
-#include "MacToNetwControlInfo.h"
-#include "NetwControlInfo.h"
-#include "ApplPkt_m.h"
-
 using std::endl;
 
 Define_Module(AODVRoute);
@@ -25,8 +11,6 @@ void AODVRoute::initialize(int stage)
 	{
 		trace = par("trace");
 		debug = par("debug").boolValue();
-		pktQueueElementLifetime = par("pktQueueElementLifetime");
-		pktQueueCheckingPeriod = par("pktQueueCheckingPeriod");
 	}
 	else if (stage == 1)
 	{
@@ -48,7 +32,6 @@ void AODVRoute::finish()
         recordScalar("rerr send", totalRerrSend);
         recordScalar("rerr rec", totalRerrRec);
     }
-    //destroyPktQueue(); //had error. not prioritary so commented
 }
 
 /// MSG HANDLING
@@ -56,99 +39,69 @@ void AODVRoute::handleSelfMsg(cMessage * msg)
 {
    switch (msg->getKind())
    {
-       case CHECK_PKT_QUEUE_TIMER:
-           checkPktQueue();
-           delete msg;
-           break;
        default:
-           delete msg;
+           error("Unknown message of kind: "+msg->getKind());
            break;
    }
+   delete msg;
 }
 void AODVRoute::handleLowerMsg(cMessage* msg)
 {
-    if (msg->getKind()==DATA)
-    {
-        WiseRoutePkt* m = static_cast<WiseRoutePkt*>(msg);
-        const LAddress::L3Type& finalDestAddr  = m->getFinalDestAddr();
-        const LAddress::L3Type& initialSrcAddr = m->getInitialSrcAddr();
-        double rssi = static_cast<MacToNetwControlInfo*>(m->getControlInfo())->getRSSI();
+    NetwPkt* m = static_cast<NetwPkt*>(msg);
 
-        if (finalDestAddr==myNetwAddr || LAddress::isL3Broadcast(finalDestAddr))
-        {
-            HoHuTApplPkt* decapsulatedMsg = static_cast<HoHuTApplPkt*>(decapsMsg(m));
-            decapsulatedMsg->setSignalStrength(rssi);
-            decapsulatedMsg->setSrcAddr(initialSrcAddr);
-            sendUp(decapsulatedMsg);
-        }
-    }
-    else
+    switch (msg->getKind())
     {
-        delete msg;
+        case DATA:
+            {
+                ApplPkt* pkt = static_cast<ApplPkt*>(decapsMsg(m));
+                sendUp(pkt);
+            }
+            break;
+        default:
+            error("Unknown message of kind: "+msg->getKind());
+            delete msg;
+            break;
     }
 }
 void AODVRoute::handleUpperMsg(cMessage * msg)
 {
     ApplPkt* appPkt = static_cast<ApplPkt*>(msg);
-    NetwPkt* netwPkt = encapsMsg(appPkt);
+    LAddress::L3Type destAddress = NetwControlInfo::getAddressFromControlInfo(appPkt->getControlInfo());
 
-    if (hasRouteForDestination(netwPkt->getDestAddr()))
+    if (destAddress==LAddress::L3BROADCAST || hasRouteForDestination(destAddress))
     {
-        debugEV << "route found for destination:" << netwPkt->getDestAddr() << endl;
+        NetwPkt* netwPkt = encapsMsg(appPkt);
+        debugEV << "route found for destination:" << destAddress << endl;
         sendDown(netwPkt);
     }
     else
     {
-        debugEV << "route not found for destination:" << netwPkt->getDestAddr() << endl;
-        cMessage* selfTimer = new cMessage("beacon-timer",CHECK_PKT_QUEUE_TIMER);
-        scheduleAt(simTime() + pktQueueCheckingPeriod, selfTimer);
-        addToPktQueue(netwPkt);
-
-        //find route
+        debugEV << "route not found! data msg sending fail! for destination:" << destAddress << endl;
+        delete appPkt;
+        //send msg fail and control message to app layer
     }
 }
-
-/// ENCAPSULATION
-NetwPkt* AODVRoute::encapsMsg(cPacket* appPkt)
+void AODVRoute::handleUpperControl(cMessage* msg)
 {
-    LAddress::L2Type macAddr;
-    LAddress::L3Type netwAddr;
-
-    cObject* cInfo = appPkt->removeControlInfo();
-
-    NetwPkt *pkt = new NetwPkt(appPkt->getName(), appPkt->getKind());
-    pkt->setBitLength(headerLength);
-    pkt->setSrcAddr(myNetwAddr);
-
-    if(cInfo == NULL)
+    ApplPkt* ctrlPkt = static_cast<ApplPkt*>(msg);
+    switch (msg->getKind())
     {
-        netwAddr = LAddress::L3BROADCAST;
-    }
-    else
-    {
-        netwAddr = NetwControlInfo::getAddressFromControlInfo( cInfo );
-        delete cInfo;
-    }
-    pkt->setDestAddr(netwAddr);
+        case HAS_ROUTE:
+            debugEV << "HAS_ROUTE received for destAddr: " << ctrlPkt->getDestAddr() << endl;
+            if (hasRouteForDestination(ctrlPkt->getDestAddr()))
+            {
 
-    if(LAddress::isL3Broadcast(netwAddr))
-    {
-        macAddr = LAddress::L2BROADCAST;
+            }
+            else
+            {
+                //getRoute
+            }
+            break;
+        default:
+            error("Unknown message of kind: "+msg->getKind());
+            break;
     }
-    else
-    {
-        macAddr = arp->getMacAddr(netwAddr);
-    }
-    setDownControlInfo(pkt, macAddr);
-
-    pkt->encapsulate(appPkt);
-    return pkt;
-}
-cPacket* AODVRoute::decapsMsg(NetwPkt *msg)
-{
-    ApplPkt *pkt = static_cast<ApplPkt*>(msg->decapsulate());
     delete msg;
-    return pkt;
 }
 
 
@@ -162,37 +115,30 @@ void AODVRoute::checkRouteTable()
     //todo - checks the route table for routes with expired lifetime
 }
 
-
-/// PACKET QUEUE
-void AODVRoute::destroyPktQueue()
+/// ENCAPSULATION
+NetwPkt* AODVRoute::encapsMsg(cPacket* cPkt)
 {
-    int count = 0;
-    while (!pktQueue.empty())
-    {
-        pktQueueElement *qEl = pktQueue.back();
-        pktQueue.pop_back();
-        EV << qEl->destAddr;
-        EV << qEl->lifeTime;
-        EV << qEl->packet->getDestAddr();
-        //delete decapsMsg(qEl->packet);
-        //delete qEl->packet;
-        //free(qEl);
-        count++;
-    }
-    debugEV << count << " pkts were destroyed" << endl;
-}
-void AODVRoute::addToPktQueue(NetwPkt * pkt)
-{
-    debugEV << "Adding packet to queue!" << endl;
-    pktQueueElement qEl;
-    qEl.destAddr = pkt->getDestAddr();
-    qEl.lifeTime = simTime()+pktQueueElementLifetime;
-    qEl.packet = pkt;
-    pktQueue.push_back(&qEl);
-}
-void AODVRoute::checkPktQueue()
-{
-    debugEV << "Checking packet queue for packets to send or expire!" << endl;
-}
+    ApplPkt* appPkt = static_cast<ApplPkt*>(cPkt);
+    NetwPkt* pkt = new NetwPkt(appPkt->getName(), DATA);
+    cObject* cInfo = appPkt->removeControlInfo();
 
+    LAddress::L3Type netwDestAddr = NetwControlInfo::getAddressFromControlInfo(cInfo);
+    LAddress::L2Type macDestAddr = (LAddress::isL3Broadcast(netwDestAddr))?(LAddress::L2BROADCAST):(arp->getMacAddr(netwDestAddr));
 
+    pkt->setSrcAddr(myNetwAddr);
+    pkt->setDestAddr(netwDestAddr);
+    pkt->setBitLength(headerLength);
+    pkt->encapsulate(appPkt);
+    NetwToMacControlInfo::setControlInfo(pkt, macDestAddr);
+
+    return pkt;
+}
+cPacket* AODVRoute::decapsMsg(NetwPkt *msg)
+{
+    ApplPkt* pkt = static_cast<ApplPkt*>(msg->decapsulate());
+    MacToNetwControlInfo* cInfo = static_cast<MacToNetwControlInfo*>(msg->removeControlInfo());
+    NetwToApplControlInfo::setControlInfo(pkt,cInfo->getRSSI(), msg->getSrcAddr());
+
+    delete msg;
+    return pkt;
+}

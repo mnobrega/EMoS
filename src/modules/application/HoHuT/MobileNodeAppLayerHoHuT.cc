@@ -188,14 +188,14 @@ void MobileNodeAppLayerHoHuT::handleStaticNodeSig(cMessage * msg)
     }
 
     // COLLECT
-    staticNodesRSSITable.insert(std::make_pair(staticNodeSignature->getSrcAddr(),staticNodeSignature->getSignalStrength()));
+    //staticNodesRSSITable.insert(std::make_pair(staticNodeSignature->getSrcAddr(),staticNodeSignature->getSignalStrength()));
     if (!inArray(staticNodeSignature->getSrcAddr(),staticNodeAddressesDetected))
     {
         staticNodeAddressesDetected.push_back(staticNodeSignature->getSrcAddr());
     }
     if (stats)
     {
-       emit(rssiValSignalId, staticNodeSignature->getSignalStrength());
+       //emit(rssiValSignalId, staticNodeSignature->getSignalStrength());
     }
 
     EV << "samples available for node: " << staticNodesRSSITable.count(staticNodeSignature->getSrcAddr()) << endl;

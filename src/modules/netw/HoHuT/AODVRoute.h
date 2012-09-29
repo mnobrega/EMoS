@@ -1,6 +1,17 @@
 #include <omnetpp.h>
+#include <limits>
+#include <algorithm>
+#include <cassert>
+
 #include "MiXiMDefs.h"
 #include "BaseNetwLayer.h"
+#include "ApplPkt_m.h"
+#include "NetwPkt_m.h"
+#include "ArpInterface.h"
+#include "MacToNetwControlInfo.h"
+#include "NetwToMacControlInfo.h"
+#include "NetwControlInfo.h"
+#include "NetwToApplControlInfo.h"
 
 class MIXIM_API AODVRoute : public BaseNetwLayer
 {
@@ -14,8 +25,13 @@ protected:
         RREQ,
         RREP,
         RERR,
-        DATA,
-        CHECK_PKT_QUEUE_TIMER
+        DATA
+    };
+    enum AODV_CTRL_MSG_TYPES
+    {
+        HAS_ROUTE,
+        HAS_ROUTE_ACK,
+        DELIVERY_ACK
     };
 
     bool stats, trace;
@@ -32,7 +48,7 @@ protected:
     void handleLowerMsg(cMessage *);
     void handleSelfMsg(cMessage *);
     void handleLowerControl(cMessage * msg){ delete msg; }
-    void handleUpperControl(cMessage * msg) { delete msg; }
+    void handleUpperControl(cMessage * msg);
     NetwPkt* encapsMsg(cPacket *);
     cPacket* decapsMsg(NetwPkt *);
 
@@ -48,19 +64,4 @@ protected:
     std::map<LAddress::L3Type,routeTableEntry> routeTable;
     bool hasRouteForDestination(LAddress::L3Type);
     void checkRouteTable();
-
-
-    // packets queue
-    int pktQueueElementLifetime;
-    int pktQueueCheckingPeriod;
-    struct pktQueueElement
-    {
-        LAddress::L3Type    destAddr;
-        simtime_t   lifeTime;
-        NetwPkt*    packet;
-    };
-    std::vector<pktQueueElement*> pktQueue;
-    void destroyPktQueue();
-    void addToPktQueue(NetwPkt *);
-    void checkPktQueue();
 };

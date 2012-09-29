@@ -4,10 +4,13 @@ simple StaticNodeAppLayerHoHuT
 {
     parameters:
         bool debug = default(false); 		// debug switch
+        int  headerLength = default(24);	// length of the network packet header (in bits)
+        int pktQueueElementLifetime = default(20);
+        int pktQueueCheckingPeriod = default(10);
         
     gates:
-        input lowerGateIn; // to receive data from communications stack
-        output lowerGateOut; // to send data to communications stack
+        input lowerLayerIn; // to receive data from communications stack
+        output lowerLayerOut; // to send data to communications stack
         input lowerControlIn; // to receive control messages from communications stack
         output lowerControlOut; // to send  control messages from communications stack
 }

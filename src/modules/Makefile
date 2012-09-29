@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libmiximmodules
 #
 # This file was generated with the command:
-#  opp_makemake -f --deep --make-so -o miximmodules -O out -I/usr/include/libxml2 -I../base/connectionManager -I../base/messages -I../base/phyLayer -I../base/modules -I../.. -I../base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -lmiximbase
+#  opp_makemake -f --deep --make-so -o miximmodules -O out -I/usr/include/libxml2 -I../base/connectionManager -I../base/messages -I../base/phyLayer -I../base/modules -I../base/utils/HoHuT -I../.. -I../base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -lmiximbase
 #
 
 # Name of target to be created (-o option)
@@ -15,6 +15,7 @@ INCLUDE_PATH = \
     -I../base/messages \
     -I../base/phyLayer \
     -I../base/modules \
+    -I../base/utils/HoHuT \
     -I../.. \
     -I../base/utils \
     -I. \
@@ -115,7 +116,6 @@ OBJS = \
     $O/netw/DummyRoute.o \
     $O/netw/WiseRoute.o \
     $O/netw/AdaptiveProbabilisticBroadcast.o \
-    $O/netw/HoHuT/MobileHoHuT.o \
     $O/netw/HoHuT/AODVRoute.o \
     $O/obstacle/ObstacleControl.o \
     $O/obstacle/Obstacle.o \
@@ -518,6 +518,7 @@ $O/application/HoHuT/StaticNodeAppLayerHoHuT.o: application/HoHuT/StaticNodeAppL
 	../base/modules/BaseLayer.h \
 	../base/modules/BaseModule.h \
 	../base/modules/BatteryAccess.h \
+	../base/utils/HoHuT/NetwToApplControlInfo.h \
 	../base/utils/HostState.h \
 	../base/utils/MiXiMDefs.h \
 	../base/utils/NetwControlInfo.h \
@@ -1427,35 +1428,16 @@ $O/netw/HoHuT/AODVRoute.o: netw/HoHuT/AODVRoute.cc \
 	../base/modules/BaseModule.h \
 	../base/modules/BaseNetwLayer.h \
 	../base/modules/BatteryAccess.h \
+	../base/utils/HoHuT/NetwToApplControlInfo.h \
 	../base/utils/HostState.h \
 	../base/utils/MacToNetwControlInfo.h \
 	../base/utils/MiXiMDefs.h \
 	../base/utils/NetwControlInfo.h \
+	../base/utils/NetwToMacControlInfo.h \
 	../base/utils/PassedMessage.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
-	messages/HoHuT/HoHuTApplPkt_m.h \
-	messages/WiseRoutePkt_m.h \
 	netw/HoHuT/AODVRoute.h
-$O/netw/HoHuT/MobileHoHuT.o: netw/HoHuT/MobileHoHuT.cc \
-	../base/messages/ApplPkt_m.h \
-	../base/messages/NetwPkt_m.h \
-	../base/modules/ArpInterface.h \
-	../base/modules/BaseBattery.h \
-	../base/modules/BaseLayer.h \
-	../base/modules/BaseModule.h \
-	../base/modules/BaseNetwLayer.h \
-	../base/modules/BatteryAccess.h \
-	../base/utils/HostState.h \
-	../base/utils/MacToNetwControlInfo.h \
-	../base/utils/MiXiMDefs.h \
-	../base/utils/NetwControlInfo.h \
-	../base/utils/PassedMessage.h \
-	../base/utils/SimpleAddress.h \
-	../base/utils/miximkerneldefs.h \
-	messages/HoHuT/HoHuTApplPkt_m.h \
-	messages/WiseRoutePkt_m.h \
-	netw/HoHuT/MobileHoHuT.h
 $O/obstacle/Obstacle.o: obstacle/Obstacle.cc \
 	../base/utils/Coord.h \
 	../base/utils/FWMath.h \

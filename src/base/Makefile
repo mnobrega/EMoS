@@ -17,7 +17,8 @@ INCLUDE_PATH = \
     -Imodules \
     -IphyLayer \
     -Itimers \
-    -Iutils
+    -Iutils \
+    -Iutils/HoHuT
 
 # Additional object and library files to link with
 EXTRA_OBJS =
@@ -160,12 +161,13 @@ clean:
 	-rm -f phyLayer/*_m.cc phyLayer/*_m.h
 	-rm -f timers/*_m.cc timers/*_m.h
 	-rm -f utils/*_m.cc utils/*_m.h
+	-rm -f utils/HoHuT/*_m.cc utils/HoHuT/*_m.h
 
 cleanall: clean
 	-rm -rf $(PROJECT_OUTPUT_DIR)
 
 depend:
-	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc connectionManager/*.cc messages/*.cc modules/*.cc phyLayer/*.cc timers/*.cc utils/*.cc
+	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc connectionManager/*.cc messages/*.cc modules/*.cc phyLayer/*.cc timers/*.cc utils/*.cc utils/HoHuT/*.cc
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 $O/connectionManager/BaseConnectionManager.o: connectionManager/BaseConnectionManager.cc \
