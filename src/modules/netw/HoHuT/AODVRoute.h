@@ -49,6 +49,37 @@ protected:
     };
 
     bool stats, trace;
+    int RREQSent;
+    int nodeSeqNo;
+
+    //other nodes last known seq numbers
+    std::map<LAddress::L3Type,int> nodesLastKnownSeqNoTable;
+
+    //route table
+    unsigned int maxRouteTableElementLifetime;
+    struct routeTableElement
+    {
+        LAddress::L3Type destAddr;
+        //sequence number at the destination node when it sent a RREP
+        int destSeqNo;
+        LAddress::L3Type nextHop;
+        int hopCount;
+        simtime_t lifeTime;
+    };
+    typedef routeTableElement routeTableElement_t;
+    std::map<LAddress::L3Type,routeTableElement*> routeTable;
+
+    //route req table
+    unsigned int maxRREQVectorSize;
+    unsigned int maxRREQVectorElementLifetime;
+    unsigned int RREQVectorMaintenancePeriod;
+    struct RREQVectorElement
+    {
+        int     RREQ_ID;
+        LAddress::L3Type srcAddr;
+        simtime_t lifeTime;
+    };
+    std::vector<RREQVectorElement*> RREQVector;
 
     void handleUpperMsg(cMessage *);
     void handleLowerMsg(cMessage *);
@@ -64,46 +95,17 @@ protected:
     int getNodeSeqNo(LAddress::L3Type);
     void upsertNodeSeqNo(LAddress::L3Type,int);
 
-    void getRouteForDestination(LAddress::L3Type);
+    routeTableElement_t* getRouteForDestination(LAddress::L3Type);
     bool hasRouteForDestination(LAddress::L3Type);
     void routeTableMaintenance();
-    void insertReverseRoute(AODVRouteRequest*);
-    void insertForwardRoute(AODVRouteResponse*);
+    bool upsertReverseRoute(AODVRouteRequest*);
+    bool upsertForwardRoute(AODVRouteResponse*);
+    bool upsertRoute(routeTableElement*);
 
     bool hasRREQ(AODVRouteRequest*);
     void saveRREQ(AODVRouteRequest*);
     void runRREQSetMaintenance();
 
-private:
-    int RREQSent;
-    int nodeSeqNo;
-
-    //other nodes last known seq numbers
-    std::map<LAddress::L3Type,int> nodesLastKnownSeqNoTable;
-
-    //route table
-    struct routeTableElement
-    {
-        LAddress::L3Type destAddr;
-        //sequence number at the destination node when it sent a RREP
-        int destSeqNo;
-        LAddress::L3Type nextHop;
-        int hopCount;
-        simtime_t lifeTime;
-    };
-    std::map<LAddress::L3Type,routeTableElement*> routeTable;
-
-    //route req table
-    unsigned int maxRREQVectorSize;
-    unsigned int maxRREQVectorElementLifetime;
-    unsigned int RREQSetMaintenancePeriod;
-    struct RREQVectorElement
-    {
-        int     RREQ_ID;
-        LAddress::L3Type srcAddr;
-        simtime_t lifeTime;
-    };
-    std::vector<RREQVectorElement*> RREQVector;
 };
 
 #endif // AODV_ROUTE_H

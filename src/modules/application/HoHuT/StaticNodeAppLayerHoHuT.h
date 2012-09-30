@@ -33,22 +33,6 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
 
     protected:
         bool debug;
-
-		virtual void handleSelfMsg(cMessage *);
-        virtual void handleLowerMsg(cMessage *);
-        virtual void handleLowerControl(cMessage *);
-        virtual void handleUpperMsg(cMessage * m) { delete m; }
-        virtual void handleUpperControl(cMessage * m) { delete m; }
-
-        void sendStaticNodeSig();
-        void sendStaticNodeMsg(const char* msgData);
-
-        void destroyPktQueue();
-        void addToPktQueue(HoHuTApplPkt *);
-        HoHuTApplPkt* getFromPktQueue();
-        void runPktQueueMaintenance();
-
-    private:
         // constants
         int INITIAL_DELAY;
         int BEACON_INTERVAL;
@@ -70,6 +54,20 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
             HoHuTApplPkt*    packet;
         };
         std::queue<pktQueueElement*> pktQueue;
+
+		virtual void handleSelfMsg(cMessage *);
+        virtual void handleLowerMsg(cMessage *);
+        virtual void handleLowerControl(cMessage *);
+        virtual void handleUpperMsg(cMessage * m) { delete m; }
+        virtual void handleUpperControl(cMessage * m) { delete m; }
+
+        void sendStaticNodeSig();
+        void sendStaticNodeMsg(const char* msgData);
+
+        void destroyPktQueue();
+        void addToPktQueue(HoHuTApplPkt *);
+        HoHuTApplPkt* getFromPktQueue();
+        void runPktQueueMaintenance();
 
 };
 

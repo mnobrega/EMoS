@@ -7,9 +7,8 @@ class LAddress::L3Type extends void;
 
 message AODVRouteResponse extends NetwPkt
 {
-	LAddress::L3Type	initialSrcAddr;		//initial source node
-	LAddress::L3Type	finalDestAddr;		//final destination node
-	int 				destSeqNo; 			//destination sequence number
-	int					lifetime;			//time in milliseconds
+	LAddress::L3Type	routeDestAddr;		//route destination addr
+	LAddress::L3Type	routeSrcAddr;		//route source addr
+	int 				routeDestSeqNo; 	//route destination seq number
 	int					hopCount;			//hop count
 }
