@@ -46,6 +46,7 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
         int pktQueueMaintenancePeriod;
         int maxPacketDeliveryTries;
         int sentPktQueueTriesCounter;
+        LAddress::L3Type pktQueueCurrentDestAddr;
         HoHuTApplPkt* sentPktQueueBuffer;
         struct pktQueueElement
         {
@@ -62,7 +63,7 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
         virtual void handleUpperControl(cMessage * m) { delete m; }
 
         void sendStaticNodeSig();
-        void sendStaticNodeMsg(const char* msgData);
+        void sendStaticNodeMsg(char*,LAddress::L3Type);
 
         void destroyPktQueue();
         void addToPktQueue(HoHuTApplPkt *);

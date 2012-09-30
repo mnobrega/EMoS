@@ -54,6 +54,13 @@ void AODVRoute::handleUpperMsg(cMessage * msg)
     {
         AODVData* m = encapsMsg(appPkt);
         debugEV << "using route and sending down to destAddr:" << destAddress << endl;
+        routeTableElement* fwdRoute = getRouteForDestination(destAddress);
+        m->setFinalDestAddr(destAddress);
+        m->setInitialSrcAddr(myNetwAddr);
+        m->setSrcAddr(myNetwAddr);
+        m->setDestAddr(fwdRoute->nextHop);
+        m->removeControlInfo();
+        NetwToMacControlInfo::setControlInfo(m,arp->getMacAddr(fwdRoute->nextHop));
         sendDown(m);
     }
     else
@@ -82,14 +89,13 @@ void AODVRoute::handleLowerMsg(cMessage* msg)
     switch (msg->getKind())
     {
         case DATA:
-            {
-                AODVData* m = static_cast<AODVData*>(msg);
-                ApplPkt* pkt = static_cast<ApplPkt*>(decapsMsg(m));
-                sendUp(pkt);
-            }
+            handleLowerDATA(msg);
             break;
         case RREQ:
             handleLowerRREQ(msg);
+            break;
+        case RREP:
+            handleLowerRREP(msg);
             break;
         default:
             error("Unknown message of kind: "+msg->getKind());
@@ -122,6 +128,67 @@ void AODVRoute::handleLowerControl(cMessage* msg)
 
 
 /// HANDLE COMPLEX MSG KINDS
+void AODVRoute::handleLowerDATA(cMessage* msg)
+{
+    AODVData* m = static_cast<AODVData*>(msg);
+
+    if (m->getFinalDestAddr()!=myNetwAddr && m->getInitialSrcAddr()!=myNetwAddr && !LAddress::isL3Broadcast(m->getDestAddr())) //intermediate node and NOT BROADCAST
+    {
+        debugEV << "DATA msg arrived to intermediate node" << endl;
+        routeTableElement* fwdRoute = getRouteForDestination(m->getFinalDestAddr());
+        m->setDestAddr(fwdRoute->nextHop);
+        m->setSrcAddr(myNetwAddr);
+        m->removeControlInfo();
+        NetwToMacControlInfo::setControlInfo(m,arp->getMacAddr(fwdRoute->nextHop));
+        sendDown(m);
+    }
+    else if (m->getFinalDestAddr()==myNetwAddr || LAddress::isL3Broadcast(m->getDestAddr())) //DESTINATION
+    {
+        debugEV << "DATA msg arrived to final destination!" << endl;
+        ApplPkt* pkt = static_cast<ApplPkt*>(decapsMsg(m));
+        sendUp(pkt);
+    }
+    else //SOURCE
+    {
+        delete msg;
+    }
+}
+void AODVRoute::handleLowerRREP(cMessage* msg)
+{
+    AODVRouteResponse* rrep = static_cast<AODVRouteResponse*>(msg);
+    int hopCountToRouteDestination = rrep->getHopCount()+1;
+    rrep->setHopCount(hopCountToRouteDestination);
+    upsertNodeSeqNo(rrep->getRouteDestAddr(), rrep->getRouteDestSeqNo());
+
+    //intermediate node
+    if (rrep->getRouteDestAddr()!=myNetwAddr && rrep->getRouteSrcAddr()!=myNetwAddr)
+    {
+        debugEV << "Arrived to INTERMEDIATE NODE! Save fwd route and rev msg";
+        upsertForwardRoute(rrep);
+        routeTableElement* revRoute = getRouteForDestination(rrep->getRouteSrcAddr());
+        rrep->setSrcAddr(myNetwAddr);
+        rrep->setDestAddr(revRoute->nextHop);
+        rrep->removeControlInfo();
+        NetwToMacControlInfo::setControlInfo(rrep,arp->getMacAddr(revRoute->nextHop));
+        sendDown(rrep);
+    }
+    //route source node
+    else if (rrep->getRouteSrcAddr()==myNetwAddr)
+    {
+        debugEV << "Arrived to ROUTE SOURCE! Completed ROUTE discovery!!!" << endl;
+        upsertForwardRoute(rrep);
+        ApplPkt* ctrlPkt = new ApplPkt("route-found",HAS_ROUTE_ACK);
+        ctrlPkt->setDestAddr(rrep->getRouteDestAddr());
+        sendControlUp(ctrlPkt);
+        delete msg;
+    }
+    //route destination node - ignore
+    else if (rrep->getRouteDestAddr()==myNetwAddr)
+    {
+        debugEV << "Arrived to ROUTE DESTINATION! Ignore the msg!";
+        delete msg;
+    }
+}
 void AODVRoute::handleLowerRREQ(cMessage* msg)
 {
     AODVRouteRequest* rreq = static_cast<AODVRouteRequest*>(msg);
@@ -142,7 +209,7 @@ void AODVRoute::handleLowerRREQ(cMessage* msg)
             upsertReverseRoute(rreq);
             routeTableElement* fwdRoute = getRouteForDestination(rreq->getFinalDestAddr());
 
-            if (fwdRoute==NULL || fwdRoute->destSeqNo < rreq->getFinalDestSeqNo())
+            if (fwdRoute==NULL || (fwdRoute!=NULL && fwdRoute->destSeqNo < rreq->getFinalDestSeqNo()) )
             {
                 debugEV << "No valid fwdRoute found! CONTINUE with Route discovery. Broadcast RREQ!" << endl;
                 rreq->setSrcAddr(myNetwAddr);
@@ -153,14 +220,17 @@ void AODVRoute::handleLowerRREQ(cMessage* msg)
             else
             {
                 debugEV << "FwdRoute found! Unicast RREP in the reverse order" << endl;
+
                 AODVRouteResponse* rrep = new AODVRouteResponse("AODV-RREP",RREP);
                 rrep->setRouteDestAddr(fwdRoute->destAddr);
                 rrep->setRouteDestSeqNo(fwdRoute->destSeqNo);
                 rrep->setRouteSrcAddr(rreq->getInitialSrcAddr());
                 rrep->setHopCount(fwdRoute->hopCount);
+
                 routeTableElement* revRoute = getRouteForDestination(rreq->getInitialSrcAddr());
                 rrep->setDestAddr(revRoute->nextHop);
                 rrep->setSrcAddr(myNetwAddr);
+
                 NetwToMacControlInfo::setControlInfo(rrep, arp->getMacAddr(revRoute->nextHop));
                 sendDown(rrep);
             }
@@ -177,21 +247,24 @@ void AODVRoute::handleLowerRREQ(cMessage* msg)
             rrep->setRouteDestSeqNo(nodeSeqNo);
             rrep->setRouteSrcAddr(rreq->getInitialSrcAddr());
             rrep->setHopCount(0);
+
             routeTableElement* revRoute = getRouteForDestination(rreq->getInitialSrcAddr());
             rrep->setDestAddr(revRoute->nextHop);
             rrep->setSrcAddr(myNetwAddr);
+
+            EV << "macAddress:" << arp->getMacAddr(revRoute->nextHop) << endl;
             NetwToMacControlInfo::setControlInfo(rrep, arp->getMacAddr(revRoute->nextHop));
             sendDown(rrep);
             delete msg;
         }
-        //source
+        //source - ignore
         else
         {
             debugEV << "SRC NODE - received a RREQ from node: " << rreq->getSrcAddr() << endl;
             delete msg;
         }
     }
-    else //have received. ignore
+    else //have received it already. ignore
     {
         delete msg;
     }
@@ -199,7 +272,7 @@ void AODVRoute::handleLowerRREQ(cMessage* msg)
 void AODVRoute::handleUpperControlHasRoute(ApplPkt* ctrlPkt)
 {
     debugEV << "HAS_ROUTE(?) received for destAddr: " << ctrlPkt->getDestAddr() << endl;
-    if (hasRouteForDestination(ctrlPkt->getDestAddr()))
+    if (hasRouteForDestination(ctrlPkt->getDestAddr()) || LAddress::isL3Broadcast(ctrlPkt->getDestAddr()))
     {
         debugEV << "Route found for destAddr: " << ctrlPkt->getDestAddr() << endl;
         ApplPkt* ctrlPktResponse = new ApplPkt("has-route-ACK",HAS_ROUTE_ACK);
@@ -256,7 +329,14 @@ void AODVRoute::upsertNodeSeqNo(LAddress::L3Type addr,int seqNumber)
     }
     else
     {
-        nodesLastKnownSeqNoTable[it->first] = seqNumber;
+        if (seqNumber > it->second)
+        {
+            nodesLastKnownSeqNoTable[it->first] = seqNumber;
+        }
+        else
+        {
+            debugEV << "seqNo discarded because it is less or equal than the existing one" << endl;
+        }
     }
 }
 
@@ -283,15 +363,14 @@ bool AODVRoute::upsertReverseRoute(AODVRouteRequest* msg)
 }
 bool AODVRoute::upsertForwardRoute(AODVRouteResponse* msg)
 {
-//    debugEV << "Updating FORWARD Route for node " << msg->getFinalDestAddr() << endl;
-//    routeTableElement* tEl = (struct routeTableElement*) malloc(sizeof(struct routeTableElement));
-//    tEl->destAddr = msg->getFinalDestAddr();
-//    tEl->destSeqNo = msg->getFinalDestSeqNo();
-//    tEl->hopCount = msg->getHopCount();
-//    tEl->lifeTime = simTime()+maxRouteTableElementLifetime;
-//    tEl->nextHop = msg->getSrcAddr();
-//    return upsertRoute(tEl);
-    return false;
+    debugEV << "Updating FORWARD Route for node " << msg->getRouteDestAddr() << endl;
+    routeTableElement* tEl = (struct routeTableElement*) malloc(sizeof(struct routeTableElement));
+    tEl->destAddr = msg->getRouteDestAddr();
+    tEl->destSeqNo = msg->getRouteDestSeqNo();
+    tEl->hopCount = msg->getHopCount();
+    tEl->lifeTime = simTime()+maxRouteTableElementLifetime;
+    tEl->nextHop = msg->getSrcAddr();
+    return upsertRoute(tEl);
 }
 bool AODVRoute::upsertRoute(routeTableElement* rtEl)
 {

@@ -3,8 +3,10 @@ cplusplus {{
 }}
 
 class ApplPkt;
+class LAddress::L3Type extends void;
 
 message HoHuTApplPkt extends ApplPkt
 {
-    string data;
+    string payload;
+    LAddress::L3Type netwDestAddr;
 }

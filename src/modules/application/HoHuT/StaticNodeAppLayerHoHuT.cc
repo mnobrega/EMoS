@@ -48,7 +48,8 @@ void StaticNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
             //sendStaticNodeMsg();
             if (this->getParentModule()->getIndex()==0)
             {
-                sendStaticNodeMsg("test");
+                char payload[] = "test";
+                sendStaticNodeMsg(payload,1003);
             }
 
 //            if (!selfTimer->isScheduled())
@@ -73,7 +74,7 @@ void StaticNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
         case STATIC_NODE_MSG:
             debugEV << "received rssi: " << cInfo->getRSSI() << endl;
             debugEV << "Received a node msg from node: " << cInfo->getSrcNetwAddr() << endl;
-            debugEV << "msg data:" << m->getData() << endl;
+            debugEV << "msg data:" << m->getPayload() << endl;
             break;
         case STATIC_NODE_SIG:
             debugEV << "Received a node sig from node" << endl;
@@ -88,7 +89,7 @@ void StaticNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
 void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
 {
     HoHuTApplPkt* pkt;
-    ApplPkt* ctrlPkt = static_cast<ApplPkt*>(msg);
+    HoHuTApplPkt* ctrlPkt = static_cast<HoHuTApplPkt*>(msg);
 
     switch (msg->getKind())
     {
@@ -97,35 +98,47 @@ void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
             if (sentPktQueueBuffer==NULL)
             {
                 pkt = getFromPktQueue();
-                sentPktQueueBuffer = pkt->dup();
-                NetwControlInfo::setControlInfo(sentPktQueueBuffer, NetwControlInfo::getAddressFromControlInfo(pkt->getControlInfo()));
                 if (pkt!=NULL)
                 {
+                    sentPktQueueBuffer = pkt->dup();
+                    NetwControlInfo::setControlInfo(pkt, pkt->getNetwDestAddr());
                     sentPktQueueTriesCounter = 1;
                     sendDown(pkt);
+                }
+                else
+                {
+                    error ("PacketQueue should have at least one packet for transmission");
                 }
             }
             else
             {
-                sendDown(sentPktQueueBuffer);
+                debugEV << "Retry no:" << sentPktQueueTriesCounter << endl;
+                pkt = sentPktQueueBuffer->dup();
+                NetwControlInfo::setControlInfo(pkt, ctrlPkt->getDestAddr());
+                sendDown(pkt);
             }
             break;
         case DELIVERY_ACK:
             debugEV << "Packet was delivered. SUCCESS!!" << endl;
-            sentPktQueueBuffer = NULL;
-            sentPktQueueTriesCounter = 0;
+            if (sentPktQueueBuffer==NULL)
+            {
+                sentPktQueueBuffer = NULL;
+                sentPktQueueTriesCounter = 0;
+            }
+            runPktQueueMaintenance();
             break;
         case DELIVERY_ERROR:
             debugEV << "Packet was not delivered. Try again or giveup" << endl;
-            if (sentPktQueueTriesCounter<maxPacketDeliveryTries)
+            if (sentPktQueueTriesCounter<maxPacketDeliveryTries && sentPktQueueBuffer!=NULL)
             {
+                pkt = sentPktQueueBuffer->dup();
                 debugEV << "Number of tries: " << sentPktQueueTriesCounter << " OK. Lets try again!" << endl;
                 sentPktQueueTriesCounter++;
-                HoHuTApplPkt* ctrlPkt = new HoHuTApplPkt("ask-netw-for-route", HAS_ROUTE);
-                ctrlPkt->setDestAddr(NetwControlInfo::getAddressFromControlInfo(sentPktQueueBuffer->getControlInfo()));
+                ApplPkt* ctrlPkt = new ApplPkt("ask-netw-for-route", HAS_ROUTE);
+                ctrlPkt->setDestAddr(pkt->getNetwDestAddr());
                 sendControlDown(ctrlPkt);
             }
-            else
+            else if (sentPktQueueBuffer!=NULL)
             {
                 debugEV << "Number of tries: " << sentPktQueueTriesCounter << " Give Up!" << endl;
                 bubble("PACKET LOST");
@@ -148,26 +161,26 @@ void StaticNodeAppLayerHoHuT::sendStaticNodeSig()
     NetwControlInfo::setControlInfo(nodeSignature, nodeSignature->getDestAddr());
     sendDown(nodeSignature);
 }
-void StaticNodeAppLayerHoHuT::sendStaticNodeMsg(const char* msgData)
+void StaticNodeAppLayerHoHuT::sendStaticNodeMsg(char* msgPayload, LAddress::L3Type netwDestAddr)
 {
-    LAddress::L3Type destAddr = 1003;
+    debugEV << "Sending static node msg to netwDestAddr:" << netwDestAddr << endl;
 
-    debugEV << "Sending static node msg" << endl;
-    HoHuTApplPkt* aodvTestDataMsg = new HoHuTApplPkt("aodv-test",STATIC_NODE_MSG);
-    aodvTestDataMsg->setData(msgData);
-    NetwControlInfo::setControlInfo(aodvTestDataMsg, destAddr);
+    HoHuTApplPkt* appPkt = new HoHuTApplPkt("static-node-app-msg",STATIC_NODE_MSG);
+    appPkt->setPayload(msgPayload);
+    appPkt->setNetwDestAddr(netwDestAddr);
 
-    if (destAddr==LAddress::L3BROADCAST)
+    if (appPkt->getNetwDestAddr()==LAddress::L3BROADCAST)
     {
         debugEV << "It is broadcast. Send it immediately!" << endl;
-        sendDown(aodvTestDataMsg);
+        NetwControlInfo::setControlInfo(appPkt, appPkt->getNetwDestAddr());
+        sendDown(appPkt);
     }
     else
     {
-        debugEV << "It is not broadcast. Ask netw through the control channel if the route exists for node: " << destAddr << endl;
-        addToPktQueue(aodvTestDataMsg);
-        HoHuTApplPkt* ctrlPkt = new HoHuTApplPkt("ask-netw-for-route", HAS_ROUTE);
-        ctrlPkt->setDestAddr(destAddr);
+        debugEV << "It is not broadcast. Ask netw through the control channel if the route exists for node: " << appPkt->getNetwDestAddr() << endl;
+        addToPktQueue(appPkt);
+        ApplPkt* ctrlPkt = new ApplPkt("ask-netw-for-route", HAS_ROUTE);
+        ctrlPkt->setDestAddr(appPkt->getNetwDestAddr());
         sendControlDown(ctrlPkt);
     }
 }

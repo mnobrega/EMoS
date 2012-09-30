@@ -49,8 +49,8 @@ protected:
     };
 
     bool stats, trace;
-    int RREQSent;
-    int nodeSeqNo;
+    unsigned int RREQSent;
+    unsigned int nodeSeqNo;
 
     //other nodes last known seq numbers
     std::map<LAddress::L3Type,int> nodesLastKnownSeqNoTable;
@@ -91,6 +91,8 @@ protected:
 
     void handleUpperControlHasRoute(ApplPkt*);
     void handleLowerRREQ(cMessage*);
+    void handleLowerRREP(cMessage*);
+    void handleLowerDATA(cMessage*);
 
     int getNodeSeqNo(LAddress::L3Type);
     void upsertNodeSeqNo(LAddress::L3Type,int);
