@@ -136,7 +136,8 @@ void csma::initialize(int stage) {
 
     	debugEV << "queueLength = " << queueLength
 		<< " bitrate = " << bitrate
-		<< " backoff method = " << par("backoffMethod").stringValue() << endl;
+		<< " backoff method = " << par("backoffMethod").stringValue()
+		<< " macAdrress = " << myMacAddr << endl;
 
 		debugEV << "finished csma init stage 1." << endl;
 	}
