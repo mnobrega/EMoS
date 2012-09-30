@@ -5,8 +5,8 @@ simple StaticNodeAppLayerHoHuT
     parameters:
         bool debug = default(false); 		// debug switch
         int  headerLength = default(24);	// length of the network packet header (in bits)
-        int pktQueueElementLifetime = default(20);
-        int pktQueueCheckingPeriod = default(10);
+        int maxPktQueueElementLifetime = default(20);
+        int pktQueueMaintenancePeriod = default(10);
         int maxPacketDeliveryTries = default(5);
         
     gates:

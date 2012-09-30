@@ -2,6 +2,7 @@
 #define STATIC_NODE_APP_LAYER_HOHUT_H
 
 #include <omnetpp.h>
+#include <queue>
 #include "BaseApplLayer.h"
 #include "NetwControlInfo.h"
 #include "NetwToApplControlInfo.h"
@@ -36,10 +37,16 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
 		virtual void handleSelfMsg(cMessage *);
         virtual void handleLowerMsg(cMessage *);
         virtual void handleLowerControl(cMessage *);
-        virtual void sendStaticNodeSig();
-        virtual void sendStaticNodeMsg(const char* msgData);
         virtual void handleUpperMsg(cMessage * m) { delete m; }
         virtual void handleUpperControl(cMessage * m) { delete m; }
+
+        void sendStaticNodeSig();
+        void sendStaticNodeMsg(const char* msgData);
+
+        void destroyPktQueue();
+        void addToPktQueue(HoHuTApplPkt *);
+        HoHuTApplPkt* getFromPktQueue();
+        void runPktQueueMaintenance();
 
     private:
         // constants
@@ -51,22 +58,19 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
         cMessage* selfTimer;
 
         // packets queue
-        int pktQueueElementLifetime;
-        int pktQueueCheckingPeriod;
+        int maxPktQueueElementLifetime;
+        int pktQueueMaintenancePeriod;
         int maxPacketDeliveryTries;
+        int sentPktQueueTriesCounter;
+        HoHuTApplPkt* sentPktQueueBuffer;
         struct pktQueueElement
         {
             LAddress::L3Type    destAddr;
             simtime_t   lifeTime;
             HoHuTApplPkt*    packet;
         };
-        std::vector<pktQueueElement*> pktQueue;
-        HoHuTApplPkt* sentPktQueueBuffer;
-        int sentPktQueueTriesCounter;
-        void destroyPktQueue();
-        void addToPktQueue(HoHuTApplPkt *);
-        HoHuTApplPkt* getPktQueueByDestAddr(LAddress::L3Type);
-        void checkPktQueue();
+        std::queue<pktQueueElement*> pktQueue;
+
 };
 
 #endif // STATIC_NODE_APP_LAYER_H

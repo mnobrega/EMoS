@@ -12,8 +12,8 @@ void StaticNodeAppLayerHoHuT::initialize(int stage)
         lowerLayerIn = findGate("lowerLayerIn");
         lowerControlOut = findGate("lowerControlOut");
         lowerControlIn = findGate("lowerControlIn");
-        pktQueueElementLifetime = par("pktQueueElementLifetime");
-        pktQueueCheckingPeriod = par("pktQueueCheckingPeriod");
+        maxPktQueueElementLifetime = par("maxPktQueueElementLifetime");
+        pktQueueMaintenancePeriod = par("pktQueueMaintenancePeriod");
         maxPacketDeliveryTries = par("maxPacketDeliveryTries");
         debug = par("debug").boolValue();
     }
@@ -96,7 +96,7 @@ void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
             debugEV << "HAS_ROUTE_ACK received for destAddr " << ctrlPkt->getDestAddr() << endl;
             if (sentPktQueueBuffer==NULL)
             {
-                pkt = getPktQueueByDestAddr(ctrlPkt->getDestAddr());
+                pkt = getFromPktQueue();
                 sentPktQueueBuffer = pkt->dup();
                 NetwControlInfo::setControlInfo(sentPktQueueBuffer, NetwControlInfo::getAddressFromControlInfo(pkt->getControlInfo()));
                 if (pkt!=NULL)
@@ -178,28 +178,22 @@ void StaticNodeAppLayerHoHuT::destroyPktQueue()
     int count = 0;
     while (!pktQueue.empty())
     {
-        pktQueueElement* qEl = pktQueue.back();
-        pktQueue.pop_back();
+        pktQueueElement* qEl = pktQueue.front();
+        pktQueue.pop();
         HoHuTApplPkt* pkt = static_cast<HoHuTApplPkt*>(qEl->packet);
         delete pkt;
         count++;
     }
     debugEV << count << " pkts were destroyed" << endl;
 }
-HoHuTApplPkt* StaticNodeAppLayerHoHuT::getPktQueueByDestAddr(LAddress::L3Type destAddr)
+HoHuTApplPkt* StaticNodeAppLayerHoHuT::getFromPktQueue()
 {
-    for(int i=pktQueue.size()-1; i>=0; i--)
+    if (pktQueue.size()>0)
     {
-        pktQueueElement* qEl = pktQueue[i];
-        HoHuTApplPkt* pkt = static_cast<HoHuTApplPkt*>(qEl->packet);
-        if (qEl->destAddr==destAddr && qEl->lifeTime >= simTime())
-        {
-            pktQueue.pop_back();
-            return pkt;
-        }
+        pktQueueElement* qEl = pktQueue.front();
+        pktQueue.pop();
+        return qEl->packet;
     }
-
-    debugEV << "no pkt found for the destAddr:" << destAddr << endl;
     return NULL;
 }
 void StaticNodeAppLayerHoHuT::addToPktQueue(HoHuTApplPkt * pkt)
@@ -211,11 +205,11 @@ void StaticNodeAppLayerHoHuT::addToPktQueue(HoHuTApplPkt * pkt)
         error("pktQueueElement malloc failed");
     }
     qEl->destAddr = NetwControlInfo::getAddressFromControlInfo(pkt->getControlInfo());
-    qEl->lifeTime = simTime()+pktQueueElementLifetime;
+    qEl->lifeTime = simTime()+maxPktQueueElementLifetime;
     qEl->packet = pkt;
-    pktQueue.push_back(qEl);
+    pktQueue.push(qEl);
 }
-void StaticNodeAppLayerHoHuT::checkPktQueue()
+void StaticNodeAppLayerHoHuT::runPktQueueMaintenance()
 {
     debugEV << "Checking packet queue for packets to send or expire!" << endl;
 }

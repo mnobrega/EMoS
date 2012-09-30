@@ -1,13 +1,19 @@
+#ifndef AODV_ROUTE_H
+#define AODV_ROUTE_H
+
 #include <omnetpp.h>
 #include <limits>
 #include <algorithm>
 #include <cassert>
+#include <map>
+#include <vector>
 
 #include "MiXiMDefs.h"
 #include "BaseNetwLayer.h"
 #include "ApplPkt_m.h"
 #include "AODVData_m.h"
 #include "AODVRouteRequest_m.h"
+#include "AODVRouteResponse_m.h"
 #include "ArpInterface.h"
 #include "MacToNetwControlInfo.h"
 #include "NetwToMacControlInfo.h"
@@ -44,14 +50,6 @@ protected:
 
     bool stats, trace;
 
-    int totalSend;
-    int totalRreqSend;
-    int totalRreqRec;
-    int totalRrepSend;
-    int totalRrepRec;
-    int totalRerrSend;
-    int totalRerrRec;
-
     void handleUpperMsg(cMessage *);
     void handleLowerMsg(cMessage *);
     void handleSelfMsg(cMessage *);
@@ -60,17 +58,52 @@ protected:
     AODVData* encapsMsg(cPacket *);
     cPacket* decapsMsg(AODVData *);
 
+    void handleUpperControlHasRoute(ApplPkt*);
+    void handleLowerRREQ(cMessage*);
+
+    int getNodeSeqNo(LAddress::L3Type);
+    void upsertNodeSeqNo(LAddress::L3Type,int);
+
+    void getRouteForDestination(LAddress::L3Type);
+    bool hasRouteForDestination(LAddress::L3Type);
+    void routeTableMaintenance();
+    void insertReverseRoute(AODVRouteRequest*);
+    void insertForwardRoute(AODVRouteResponse*);
+
+    bool hasRREQ(AODVRouteRequest*);
+    void saveRREQ(AODVRouteRequest*);
+    void runRREQSetMaintenance();
+
+private:
+    int RREQSent;
+    int nodeSeqNo;
+
+    //other nodes last known seq numbers
+    std::map<LAddress::L3Type,int> nodesLastKnownSeqNoTable;
+
     //route table
-    struct routeTableEntry
+    struct routeTableElement
     {
         LAddress::L3Type destAddr;
+        //sequence number at the destination node when it sent a RREP
         int destSeqNo;
         LAddress::L3Type nextHop;
         int hopCount;
-        int lifeTime;
+        simtime_t lifeTime;
     };
-    std::map<LAddress::L3Type,routeTableEntry> routeTable;
-    void getRoute(LAddress::L3Type destAddr);
-    bool hasRouteForDestination(LAddress::L3Type);
-    void checkRouteTable();
+    std::map<LAddress::L3Type,routeTableElement*> routeTable;
+
+    //route req table
+    unsigned int maxRREQVectorSize;
+    unsigned int maxRREQVectorElementLifetime;
+    unsigned int RREQSetMaintenancePeriod;
+    struct RREQVectorElement
+    {
+        int     RREQ_ID;
+        LAddress::L3Type srcAddr;
+        simtime_t lifeTime;
+    };
+    std::vector<RREQVectorElement*> RREQVector;
 };
+
+#endif // AODV_ROUTE_H

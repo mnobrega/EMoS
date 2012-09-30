@@ -9,8 +9,9 @@ simple AODVRoute extends BaseNetwLayer
         bool debug = default(false);
         stats = default(true);
         headerLength = default(0);
-        int pktQueueElementLifetime = default(20);
-        int pktQueueCheckingPeriod = default(10);
+        int maxRREQVectorSize = default(25);
+        int maxRREQVectorElementLifetime = default(30);
+        int RREQSetMaintenancePeriod = default(60);
         @display("i=block/fork");
         @class(AODVRoute);
 }
