@@ -61,7 +61,12 @@ void AODVRoute::handleUpperMsg(cMessage * msg)
         m->setSrcAddr(myNetwAddr);
         m->setDestAddr(fwdRoute->nextHop);
         m->removeControlInfo();
-        NetwToMacControlInfo::setControlInfo(m,arp->getMacAddr(fwdRoute->nextHop));
+
+        //TEST
+        //NetwToMacControlInfo::setControlInfo(m,arp->getMacAddr(fwdRoute->nextHop);
+        NetwToMacControlInfo::setControlInfo(m,9999); //doesnt exist and will not be delivered
+        //TEST
+
         sendDown(m);
     }
     else
@@ -110,9 +115,23 @@ void AODVRoute::handleLowerControl(cMessage* msg)
     switch(msg->getKind())
     {
         case PACKET_DROPPED:
-            debugEV << "MAC ERROR detected! Inform app layer!" << endl;
-            pkt = new ApplPkt("last-transmitted-packet-dropped",DELIVERY_ERROR);
-            sendControlUp(pkt);
+            {
+                debugEV << "MAC ERROR detected! Inform app layer!" << endl;
+                MacPkt* macPkt = static_cast<MacPkt*>(msg);
+                NetwPkt* netwPkt = static_cast<NetwPkt*>(macPkt->decapsulate());
+                if (!localRepair)
+                {
+                    AODVRouteError* rerr = new AODVRouteError("route-error",RERR);
+                    unreachAddSeqNoMap_t addrMap = removeRoutesByNextHop(netwPkt->getDestAddr());
+                    rerr->setUnreachDestAddr(netwPkt->getDestAddr());
+                }
+                else
+                {
+                    //TODO
+                }
+                pkt = new ApplPkt("last-transmitted-packet-dropped",DELIVERY_ERROR);
+                sendControlUp(pkt);
+            }
             break;
         case TX_OVER:
             debugEV << "Transmission success!" << endl;
@@ -344,7 +363,7 @@ void AODVRoute::upsertNodeSeqNo(LAddress::L3Type addr,int seqNumber)
 //ROUTES TABLE
 AODVRoute::routeMapElement_t* AODVRoute::getRouteForDestination(LAddress::L3Type destAddr)
 {
-    std::map<LAddress::L3Type,routeMapElement*>::iterator it = routeMap.find(destAddr);
+    routeMap_t::iterator it = routeMap.find(destAddr);
     return (it!=routeMap.end() && it->second->lifeTime>=simTime())?it->second:NULL;
 }
 bool AODVRoute::hasRouteForDestination(LAddress::L3Type destAddr)
@@ -392,6 +411,20 @@ bool AODVRoute::upsertRoute(routeMapElement* rtEl)
         return true;
     }
     return false;
+}
+AODVRoute::unreachAddSeqNoMap_t AODVRoute::removeRoutesByNextHop(LAddress::L3Type nextHop)
+{
+    routeMap_t::iterator it;
+    unreachAddSeqNoMap_t addrMap;
+
+    for (it=routeMap.begin();it!=routeMap.end();it++)
+    {
+        if (it->second->nextHop == nextHop)
+        {
+            addrMap[it->second->destAddr] = it->second->destSeqNo;
+        }
+    }
+    return addrMap;
 }
 void AODVRoute::routeTableMaintenance()
 {
@@ -464,4 +497,15 @@ cPacket* AODVRoute::decapsMsg(AODVData *msg)
 
     delete msg;
     return pkt;
+}
+
+///AUX
+std::string AODVRoute::serializeAddressSeqNoMap(unreachAddSeqNoMap_t map)
+{
+    //TODO
+    unreachAddSeqNoMap_t::iterator it;
+    for (it=map.begin();it!=map.end();it++)
+    {
+
+    }
 }

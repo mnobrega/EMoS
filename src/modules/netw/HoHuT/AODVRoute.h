@@ -7,13 +7,16 @@
 #include <cassert>
 #include <map>
 #include <vector>
+#include <string>
 
 #include "MiXiMDefs.h"
 #include "BaseNetwLayer.h"
 #include "ApplPkt_m.h"
+#include "MacPkt_m.h"
 #include "AODVData_m.h"
 #include "AODVRouteRequest_m.h"
 #include "AODVRouteResponse_m.h"
+#include "AODVRouteError_m.h"
 #include "ArpInterface.h"
 #include "MacToNetwControlInfo.h"
 #include "NetwToMacControlInfo.h"
@@ -65,6 +68,9 @@ protected:
     //last known addresses seqNo
     std::map<LAddress::L3Type,int> nodesLastKnownSeqNoMap;
 
+    //unreachable nodes - TODO
+    typedef std::map<LAddress::L3Type,int> unreachAddSeqNoMap_t;
+
     //route map
     typedef struct routeMapElement
     {
@@ -75,7 +81,8 @@ protected:
         int hopCount;
         simtime_t lifeTime;
     }routeMapElement_t;
-    std::map<LAddress::L3Type,routeMapElement*> routeMap;
+    typedef std::map<LAddress::L3Type,routeMapElement*> routeMap_t;
+    routeMap_t routeMap;
 
     //RREQ vector
     struct RREQVectorElement
@@ -110,10 +117,13 @@ protected:
     bool upsertReverseRoute(AODVRouteRequest*);
     bool upsertForwardRoute(AODVRouteResponse*);
     bool upsertRoute(routeMapElement*);
+    unreachAddSeqNoMap_t removeRoutesByNextHop(LAddress::L3Type);
 
     bool hasRREQ(AODVRouteRequest*);
     void saveRREQ(AODVRouteRequest*);
     void runRREQSetMaintenance();
+
+    std::string* serializeAddressSeqNoMap(unreachAddSeqNoMap_t*);
 
 };
 
