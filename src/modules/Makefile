@@ -1429,6 +1429,7 @@ $O/netw/WiseRoute.o: netw/WiseRoute.cc \
 	utility/SimTracer.h
 $O/netw/HoHuT/AODVRoute.o: netw/HoHuT/AODVRoute.cc \
 	../base/messages/ApplPkt_m.h \
+	../base/messages/MacPkt_m.h \
 	../base/messages/NetwPkt_m.h \
 	../base/modules/ArpInterface.h \
 	../base/modules/BaseBattery.h \
@@ -1446,6 +1447,7 @@ $O/netw/HoHuT/AODVRoute.o: netw/HoHuT/AODVRoute.cc \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
 	messages/HoHuT/AODVData_m.h \
+	messages/HoHuT/AODVRouteError_m.h \
 	messages/HoHuT/AODVRouteRequest_m.h \
 	messages/HoHuT/AODVRouteResponse_m.h \
 	netw/HoHuT/AODVRoute.h

@@ -40,7 +40,6 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
         int nodeSigStartingTime;
         int nodeSigPeriod;
         //packet map
-        int packetMaxDeliveryTries;
         int packetMapMaxPktQueueElementLifetime;
         int packetMapMaintenancePeriod;
 
@@ -50,8 +49,6 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
         cMessage* selfTimer;
 
         // packet map
-        int packetQueueElementTriesCounter;
-        HoHuTApplPkt* sentPktQueueBuffer;
         struct pktQueueElement
         {
             LAddress::L3Type    destAddr;

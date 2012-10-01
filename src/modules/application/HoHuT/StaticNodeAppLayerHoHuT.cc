@@ -15,7 +15,6 @@ void StaticNodeAppLayerHoHuT::initialize(int stage)
 
         packetMapMaxPktQueueElementLifetime = par("packetMapMaxPktQueueElementLifetime");
         packetMapMaintenancePeriod = par("packetMapMaintenancePeriod");
-        packetMaxDeliveryTries = par("packetMaxDeliveryTries");
 
         nodeSigStartingTime = par("nodeSigStartingTime");
         nodeSigPeriod = par("nodeSigPeriod");
@@ -25,8 +24,6 @@ void StaticNodeAppLayerHoHuT::initialize(int stage)
     else if (stage == 1) //initialize vars, subscribe signals, etc
     {
     	debugEV << "in initialize() stage 1...";
-    	packetQueueElementTriesCounter = 0;
-    	sentPktQueueBuffer = NULL;
     	selfTimer = new cMessage("beacon-timer",STATIC_NODE_SIG_TIMER);
     	scheduleAt(simTime() + nodeSigStartingTime +uniform(0,0.001), selfTimer);
     }
@@ -37,10 +34,6 @@ StaticNodeAppLayerHoHuT::~StaticNodeAppLayerHoHuT() {}
 void StaticNodeAppLayerHoHuT::finish()
 {
     destroyPktMap();
-    if (sentPktQueueBuffer!=NULL)
-    {
-        delete sentPktQueueBuffer;
-    }
 }
 
 void StaticNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
@@ -97,57 +90,16 @@ void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
     switch (msg->getKind())
     {
         case HAS_ROUTE_ACK:
-            debugEV << "HAS_ROUTE_ACK received for destAddr " << ctrlPkt->getDestAddr() << endl;
-            if (sentPktQueueBuffer==NULL)
-            {
-                pkt = getFromPktMap(ctrlPkt->getDestAddr());
-                if (pkt!=NULL)
-                {
-                    sentPktQueueBuffer = pkt->dup();
-                    NetwControlInfo::setControlInfo(pkt, pkt->getNetwDestAddr());
-                    packetQueueElementTriesCounter = 1;
-                    sendDown(pkt);
-                }
-                else
-                {
-                    error ("PacketQueue should have at least one packet for transmission");
-                }
-            }
-            else
-            {
-                debugEV << "Retry no:" << packetQueueElementTriesCounter << endl;
-                pkt = sentPktQueueBuffer->dup();
-                NetwControlInfo::setControlInfo(pkt, ctrlPkt->getDestAddr());
-                sendDown(pkt);
-            }
+            pkt = getFromPktMap(ctrlPkt->getDestAddr());
+            NetwControlInfo::setControlInfo(pkt, pkt->getNetwDestAddr());
+            sendDown(pkt);
             break;
         case DELIVERY_ACK:
             debugEV << "Packet was delivered. SUCCESS!!" << endl;
-            if (sentPktQueueBuffer==NULL)
-            {
-                sentPktQueueBuffer = NULL;
-                packetQueueElementTriesCounter = 0;
-            }
-            runPktMapMaintenance();
             break;
         case DELIVERY_ERROR:
-            debugEV << "Packet was not delivered. Try again or giveup" << endl;
-            if (packetQueueElementTriesCounter<packetMaxDeliveryTries && sentPktQueueBuffer!=NULL)
-            {
-                pkt = sentPktQueueBuffer->dup();
-                debugEV << "Number of tries: " << packetQueueElementTriesCounter << " OK. Lets try again!" << endl;
-                packetQueueElementTriesCounter++;
-                ApplPkt* ctrlPkt = new ApplPkt("ask-netw-for-route", HAS_ROUTE);
-                ctrlPkt->setDestAddr(pkt->getNetwDestAddr());
-                sendControlDown(ctrlPkt);
-            }
-            else if (sentPktQueueBuffer!=NULL)
-            {
-                debugEV << "Number of tries: " << packetQueueElementTriesCounter << " Give Up!" << endl;
-                bubble("PACKET LOST");
-                packetQueueElementTriesCounter = 0;
-                sentPktQueueBuffer = NULL;
-            }
+            debugEV << "Packet was not delivered. Packet was lost!" << endl;
+            bubble("PACKET LOST");
             break;
         default:
             error("Unknown message of kind: "+msg->getKind());
