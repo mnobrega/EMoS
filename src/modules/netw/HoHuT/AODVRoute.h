@@ -49,15 +49,24 @@ protected:
     };
 
     bool stats, trace;
-    unsigned int RREQSent;
+    unsigned int RREQIDCounter;
     unsigned int nodeSeqNo;
 
-    //other nodes last known seq numbers
-    std::map<LAddress::L3Type,int> nodesLastKnownSeqNoTable;
+    //CONSTANTS
+    //RREQ vector
+    bool localRepair;
+    unsigned int RREQVectorMaxSize;
+    int RREQVectorMaintenancePeriod;
+    int RREQVectorElementMaxLifetime;
+    //route map
+    int routeMapElementMaxLifetime;
 
-    //route table
-    unsigned int maxRouteTableElementLifetime;
-    struct routeTableElement
+    //VARS
+    //last known addresses seqNo
+    std::map<LAddress::L3Type,int> nodesLastKnownSeqNoMap;
+
+    //route map
+    typedef struct routeMapElement
     {
         LAddress::L3Type destAddr;
         //sequence number at the destination node when it sent a RREP
@@ -65,14 +74,10 @@ protected:
         LAddress::L3Type nextHop;
         int hopCount;
         simtime_t lifeTime;
-    };
-    typedef routeTableElement routeTableElement_t;
-    std::map<LAddress::L3Type,routeTableElement*> routeTable;
+    }routeMapElement_t;
+    std::map<LAddress::L3Type,routeMapElement*> routeMap;
 
-    //route req table
-    unsigned int maxRREQVectorSize;
-    unsigned int maxRREQVectorElementLifetime;
-    unsigned int RREQVectorMaintenancePeriod;
+    //RREQ vector
     struct RREQVectorElement
     {
         int     RREQ_ID;
@@ -81,6 +86,8 @@ protected:
     };
     std::vector<RREQVectorElement*> RREQVector;
 
+
+    //METHODS
     void handleUpperMsg(cMessage *);
     void handleLowerMsg(cMessage *);
     void handleSelfMsg(cMessage *);
@@ -97,12 +104,12 @@ protected:
     int getNodeSeqNo(LAddress::L3Type);
     void upsertNodeSeqNo(LAddress::L3Type,int);
 
-    routeTableElement_t* getRouteForDestination(LAddress::L3Type);
+    routeMapElement_t* getRouteForDestination(LAddress::L3Type);
     bool hasRouteForDestination(LAddress::L3Type);
     void routeTableMaintenance();
     bool upsertReverseRoute(AODVRouteRequest*);
     bool upsertForwardRoute(AODVRouteResponse*);
-    bool upsertRoute(routeTableElement*);
+    bool upsertRoute(routeMapElement*);
 
     bool hasRREQ(AODVRouteRequest*);
     void saveRREQ(AODVRouteRequest*);

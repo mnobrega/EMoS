@@ -12,20 +12,23 @@ void StaticNodeAppLayerHoHuT::initialize(int stage)
         lowerLayerIn = findGate("lowerLayerIn");
         lowerControlOut = findGate("lowerControlOut");
         lowerControlIn = findGate("lowerControlIn");
-        maxPktQueueElementLifetime = par("maxPktQueueElementLifetime");
-        pktQueueMaintenancePeriod = par("pktQueueMaintenancePeriod");
-        maxPacketDeliveryTries = par("maxPacketDeliveryTries");
+
+        packetMapMaxPktQueueElementLifetime = par("packetMapMaxPktQueueElementLifetime");
+        packetMapMaintenancePeriod = par("packetMapMaintenancePeriod");
+        packetMaxDeliveryTries = par("packetMaxDeliveryTries");
+
+        nodeSigStartingTime = par("nodeSigStartingTime");
+        nodeSigPeriod = par("nodeSigPeriod");
+
         debug = par("debug").boolValue();
     }
     else if (stage == 1) //initialize vars, subscribe signals, etc
     {
     	debugEV << "in initialize() stage 1...";
-    	INITIAL_DELAY = 5;
-    	BEACON_INTERVAL = 1;
-    	sentPktQueueTriesCounter = 0;
+    	packetQueueElementTriesCounter = 0;
     	sentPktQueueBuffer = NULL;
     	selfTimer = new cMessage("beacon-timer",STATIC_NODE_SIG_TIMER);
-    	scheduleAt(simTime() + INITIAL_DELAY +uniform(0,0.001), selfTimer);
+    	scheduleAt(simTime() + nodeSigStartingTime +uniform(0,0.001), selfTimer);
     }
 }
 
@@ -33,7 +36,7 @@ StaticNodeAppLayerHoHuT::~StaticNodeAppLayerHoHuT() {}
 
 void StaticNodeAppLayerHoHuT::finish()
 {
-    destroyPktQueue();
+    destroyPktMap();
     if (sentPktQueueBuffer!=NULL)
     {
         delete sentPktQueueBuffer;
@@ -54,7 +57,7 @@ void StaticNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
 
 //            if (!selfTimer->isScheduled())
 //            {
-//                scheduleAt(simTime()+BEACON_INTERVAL,selfTimer);
+//                scheduleAt(simTime()+nodeSigPeriod,selfTimer);
 //            }
             break;
         default:
@@ -89,7 +92,7 @@ void StaticNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
 void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
 {
     HoHuTApplPkt* pkt;
-    HoHuTApplPkt* ctrlPkt = static_cast<HoHuTApplPkt*>(msg);
+    ApplPkt* ctrlPkt = static_cast<ApplPkt*>(msg);
 
     switch (msg->getKind())
     {
@@ -97,12 +100,12 @@ void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
             debugEV << "HAS_ROUTE_ACK received for destAddr " << ctrlPkt->getDestAddr() << endl;
             if (sentPktQueueBuffer==NULL)
             {
-                pkt = getFromPktQueue();
+                pkt = getFromPktMap(ctrlPkt->getDestAddr());
                 if (pkt!=NULL)
                 {
                     sentPktQueueBuffer = pkt->dup();
                     NetwControlInfo::setControlInfo(pkt, pkt->getNetwDestAddr());
-                    sentPktQueueTriesCounter = 1;
+                    packetQueueElementTriesCounter = 1;
                     sendDown(pkt);
                 }
                 else
@@ -112,7 +115,7 @@ void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
             }
             else
             {
-                debugEV << "Retry no:" << sentPktQueueTriesCounter << endl;
+                debugEV << "Retry no:" << packetQueueElementTriesCounter << endl;
                 pkt = sentPktQueueBuffer->dup();
                 NetwControlInfo::setControlInfo(pkt, ctrlPkt->getDestAddr());
                 sendDown(pkt);
@@ -123,26 +126,26 @@ void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
             if (sentPktQueueBuffer==NULL)
             {
                 sentPktQueueBuffer = NULL;
-                sentPktQueueTriesCounter = 0;
+                packetQueueElementTriesCounter = 0;
             }
-            runPktQueueMaintenance();
+            runPktMapMaintenance();
             break;
         case DELIVERY_ERROR:
             debugEV << "Packet was not delivered. Try again or giveup" << endl;
-            if (sentPktQueueTriesCounter<maxPacketDeliveryTries && sentPktQueueBuffer!=NULL)
+            if (packetQueueElementTriesCounter<packetMaxDeliveryTries && sentPktQueueBuffer!=NULL)
             {
                 pkt = sentPktQueueBuffer->dup();
-                debugEV << "Number of tries: " << sentPktQueueTriesCounter << " OK. Lets try again!" << endl;
-                sentPktQueueTriesCounter++;
+                debugEV << "Number of tries: " << packetQueueElementTriesCounter << " OK. Lets try again!" << endl;
+                packetQueueElementTriesCounter++;
                 ApplPkt* ctrlPkt = new ApplPkt("ask-netw-for-route", HAS_ROUTE);
                 ctrlPkt->setDestAddr(pkt->getNetwDestAddr());
                 sendControlDown(ctrlPkt);
             }
             else if (sentPktQueueBuffer!=NULL)
             {
-                debugEV << "Number of tries: " << sentPktQueueTriesCounter << " Give Up!" << endl;
+                debugEV << "Number of tries: " << packetQueueElementTriesCounter << " Give Up!" << endl;
                 bubble("PACKET LOST");
-                sentPktQueueTriesCounter = 0;
+                packetQueueElementTriesCounter = 0;
                 sentPktQueueBuffer = NULL;
             }
             break;
@@ -178,51 +181,74 @@ void StaticNodeAppLayerHoHuT::sendStaticNodeMsg(char* msgPayload, LAddress::L3Ty
     else
     {
         debugEV << "It is not broadcast. Ask netw through the control channel if the route exists for node: " << appPkt->getNetwDestAddr() << endl;
-        addToPktQueue(appPkt);
+        addToPktMap(appPkt);
         ApplPkt* ctrlPkt = new ApplPkt("ask-netw-for-route", HAS_ROUTE);
         ctrlPkt->setDestAddr(appPkt->getNetwDestAddr());
         sendControlDown(ctrlPkt);
     }
 }
 
-/// PACKET QUEUE
-void StaticNodeAppLayerHoHuT::destroyPktQueue()
+/// PACKET MAP
+void StaticNodeAppLayerHoHuT::destroyPktMap()
 {
     int count = 0;
-    while (!pktQueue.empty())
+    pktMap_t::iterator it;
+    pktQueue_t pktQueue;
+
+    for (it=pktMap.begin(); it!=pktMap.end(); it++)
     {
-        pktQueueElement* qEl = pktQueue.front();
-        pktQueue.pop();
-        HoHuTApplPkt* pkt = static_cast<HoHuTApplPkt*>(qEl->packet);
-        delete pkt;
-        count++;
+       while (it->second.size()>0)
+       {
+           pktQueueElement* qEl = it->second.front();
+           it->second.pop();
+           HoHuTApplPkt* pkt = static_cast<HoHuTApplPkt*>(qEl->packet);
+           delete pkt;
+           count++;
+       }
+       debugEV << count << " pkts were destroyed for destAddr:" << it->first << endl;
     }
-    debugEV << count << " pkts were destroyed" << endl;
+
 }
-HoHuTApplPkt* StaticNodeAppLayerHoHuT::getFromPktQueue()
+void StaticNodeAppLayerHoHuT::addToPktMap(HoHuTApplPkt * pkt)
 {
-    if (pktQueue.size()>0)
+    debugEV << "Adding packet to map for address :" << pkt->getNetwDestAddr() << endl;
+    pktQueueElement* qEl = (struct pktQueueElement *) malloc(sizeof(struct pktQueueElement));
+    qEl->destAddr = pkt->getNetwDestAddr();
+    qEl->lifeTime = simTime()+packetMapMaxPktQueueElementLifetime;
+    qEl->packet = pkt;
+
+    pktMap_t::iterator it = pktMap.find(pkt->getNetwDestAddr());
+    if (it!=pktMap.end())
     {
-        pktQueueElement* qEl = pktQueue.front();
-        pktQueue.pop();
-        return qEl->packet;
+        it->second.push(qEl);
+    }
+    else
+    {
+        pktQueue_t pktQueue;
+        pktQueue.push(qEl);
+        pktMap.insert(std::pair<LAddress::L3Type,pktQueue_t>(pkt->getNetwDestAddr(),pktQueue));
+    }
+}
+HoHuTApplPkt* StaticNodeAppLayerHoHuT::getFromPktMap(LAddress::L3Type destAddr)
+{
+    pktMap_t::iterator it = pktMap.find(destAddr);
+    if (it!=pktMap.end())
+    {
+        if (it->second.size()>0)
+        {
+            pktQueueElement* qEl = it->second.front();
+            it->second.pop();
+            HoHuTApplPkt* pkt = static_cast<HoHuTApplPkt*>(qEl->packet);
+            if (it->second.size()==0)
+            {
+                pktMap.erase(it);
+            }
+            return pkt;
+        }
     }
     return NULL;
 }
-void StaticNodeAppLayerHoHuT::addToPktQueue(HoHuTApplPkt * pkt)
-{
-    debugEV << "Adding packet to queue!" << endl;
-    pktQueueElement* qEl = (struct pktQueueElement *) malloc(sizeof(struct pktQueueElement));
-    if (qEl==NULL)
-    {
-        error("pktQueueElement malloc failed");
-    }
-    qEl->destAddr = NetwControlInfo::getAddressFromControlInfo(pkt->getControlInfo());
-    qEl->lifeTime = simTime()+maxPktQueueElementLifetime;
-    qEl->packet = pkt;
-    pktQueue.push(qEl);
-}
-void StaticNodeAppLayerHoHuT::runPktQueueMaintenance()
+void StaticNodeAppLayerHoHuT::runPktMapMaintenance()
 {
     debugEV << "Checking packet queue for packets to send or expire!" << endl;
 }

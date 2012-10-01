@@ -11,14 +11,15 @@ void AODVRoute::initialize(int stage)
 	{
 		trace = par("trace");
 		debug = par("debug").boolValue();
-		maxRREQVectorSize = par("maxRREQVectorSize");
-		maxRREQVectorElementLifetime = par("maxRREQVectorElementLifetime");
-		maxRouteTableElementLifetime = par("maxRouteTableElementLifetime");
+		RREQVectorMaxSize = par("RREQVectorMaxSize");
+		RREQVectorElementMaxLifetime = par("RREQVectorElementMaxLifetime");
+		routeMapElementMaxLifetime = par("routeMapElementMaxLifetime");
 		RREQVectorMaintenancePeriod = par("RREQVectorMaintenancePeriod");
+		localRepair = par("localRepair").boolValue();
 	}
 	else if (stage == 1)
 	{
-	    RREQSent = 0;
+	    RREQIDCounter = 0;
 	    nodeSeqNo = 0;
 	    debugEV << "Host index=" << findHost()->getIndex() << ", Id=" << findHost()->getId() << endl;
 	    debugEV << "  host IP address=" << myNetwAddr << endl;
@@ -28,8 +29,8 @@ void AODVRoute::initialize(int stage)
 
 void AODVRoute::finish()
 {
-    nodesLastKnownSeqNoTable.clear();
-    routeTable.clear();
+    nodesLastKnownSeqNoMap.clear();
+    routeMap.clear();
     RREQVector.clear();
 }
 
@@ -54,7 +55,7 @@ void AODVRoute::handleUpperMsg(cMessage * msg)
     {
         AODVData* m = encapsMsg(appPkt);
         debugEV << "using route and sending down to destAddr:" << destAddress << endl;
-        routeTableElement* fwdRoute = getRouteForDestination(destAddress);
+        routeMapElement* fwdRoute = getRouteForDestination(destAddress);
         m->setFinalDestAddr(destAddress);
         m->setInitialSrcAddr(myNetwAddr);
         m->setSrcAddr(myNetwAddr);
@@ -135,7 +136,7 @@ void AODVRoute::handleLowerDATA(cMessage* msg)
     if (m->getFinalDestAddr()!=myNetwAddr && m->getInitialSrcAddr()!=myNetwAddr && !LAddress::isL3Broadcast(m->getDestAddr())) //intermediate node and NOT BROADCAST
     {
         debugEV << "DATA msg arrived to intermediate node" << endl;
-        routeTableElement* fwdRoute = getRouteForDestination(m->getFinalDestAddr());
+        routeMapElement* fwdRoute = getRouteForDestination(m->getFinalDestAddr());
         m->setDestAddr(fwdRoute->nextHop);
         m->setSrcAddr(myNetwAddr);
         m->removeControlInfo();
@@ -165,7 +166,7 @@ void AODVRoute::handleLowerRREP(cMessage* msg)
     {
         debugEV << "Arrived to INTERMEDIATE NODE! Save fwd route and rev msg";
         upsertForwardRoute(rrep);
-        routeTableElement* revRoute = getRouteForDestination(rrep->getRouteSrcAddr());
+        routeMapElement* revRoute = getRouteForDestination(rrep->getRouteSrcAddr());
         rrep->setSrcAddr(myNetwAddr);
         rrep->setDestAddr(revRoute->nextHop);
         rrep->removeControlInfo();
@@ -207,7 +208,7 @@ void AODVRoute::handleLowerRREQ(cMessage* msg)
 
             saveRREQ(rreq);
             upsertReverseRoute(rreq);
-            routeTableElement* fwdRoute = getRouteForDestination(rreq->getFinalDestAddr());
+            routeMapElement* fwdRoute = getRouteForDestination(rreq->getFinalDestAddr());
 
             if (fwdRoute==NULL || (fwdRoute!=NULL && fwdRoute->destSeqNo < rreq->getFinalDestSeqNo()) )
             {
@@ -227,7 +228,7 @@ void AODVRoute::handleLowerRREQ(cMessage* msg)
                 rrep->setRouteSrcAddr(rreq->getInitialSrcAddr());
                 rrep->setHopCount(fwdRoute->hopCount);
 
-                routeTableElement* revRoute = getRouteForDestination(rreq->getInitialSrcAddr());
+                routeMapElement* revRoute = getRouteForDestination(rreq->getInitialSrcAddr());
                 rrep->setDestAddr(revRoute->nextHop);
                 rrep->setSrcAddr(myNetwAddr);
 
@@ -248,7 +249,7 @@ void AODVRoute::handleLowerRREQ(cMessage* msg)
             rrep->setRouteSrcAddr(rreq->getInitialSrcAddr());
             rrep->setHopCount(0);
 
-            routeTableElement* revRoute = getRouteForDestination(rreq->getInitialSrcAddr());
+            routeMapElement* revRoute = getRouteForDestination(rreq->getInitialSrcAddr());
             rrep->setDestAddr(revRoute->nextHop);
             rrep->setSrcAddr(myNetwAddr);
 
@@ -290,7 +291,7 @@ void AODVRoute::handleUpperControlHasRoute(ApplPkt* ctrlPkt)
         pkt->setFinalDestAddr(ctrlPkt->getDestAddr());
         pkt->setSrcAddr(myNetwAddr);
         pkt->setDestAddr(LAddress::L3BROADCAST);
-        pkt->setRREQ_ID(RREQSent);
+        pkt->setRREQ_ID(RREQIDCounter);
         if (!getNodeSeqNo(pkt->getFinalDestAddr()))
         {
             upsertNodeSeqNo(pkt->getFinalDestAddr(),0); //unknown seqno at destinatino node
@@ -300,7 +301,7 @@ void AODVRoute::handleUpperControlHasRoute(ApplPkt* ctrlPkt)
         pkt->setHopCount(0);
 
         NetwToMacControlInfo::setControlInfo(pkt,LAddress::L2BROADCAST);
-        RREQSent++;
+        RREQIDCounter++;
 
         sendDown(pkt);
     }
@@ -310,8 +311,8 @@ void AODVRoute::handleUpperControlHasRoute(ApplPkt* ctrlPkt)
 /// OTHER NODES last know seqNo
 int AODVRoute::getNodeSeqNo(LAddress::L3Type addr)
 {
-    std::map<LAddress::L3Type,int>::iterator it = nodesLastKnownSeqNoTable.find(addr);
-    if (it!=nodesLastKnownSeqNoTable.end())
+    std::map<LAddress::L3Type,int>::iterator it = nodesLastKnownSeqNoMap.find(addr);
+    if (it!=nodesLastKnownSeqNoMap.end())
     {
         return it->second;
     }
@@ -322,16 +323,16 @@ int AODVRoute::getNodeSeqNo(LAddress::L3Type addr)
 }
 void AODVRoute::upsertNodeSeqNo(LAddress::L3Type addr,int seqNumber)
 {
-    std::map<LAddress::L3Type,int>::iterator it = nodesLastKnownSeqNoTable.find(addr);
-    if (it==nodesLastKnownSeqNoTable.end())
+    std::map<LAddress::L3Type,int>::iterator it = nodesLastKnownSeqNoMap.find(addr);
+    if (it==nodesLastKnownSeqNoMap.end())
     {
-        nodesLastKnownSeqNoTable[addr] = seqNumber;
+        nodesLastKnownSeqNoMap[addr] = seqNumber;
     }
     else
     {
         if (seqNumber > it->second)
         {
-            nodesLastKnownSeqNoTable[it->first] = seqNumber;
+            nodesLastKnownSeqNoMap[it->first] = seqNumber;
         }
         else
         {
@@ -341,10 +342,10 @@ void AODVRoute::upsertNodeSeqNo(LAddress::L3Type addr,int seqNumber)
 }
 
 //ROUTES TABLE
-AODVRoute::routeTableElement_t* AODVRoute::getRouteForDestination(LAddress::L3Type destAddr)
+AODVRoute::routeMapElement_t* AODVRoute::getRouteForDestination(LAddress::L3Type destAddr)
 {
-    std::map<LAddress::L3Type,routeTableElement*>::iterator it = routeTable.find(destAddr);
-    return (it!=routeTable.end() && it->second->lifeTime>=simTime())?it->second:NULL;
+    std::map<LAddress::L3Type,routeMapElement*>::iterator it = routeMap.find(destAddr);
+    return (it!=routeMap.end() && it->second->lifeTime>=simTime())?it->second:NULL;
 }
 bool AODVRoute::hasRouteForDestination(LAddress::L3Type destAddr)
 {
@@ -353,41 +354,41 @@ bool AODVRoute::hasRouteForDestination(LAddress::L3Type destAddr)
 bool AODVRoute::upsertReverseRoute(AODVRouteRequest* msg)
 {
     debugEV << "Updating REVERSE Route for node " << msg->getInitialSrcAddr() << endl;
-    routeTableElement* tEl = (struct routeTableElement*) malloc(sizeof(struct routeTableElement));
+    routeMapElement* tEl = (struct routeMapElement*) malloc(sizeof(struct routeMapElement));
     tEl->destAddr = msg->getInitialSrcAddr();
     tEl->destSeqNo = msg->getInitialSrcSeqNo();
     tEl->hopCount = msg->getHopCount();
-    tEl->lifeTime = simTime()+maxRouteTableElementLifetime;
+    tEl->lifeTime = simTime()+routeMapElementMaxLifetime;
     tEl->nextHop = msg->getSrcAddr();
     return upsertRoute(tEl);
 }
 bool AODVRoute::upsertForwardRoute(AODVRouteResponse* msg)
 {
     debugEV << "Updating FORWARD Route for node " << msg->getRouteDestAddr() << endl;
-    routeTableElement* tEl = (struct routeTableElement*) malloc(sizeof(struct routeTableElement));
+    routeMapElement* tEl = (struct routeMapElement*) malloc(sizeof(struct routeMapElement));
     tEl->destAddr = msg->getRouteDestAddr();
     tEl->destSeqNo = msg->getRouteDestSeqNo();
     tEl->hopCount = msg->getHopCount();
-    tEl->lifeTime = simTime()+maxRouteTableElementLifetime;
+    tEl->lifeTime = simTime()+routeMapElementMaxLifetime;
     tEl->nextHop = msg->getSrcAddr();
     return upsertRoute(tEl);
 }
-bool AODVRoute::upsertRoute(routeTableElement* rtEl)
+bool AODVRoute::upsertRoute(routeMapElement* rtEl)
 {
     //only updates(delete+insert) or inserts if has the one of the three conditions
     // 1 - route doesn't exist
     // 2 - route has expired
     // 3 - route exists but is older
     // 4 - route is the same age but has less hops
-    routeTableElement* currentRoute = getRouteForDestination(rtEl->destAddr);
+    routeMapElement* currentRoute = getRouteForDestination(rtEl->destAddr);
     if ((currentRoute==NULL) ||
        (currentRoute->lifeTime < simTime()) ||
        (currentRoute!=NULL && currentRoute->destSeqNo<rtEl->destSeqNo) ||
        (currentRoute!=NULL && currentRoute->destSeqNo==rtEl->destSeqNo && currentRoute->hopCount > rtEl->hopCount))
     {
         debugEV << "Route for destAddr:" << rtEl->destAddr << " UPSERTED! " << endl;
-        routeTable.erase(rtEl->destAddr);
-        routeTable.insert(std::pair<LAddress::L3Type,routeTableElement*>(rtEl->destAddr,rtEl));
+        routeMap.erase(rtEl->destAddr);
+        routeMap.insert(std::pair<LAddress::L3Type,routeMapElement*>(rtEl->destAddr,rtEl));
         return true;
     }
     return false;
@@ -421,8 +422,8 @@ void AODVRoute::saveRREQ(AODVRouteRequest* rreq)
     RREQVectorElement* tEl = (struct RREQVectorElement*) malloc(sizeof(struct RREQVectorElement));
     tEl->srcAddr = rreq->getInitialSrcAddr();
     tEl->RREQ_ID = rreq->getRREQ_ID();
-    tEl->lifeTime = simTime()+maxRREQVectorElementLifetime;
-    while (RREQVector.size()>=maxRREQVectorSize)
+    tEl->lifeTime = simTime()+RREQVectorElementMaxLifetime;
+    while (RREQVector.size()>=RREQVectorMaxSize)
     {
         RREQVector.erase(RREQVector.begin());
     }
@@ -458,7 +459,8 @@ cPacket* AODVRoute::decapsMsg(AODVData *msg)
 {
     ApplPkt* pkt = static_cast<ApplPkt*>(msg->decapsulate());
     MacToNetwControlInfo* cInfo = static_cast<MacToNetwControlInfo*>(msg->removeControlInfo());
-    NetwToApplControlInfo::setControlInfo(pkt,cInfo->getRSSI(), msg->getSrcAddr());
+    //adds RSSI and initialSrcAddress info for AppLayer
+    NetwToApplControlInfo::setControlInfo(pkt,cInfo->getRSSI(), msg->getInitialSrcAddr());
 
     delete msg;
     return pkt;

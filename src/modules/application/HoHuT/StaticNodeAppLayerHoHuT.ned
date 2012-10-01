@@ -3,11 +3,13 @@ package org.mixim.modules.application.HoHuT;
 simple StaticNodeAppLayerHoHuT
 {
     parameters:
-        bool debug = default(false); 		// debug switch
-        int  headerLength = default(24);	// length of the network packet header (in bits)
-        int maxPktQueueElementLifetime = default(20);
-        int pktQueueMaintenancePeriod = default(10);
-        int maxPacketDeliveryTries = default(5);
+        bool debug = default(false); 			
+        int  headerLength = default(24);
+        int nodeSigPeriod = default(1);
+        int nodeSigStartingTime = default(5);
+        int packetMapMaxPktQueueElementLifetime = default(20);
+        int packetMapMaintenancePeriod = default(10);
+        int packetMaxDeliveryTries = default(5);
         
     gates:
         input lowerLayerIn; // to receive data from communications stack

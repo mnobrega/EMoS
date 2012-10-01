@@ -3,6 +3,7 @@
 
 #include <omnetpp.h>
 #include <queue>
+#include <map>
 #include "BaseApplLayer.h"
 #include "NetwControlInfo.h"
 #include "NetwToApplControlInfo.h"
@@ -33,20 +34,23 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
 
     protected:
         bool debug;
-        // constants
-        int INITIAL_DELAY;
-        int BEACON_INTERVAL;
-        int PAYLOAD_SIZE;
 
+        // CONSTANTS
+        //node signature
+        int nodeSigStartingTime;
+        int nodeSigPeriod;
+        //packet map
+        int packetMaxDeliveryTries;
+        int packetMapMaxPktQueueElementLifetime;
+        int packetMapMaintenancePeriod;
+
+
+        // VARS
         // timers
         cMessage* selfTimer;
 
-        // packets queue
-        int maxPktQueueElementLifetime;
-        int pktQueueMaintenancePeriod;
-        int maxPacketDeliveryTries;
-        int sentPktQueueTriesCounter;
-        LAddress::L3Type pktQueueCurrentDestAddr;
+        // packet map
+        int packetQueueElementTriesCounter;
         HoHuTApplPkt* sentPktQueueBuffer;
         struct pktQueueElement
         {
@@ -54,8 +58,12 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
             simtime_t   lifeTime;
             HoHuTApplPkt*    packet;
         };
-        std::queue<pktQueueElement*> pktQueue;
+        typedef std::queue<pktQueueElement*> pktQueue_t;
+        typedef std::map<LAddress::L3Type,pktQueue_t> pktMap_t;
+        pktMap_t pktMap;
 
+
+        //METHODS
 		virtual void handleSelfMsg(cMessage *);
         virtual void handleLowerMsg(cMessage *);
         virtual void handleLowerControl(cMessage *);
@@ -65,11 +73,10 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
         void sendStaticNodeSig();
         void sendStaticNodeMsg(char*,LAddress::L3Type);
 
-        void destroyPktQueue();
-        void addToPktQueue(HoHuTApplPkt *);
-        HoHuTApplPkt* getFromPktQueue();
-        void runPktQueueMaintenance();
-
+        void destroyPktMap();
+        void addToPktMap(HoHuTApplPkt *);
+        HoHuTApplPkt* getFromPktMap(LAddress::L3Type);
+        void runPktMapMaintenance();
 };
 
 #endif // STATIC_NODE_APP_LAYER_H
