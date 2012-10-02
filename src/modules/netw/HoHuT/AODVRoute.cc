@@ -165,11 +165,12 @@ void AODVRoute::handleLowerDATA(cMessage* msg)
         routeMapElement* fwdRoute = getRouteForDestination(m->getFinalDestAddr());
 
         //TODO - manage precursors
-        it=fwdRoute->precursors.find((m->getSrcAddr()));
-        if (fwdRoute->precursors.find(m->getSrcAddr())==fwdRoute->precursors.end())
-        {
-            fwdRoute->precursors.insert(m->getSrcAddr());
-        }
+//        it=fwdRoute->precursors->find((m->getSrcAddr()));
+//        if (it==fwdRoute->precursors.end())
+//        {
+//            fwdRoute->precursors.insert(m->getSrcAddr());
+//        }
+
         m->setDestAddr(fwdRoute->nextHop);
         m->setSrcAddr(myNetwAddr);
         m->removeControlInfo();
@@ -388,11 +389,13 @@ bool AODVRoute::upsertReverseRoute(AODVRouteRequest* msg)
 {
     debugEV << "Updating REVERSE Route for node " << msg->getInitialSrcAddr() << endl;
     routeMapElement* tEl = (struct routeMapElement*) malloc(sizeof(struct routeMapElement));
+    addressVec_t emptyVec;
     tEl->destAddr = msg->getInitialSrcAddr();
     tEl->destSeqNo = msg->getInitialSrcSeqNo();
     tEl->hopCount = msg->getHopCount();
     tEl->lifeTime = simTime()+routeMapElementMaxLifetime;
     tEl->nextHop = msg->getSrcAddr();
+    tEl->precursors = emptyVec;
     return upsertRoute(tEl);
 }
 bool AODVRoute::upsertForwardRoute(AODVRouteResponse* msg)

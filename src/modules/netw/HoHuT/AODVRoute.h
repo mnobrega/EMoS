@@ -83,7 +83,7 @@ protected:
         simtime_t lifeTime;
         addressVec_t precursors;
     }routeMapElement_t;
-    typedef std::map<LAddress::L3Type,routeMapElement*> routeMap_t;
+    typedef std::map<LAddress::L3Type,routeMapElement_t*> routeMap_t;
     routeMap_t routeMap;
 
     //RREQ vector
