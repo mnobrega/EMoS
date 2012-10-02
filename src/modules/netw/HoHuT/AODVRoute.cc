@@ -63,8 +63,14 @@ void AODVRoute::handleUpperMsg(cMessage * msg)
         m->removeControlInfo();
 
         //TEST
-        //NetwToMacControlInfo::setControlInfo(m,arp->getMacAddr(fwdRoute->nextHop);
-        NetwToMacControlInfo::setControlInfo(m,9999); //doesnt exist and will not be delivered
+        if (myNetwAddr!=1002)
+        {
+            NetwToMacControlInfo::setControlInfo(m,arp->getMacAddr(fwdRoute->nextHop));
+        }
+        else
+        {
+            NetwToMacControlInfo::setControlInfo(m,9999); //doesnt exist and will not be delivered
+        }
         //TEST
 
         sendDown(m);
@@ -122,8 +128,8 @@ void AODVRoute::handleLowerControl(cMessage* msg)
                 if (!localRepair)
                 {
                     AODVRouteError* rerr = new AODVRouteError("route-error",RERR);
-                    unreachAddSeqNoMap_t addrMap = removeRoutesByNextHop(netwPkt->getDestAddr());
-                    rerr->setUnreachDestAddr(netwPkt->getDestAddr());
+                    addressSeqNoMap_t addrMap = removeRoutesByNextHop(netwPkt->getDestAddr());
+                    rerr->setUnreachDestAddresses(addrMap);
                 }
                 else
                 {
@@ -155,7 +161,15 @@ void AODVRoute::handleLowerDATA(cMessage* msg)
     if (m->getFinalDestAddr()!=myNetwAddr && m->getInitialSrcAddr()!=myNetwAddr && !LAddress::isL3Broadcast(m->getDestAddr())) //intermediate node and NOT BROADCAST
     {
         debugEV << "DATA msg arrived to intermediate node" << endl;
+        addressVec_t::iterator it;
         routeMapElement* fwdRoute = getRouteForDestination(m->getFinalDestAddr());
+
+        //TODO - manage precursors
+        it=fwdRoute->precursors.find((m->getSrcAddr()));
+        if (fwdRoute->precursors.find(m->getSrcAddr())==fwdRoute->precursors.end())
+        {
+            fwdRoute->precursors.insert(m->getSrcAddr());
+        }
         m->setDestAddr(fwdRoute->nextHop);
         m->setSrcAddr(myNetwAddr);
         m->removeControlInfo();
@@ -330,7 +344,7 @@ void AODVRoute::handleUpperControlHasRoute(ApplPkt* ctrlPkt)
 /// OTHER NODES last know seqNo
 int AODVRoute::getNodeSeqNo(LAddress::L3Type addr)
 {
-    std::map<LAddress::L3Type,int>::iterator it = nodesLastKnownSeqNoMap.find(addr);
+    addressSeqNoMap_t::iterator it = nodesLastKnownSeqNoMap.find(addr);
     if (it!=nodesLastKnownSeqNoMap.end())
     {
         return it->second;
@@ -342,7 +356,7 @@ int AODVRoute::getNodeSeqNo(LAddress::L3Type addr)
 }
 void AODVRoute::upsertNodeSeqNo(LAddress::L3Type addr,int seqNumber)
 {
-    std::map<LAddress::L3Type,int>::iterator it = nodesLastKnownSeqNoMap.find(addr);
+    addressSeqNoMap_t::iterator it = nodesLastKnownSeqNoMap.find(addr);
     if (it==nodesLastKnownSeqNoMap.end())
     {
         nodesLastKnownSeqNoMap[addr] = seqNumber;
@@ -412,16 +426,17 @@ bool AODVRoute::upsertRoute(routeMapElement* rtEl)
     }
     return false;
 }
-AODVRoute::unreachAddSeqNoMap_t AODVRoute::removeRoutesByNextHop(LAddress::L3Type nextHop)
+AODVRoute::addressSeqNoMap_t AODVRoute::removeRoutesByNextHop(LAddress::L3Type nextHop)
 {
     routeMap_t::iterator it;
-    unreachAddSeqNoMap_t addrMap;
+    addressSeqNoMap_t addrMap;
 
     for (it=routeMap.begin();it!=routeMap.end();it++)
     {
         if (it->second->nextHop == nextHop)
         {
-            addrMap[it->second->destAddr] = it->second->destSeqNo;
+            addrMap.insert(std::pair<LAddress::L3Type,int>(it->second->destAddr,it->second->destSeqNo));
+            routeMap.erase(it);
         }
     }
     return addrMap;
@@ -497,15 +512,4 @@ cPacket* AODVRoute::decapsMsg(AODVData *msg)
 
     delete msg;
     return pkt;
-}
-
-///AUX
-std::string AODVRoute::serializeAddressSeqNoMap(unreachAddSeqNoMap_t map)
-{
-    //TODO
-    unreachAddSeqNoMap_t::iterator it;
-    for (it=map.begin();it!=map.end();it++)
-    {
-
-    }
 }

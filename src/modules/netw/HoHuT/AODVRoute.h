@@ -7,6 +7,7 @@
 #include <cassert>
 #include <map>
 #include <vector>
+#include <set>
 #include <string>
 
 #include "MiXiMDefs.h"
@@ -65,11 +66,11 @@ protected:
     int routeMapElementMaxLifetime;
 
     //VARS
-    //last known addresses seqNo
-    std::map<LAddress::L3Type,int> nodesLastKnownSeqNoMap;
+    typedef std::map<LAddress::L3Type,int> addressSeqNoMap_t;
+    typedef std::set<LAddress::L3Type> addressVec_t;
 
-    //unreachable nodes - TODO
-    typedef std::map<LAddress::L3Type,int> unreachAddSeqNoMap_t;
+    //last known addresses seqNo
+    addressSeqNoMap_t nodesLastKnownSeqNoMap;
 
     //route map
     typedef struct routeMapElement
@@ -80,6 +81,7 @@ protected:
         LAddress::L3Type nextHop;
         int hopCount;
         simtime_t lifeTime;
+        addressVec_t precursors;
     }routeMapElement_t;
     typedef std::map<LAddress::L3Type,routeMapElement*> routeMap_t;
     routeMap_t routeMap;
@@ -117,13 +119,13 @@ protected:
     bool upsertReverseRoute(AODVRouteRequest*);
     bool upsertForwardRoute(AODVRouteResponse*);
     bool upsertRoute(routeMapElement*);
-    unreachAddSeqNoMap_t removeRoutesByNextHop(LAddress::L3Type);
+    addressSeqNoMap_t removeRoutesByNextHop(LAddress::L3Type);
 
     bool hasRREQ(AODVRouteRequest*);
     void saveRREQ(AODVRouteRequest*);
     void runRREQSetMaintenance();
 
-    std::string* serializeAddressSeqNoMap(unreachAddSeqNoMap_t*);
+    const char* serializeAddressSeqNoMap(addressSeqNoMap_t);
 
 };
 
