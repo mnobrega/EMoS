@@ -127,9 +127,20 @@ void AODVRoute::handleLowerControl(cMessage* msg)
                 NetwPkt* netwPkt = static_cast<NetwPkt*>(macPkt->decapsulate());
                 if (!localRepair)
                 {
-                    AODVRouteError* rerr = new AODVRouteError("route-error",RERR);
-                    addressSeqNoMap_t addrMap = removeRoutesByNextHop(netwPkt->getDestAddr());
-                    rerr->setUnreachDestAddresses(addrMap);
+                    routeSet_t::iterator it;
+                    addressSet_t::iterator it2;
+                    routeSet_t removedRoutes = removeRoutesByNextHop(netwPkt->getDestAddr());
+                    for (it=removedRoutes.begin(); it!=removedRoutes.end();it++)
+                    {
+                        for (it2=it->precursors->begin(); it2!=it->precursors->end(); it2++)
+                        {
+                            AODVRouteError* rerr = new AODVRouteError("route-error",RERR);
+                            rerr->setUnreachDestAddress(it->destAddr);
+                            rerr->setUnreadhDestAddrSeqNo(it->destSeqNo);
+                            rerr->setSrcAddr(myNetwAddr);
+                            rerr->setDestAddr(it2);
+                        }
+                    }
                 }
                 else
                 {
@@ -161,15 +172,14 @@ void AODVRoute::handleLowerDATA(cMessage* msg)
     if (m->getFinalDestAddr()!=myNetwAddr && m->getInitialSrcAddr()!=myNetwAddr && !LAddress::isL3Broadcast(m->getDestAddr())) //intermediate node and NOT BROADCAST
     {
         debugEV << "DATA msg arrived to intermediate node" << endl;
-        addressVec_t::iterator it;
+        addressSet_t::iterator it;
         routeMapElement* fwdRoute = getRouteForDestination(m->getFinalDestAddr());
 
-        //TODO - manage precursors
-//        it=fwdRoute->precursors->find((m->getSrcAddr()));
-//        if (it==fwdRoute->precursors.end())
-//        {
-//            fwdRoute->precursors.insert(m->getSrcAddr());
-//        }
+        it=fwdRoute->precursors->find(m->getSrcAddr());
+        if (it==fwdRoute->precursors->end())
+        {
+            fwdRoute->precursors->insert(m->getSrcAddr());
+        }
 
         m->setDestAddr(fwdRoute->nextHop);
         m->setSrcAddr(myNetwAddr);
@@ -389,13 +399,12 @@ bool AODVRoute::upsertReverseRoute(AODVRouteRequest* msg)
 {
     debugEV << "Updating REVERSE Route for node " << msg->getInitialSrcAddr() << endl;
     routeMapElement* tEl = (struct routeMapElement*) malloc(sizeof(struct routeMapElement));
-    addressVec_t emptyVec;
     tEl->destAddr = msg->getInitialSrcAddr();
     tEl->destSeqNo = msg->getInitialSrcSeqNo();
     tEl->hopCount = msg->getHopCount();
     tEl->lifeTime = simTime()+routeMapElementMaxLifetime;
     tEl->nextHop = msg->getSrcAddr();
-    tEl->precursors = emptyVec;
+    tEl->precursors = new addressSet_t;
     return upsertRoute(tEl);
 }
 bool AODVRoute::upsertForwardRoute(AODVRouteResponse* msg)
@@ -407,6 +416,7 @@ bool AODVRoute::upsertForwardRoute(AODVRouteResponse* msg)
     tEl->hopCount = msg->getHopCount();
     tEl->lifeTime = simTime()+routeMapElementMaxLifetime;
     tEl->nextHop = msg->getSrcAddr();
+    tEl->precursors = new addressSet_t;
     return upsertRoute(tEl);
 }
 bool AODVRoute::upsertRoute(routeMapElement* rtEl)
@@ -429,20 +439,20 @@ bool AODVRoute::upsertRoute(routeMapElement* rtEl)
     }
     return false;
 }
-AODVRoute::addressSeqNoMap_t AODVRoute::removeRoutesByNextHop(LAddress::L3Type nextHop)
+AODVRoute::routeSet_t AODVRoute::removeRoutesByNextHop(LAddress::L3Type nextHop)
 {
     routeMap_t::iterator it;
-    addressSeqNoMap_t addrMap;
+    routeSet_t removedRoutes;
 
     for (it=routeMap.begin();it!=routeMap.end();it++)
     {
         if (it->second->nextHop == nextHop)
         {
-            addrMap.insert(std::pair<LAddress::L3Type,int>(it->second->destAddr,it->second->destSeqNo));
+            removedRoutes.insert(it->second);
             routeMap.erase(it);
         }
     }
-    return addrMap;
+    return removedRoutes;
 }
 void AODVRoute::routeTableMaintenance()
 {

@@ -1,14 +1,12 @@
 cplusplus {{
-    #include "SimpleAddress.h"
 	#include "NetwPkt_m.h"
-	#include <map>
-	typedef std::map<LAddress::L3Type,int> addressSeqNoMap_t;
 }}
 
 class NetwPkt;
-class noncobject addressSeqNoMap_t;
+class LAddress::L3Type extends void;
 
 message AODVRouteError extends NetwPkt
 {
-	addressSeqNoMap_t	unreachDestAddresses;	//unreachable destination address
+	LAddress::L3Type	unreachDestAddress;		//unreachable destination address
+	int 				unreadhDestAddrSeqNo;	//unreachable destination seqNo
 }

@@ -67,7 +67,7 @@ protected:
 
     //VARS
     typedef std::map<LAddress::L3Type,int> addressSeqNoMap_t;
-    typedef std::set<LAddress::L3Type> addressVec_t;
+    typedef std::set<LAddress::L3Type> addressSet_t;
 
     //last known addresses seqNo
     addressSeqNoMap_t nodesLastKnownSeqNoMap;
@@ -76,14 +76,14 @@ protected:
     typedef struct routeMapElement
     {
         LAddress::L3Type destAddr;
-        //sequence number at the destination node when it sent a RREP
         int destSeqNo;
         LAddress::L3Type nextHop;
         int hopCount;
         simtime_t lifeTime;
-        addressVec_t precursors;
-    }routeMapElement_t;
+        addressSet_t* precursors;
+    } routeMapElement_t;
     typedef std::map<LAddress::L3Type,routeMapElement_t*> routeMap_t;
+    typedef std::set<routeMapElement_t*> routeSet_t;
     routeMap_t routeMap;
 
     //RREQ vector
@@ -119,7 +119,7 @@ protected:
     bool upsertReverseRoute(AODVRouteRequest*);
     bool upsertForwardRoute(AODVRouteResponse*);
     bool upsertRoute(routeMapElement*);
-    addressSeqNoMap_t removeRoutesByNextHop(LAddress::L3Type);
+    routeSet_t removeRoutesByNextHop(LAddress::L3Type);
 
     bool hasRREQ(AODVRouteRequest*);
     void saveRREQ(AODVRouteRequest*);
