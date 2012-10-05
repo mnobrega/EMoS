@@ -47,17 +47,16 @@ void StaticNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
                 char payload[] = "test";
                 sendStaticNodeMsg(payload,1003);
             }
-
-//            if (!selfTimer->isScheduled())
-//            {
-//                scheduleAt(simTime()+nodeSigPeriod,selfTimer);
-//            }
+            if (!selfTimer->isScheduled())
+            {
+                scheduleAt(simTime()+nodeSigPeriod,selfTimer);
+            }
             break;
         default:
             error("Unknown message of kind: "+msg->getKind());
+            delete msg;
             break;
     }
-    delete msg;
 }
 
 void StaticNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
@@ -71,20 +70,23 @@ void StaticNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
             debugEV << "received rssi: " << cInfo->getRSSI() << endl;
             debugEV << "Received a node msg from node: " << cInfo->getSrcNetwAddr() << endl;
             debugEV << "msg data:" << m->getPayload() << endl;
+            delete msg;
             break;
         case STATIC_NODE_SIG:
             debugEV << "Received a node sig from node" << endl;
+            delete msg;
             break;
         default:
             error("Unknown message of kind: "+msg->getKind());
+            delete msg;
             break;
     }
-    delete msg;
 }
 
 void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
 {
     HoHuTApplPkt* pkt;
+    NetwToApplControlInfo* cInfo;
     ApplPkt* ctrlPkt = static_cast<ApplPkt*>(msg);
 
     switch (msg->getKind())
@@ -93,19 +95,33 @@ void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
             pkt = getFromPktMap(ctrlPkt->getDestAddr());
             NetwControlInfo::setControlInfo(pkt, pkt->getNetwDestAddr());
             sendDown(pkt);
+            delete msg;
             break;
         case DELIVERY_ACK:
-            debugEV << "Packet was delivered. SUCCESS!!" << endl;
+            pkt = static_cast<HoHuTApplPkt*>(msg);
+            cInfo = static_cast<NetwToApplControlInfo*>(msg->getControlInfo());
+            debugEV << "Packet for destAddress: " << pkt->getNetwDestAddr() << " was delivered from: " << cInfo->getSrcNetwAddr() << endl;
+            delete msg;
             break;
         case DELIVERY_ERROR:
-            debugEV << "Packet was not delivered. Packet was lost!" << endl;
+            pkt = static_cast<HoHuTApplPkt*>(msg);
+            cInfo = static_cast<NetwToApplControlInfo*>(msg->getControlInfo());
+            debugEV << "Packet was not delivered to destAddress: " << pkt->getNetwDestAddr() << " from: " << cInfo->getSrcNetwAddr() << endl;
             bubble("PACKET LOST");
+            delete msg;
+            break;
+        case DELIVERY_LOCAL_REPAIR:
+            //TODO - add it to a pktMapLocalRepair buffer. Send new RREQ. When the RREQ arrives try again.
+            pkt = static_cast<HoHuTApplPkt*>(msg);
+            pkt->removeControlInfo();
+            delete msg;
             break;
         default:
             error("Unknown message of kind: "+msg->getKind());
+            delete msg;
             break;
     }
-    delete msg;
+
 }
 
 /**** APP ****/
@@ -163,6 +179,7 @@ void StaticNodeAppLayerHoHuT::destroyPktMap()
 }
 void StaticNodeAppLayerHoHuT::addToPktMap(HoHuTApplPkt * pkt)
 {
+
     debugEV << "Adding packet to map for address :" << pkt->getNetwDestAddr() << endl;
     pktQueueElement* qEl = (struct pktQueueElement *) malloc(sizeof(struct pktQueueElement));
     qEl->destAddr = pkt->getNetwDestAddr();

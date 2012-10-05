@@ -4,8 +4,8 @@ simple StaticNodeAppLayerHoHuT
 {
     parameters:
         bool debug = default(false); 			
-        int  headerLength = default(24);
-        int nodeSigPeriod = default(1);
+        int headerLength = default(24);
+        int nodeSigPeriod = default(60);
         int nodeSigStartingTime = default(5);
         int packetMapMaxPktQueueElementLifetime = default(20);
         int packetMapMaintenancePeriod = default(10);

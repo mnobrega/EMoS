@@ -43,7 +43,8 @@ protected:
         HAS_ROUTE,
         HAS_ROUTE_ACK,
         DELIVERY_ACK,
-        DELIVERY_ERROR
+        DELIVERY_ERROR,
+        DELIVERY_LOCAL_REPAIR
     };
     enum BaseMacControlKinds
     {
@@ -53,6 +54,7 @@ protected:
     };
 
     bool stats, trace;
+
     unsigned int RREQIDCounter;
     unsigned int nodeSeqNo;
 
@@ -106,20 +108,26 @@ protected:
     cPacket* decapsMsg(AODVData *);
 
     void handleUpperControlHasRoute(ApplPkt*);
+    void handleLowerControlPacketDropped (cMessage*);
+    void handleLowerControlTXOver(cMessage*);
     void handleLowerRREQ(cMessage*);
     void handleLowerRREP(cMessage*);
+    void handleLowerRERR(cMessage*);
     void handleLowerDATA(cMessage*);
+    void sendRERRByRemovedRoutes(routeSet_t*);
 
     int getNodeSeqNo(LAddress::L3Type);
     void upsertNodeSeqNo(LAddress::L3Type,int);
 
     routeMapElement_t* getRouteForDestination(LAddress::L3Type);
+    void resetRouteLifeTime(LAddress::L3Type);
     bool hasRouteForDestination(LAddress::L3Type);
     void routeTableMaintenance();
     bool upsertReverseRoute(AODVRouteRequest*);
     bool upsertForwardRoute(AODVRouteResponse*);
     bool upsertRoute(routeMapElement*);
-    routeSet_t removeRoutesByNextHop(LAddress::L3Type);
+    routeSet_t* removeRoutesByNextHop(LAddress::L3Type);
+    routeSet_t* removeRoutesByDestinationAndNextHop(LAddress::L3Type, LAddress::L3Type);
 
     bool hasRREQ(AODVRouteRequest*);
     void saveRREQ(AODVRouteRequest*);

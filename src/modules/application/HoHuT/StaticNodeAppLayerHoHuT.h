@@ -29,7 +29,8 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
 		    HAS_ROUTE,
 		    HAS_ROUTE_ACK,
 		    DELIVERY_ACK,
-		    DELIVERY_ERROR
+		    DELIVERY_ERROR,
+		    DELIVERY_LOCAL_REPAIR
         };
 
     protected:

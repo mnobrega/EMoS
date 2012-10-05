@@ -4,6 +4,7 @@ using std::endl;
 
 Define_Module(AODVRoute);
 
+
 void AODVRoute::initialize(int stage)
 {
 	BaseNetwLayer::initialize(stage);
@@ -34,6 +35,7 @@ void AODVRoute::finish()
     RREQVector.clear();
 }
 
+
 /// MSG HANDLING
 void AODVRoute::handleSelfMsg(cMessage * msg)
 {
@@ -61,18 +63,7 @@ void AODVRoute::handleUpperMsg(cMessage * msg)
         m->setSrcAddr(myNetwAddr);
         m->setDestAddr(fwdRoute->nextHop);
         m->removeControlInfo();
-
-        //TEST
-        if (myNetwAddr!=1002)
-        {
-            NetwToMacControlInfo::setControlInfo(m,arp->getMacAddr(fwdRoute->nextHop));
-        }
-        else
-        {
-            NetwToMacControlInfo::setControlInfo(m,9999); //doesnt exist and will not be delivered
-        }
-        //TEST
-
+        NetwToMacControlInfo::setControlInfo(m,arp->getMacAddr(fwdRoute->nextHop));
         sendDown(m);
     }
     else
@@ -91,9 +82,9 @@ void AODVRoute::handleUpperControl(cMessage* msg)
             break;
         default:
             error("Unknown message of kind: "+msg->getKind());
+            delete msg;
             break;
     }
-    delete msg;
 }
 //FROM MAC
 void AODVRoute::handleLowerMsg(cMessage* msg)
@@ -109,6 +100,9 @@ void AODVRoute::handleLowerMsg(cMessage* msg)
         case RREP:
             handleLowerRREP(msg);
             break;
+        case RERR:
+            handleLowerRERR(msg);
+            break;
         default:
             error("Unknown message of kind: "+msg->getKind());
             delete msg;
@@ -117,54 +111,96 @@ void AODVRoute::handleLowerMsg(cMessage* msg)
 }
 void AODVRoute::handleLowerControl(cMessage* msg)
 {
-    ApplPkt* pkt;
     switch(msg->getKind())
     {
         case PACKET_DROPPED:
-            {
-                debugEV << "MAC ERROR detected! Inform app layer!" << endl;
-                MacPkt* macPkt = static_cast<MacPkt*>(msg);
-                NetwPkt* netwPkt = static_cast<NetwPkt*>(macPkt->decapsulate());
-                if (!localRepair)
-                {
-                    routeSet_t::iterator it;
-                    addressSet_t::iterator it2;
-                    routeSet_t removedRoutes = removeRoutesByNextHop(netwPkt->getDestAddr());
-                    for (it=removedRoutes.begin(); it!=removedRoutes.end();it++)
-                    {
-                        for (it2=it->precursors->begin(); it2!=it->precursors->end(); it2++)
-                        {
-                            AODVRouteError* rerr = new AODVRouteError("route-error",RERR);
-                            rerr->setUnreachDestAddress(it->destAddr);
-                            rerr->setUnreadhDestAddrSeqNo(it->destSeqNo);
-                            rerr->setSrcAddr(myNetwAddr);
-                            rerr->setDestAddr(it2);
-                        }
-                    }
-                }
-                else
-                {
-                    //TODO
-                }
-                pkt = new ApplPkt("last-transmitted-packet-dropped",DELIVERY_ERROR);
-                sendControlUp(pkt);
-            }
+            handleLowerControlPacketDropped(msg);
             break;
         case TX_OVER:
-            debugEV << "Transmission success!" << endl;
-            pkt = new ApplPkt("last-transmitted-packet-success",DELIVERY_ACK);
-            sendControlUp(pkt);
+            handleLowerControlTXOver(msg);
             break;
         default:
             error("Unknown message of kind: "+msg->getKind());
+            delete msg;
             break;
     }
-    delete msg;
 }
 
 
 
 /// HANDLE COMPLEX MSG KINDS
+void AODVRoute::handleLowerControlTXOver(cMessage* msg)
+{
+    debugEV << "Transmission sucess received!" << endl;
+    MacPkt* macPkt = static_cast<MacPkt*>(msg);
+    NetwPkt* netwPkt = static_cast<NetwPkt*>(macPkt->decapsulate());
+
+    if (netwPkt->getKind()==DATA)
+    {
+        AODVData* aodvData = static_cast<AODVData*>(netwPkt);
+        ApplPkt* pkt = static_cast<ApplPkt*>(netwPkt->decapsulate());
+        resetRouteLifeTime(aodvData->getFinalDestAddr());
+        pkt->setKind(DELIVERY_ACK);
+        pkt->setName("packet-delivered");
+        NetwToApplControlInfo::setControlInfo(pkt,0,aodvData->getInitialSrcAddr());
+        sendControlUp(pkt);
+    }
+
+    delete msg;
+    delete netwPkt;
+}
+void AODVRoute::handleLowerControlPacketDropped (cMessage * msg)
+{
+    MacPkt* macPkt = static_cast<MacPkt*>(msg);
+    NetwPkt* netwPkt = static_cast<NetwPkt*>(macPkt->decapsulate());
+
+    if (netwPkt->getKind()==DATA)
+    {
+        AODVData* aodvData = static_cast<AODVData*>(netwPkt);
+        ApplPkt* pkt = static_cast<ApplPkt*>(netwPkt->decapsulate());
+
+        if (!localRepair)
+        {
+            debugEV << "Local Repair DISABLED. Sending RERR to all precursors!" << endl;
+            routeSet_t* removedRoutes = removeRoutesByNextHop(aodvData->getDestAddr());
+            sendRERRByRemovedRoutes(removedRoutes);
+
+            pkt->setKind(DELIVERY_ERROR);
+            pkt->setName("packet-dropped");
+            NetwToApplControlInfo::setControlInfo(pkt,0,aodvData->getInitialSrcAddr());
+            sendControlUp(pkt);
+        }
+        else
+        {
+           removeRoutesByNextHop(aodvData->getDestAddr());
+
+           pkt->setKind(DELIVERY_LOCAL_REPAIR);
+           pkt->setName("local-repair-request");
+           NetwToApplControlInfo::setControlInfo(pkt,0,aodvData->getInitialSrcAddr());
+           sendControlUp(pkt);
+        }
+    }
+
+    delete netwPkt;
+    delete msg;
+}
+void AODVRoute::handleLowerRERR(cMessage* msg)
+{
+    addressSeqNoMap_t::iterator it;
+    routeSet_t* removedRoutes;
+
+    AODVRouteError* rerr = static_cast<AODVRouteError*>(msg);
+    LAddress::L3Type srcAddr = rerr->getSrcAddr();
+    addressSeqNoMap_t uDests = rerr->getUnreachDestAddress();
+
+    for (it=uDests.begin(); it!=uDests.end(); it++)
+    {
+        removedRoutes = removeRoutesByDestinationAndNextHop(it->first,srcAddr);
+        sendRERRByRemovedRoutes(removedRoutes);
+    }
+
+    delete msg;
+}
 void AODVRoute::handleLowerDATA(cMessage* msg)
 {
     AODVData* m = static_cast<AODVData*>(msg);
@@ -231,6 +267,10 @@ void AODVRoute::handleLowerRREP(cMessage* msg)
     else if (rrep->getRouteDestAddr()==myNetwAddr)
     {
         debugEV << "Arrived to ROUTE DESTINATION! Ignore the msg!";
+        delete msg;
+    }
+    else
+    {
         delete msg;
     }
 }
@@ -349,6 +389,38 @@ void AODVRoute::handleUpperControlHasRoute(ApplPkt* ctrlPkt)
 
         sendDown(pkt);
     }
+
+    delete ctrlPkt;
+}
+void AODVRoute::sendRERRByRemovedRoutes(routeSet_t* removedRoutes)
+{
+    routeSet_t::iterator it;
+    addressSet_t::iterator it2;
+    addressSeqNoMap_t unreachDestinations;
+
+    for (it=removedRoutes->begin(); it!=removedRoutes->end();it++)
+    {
+        routeMapElement_t* routeMapEl = *it;
+        unreachDestinations.insert(std::pair<LAddress::L3Type,int>(routeMapEl->destAddr,nodesLastKnownSeqNoMap[routeMapEl->destAddr]));
+    }
+    for (it=removedRoutes->begin(); it!=removedRoutes->end();it++)
+    {
+        routeMapElement_t* routeMapEl = *it;
+        addressSet_t* precursors = routeMapEl->precursors;
+        for (it2=precursors->begin(); it2!=precursors->end();it2++)
+        {
+            LAddress::L3Type precursorAddress = *it2;
+            AODVRouteError* rerr = new AODVRouteError("route-error",RERR);
+            rerr->setUnreachDestAddress(unreachDestinations);
+            rerr->setSrcAddr(myNetwAddr);
+            rerr->setDestAddr(precursorAddress);
+            NetwToMacControlInfo::setControlInfo(rerr,precursorAddress);
+
+            sendDown(rerr);
+
+            debugEV << "sending RERR to precurssor address: " << precursorAddress << endl;
+        }
+    }
 }
 
 
@@ -390,6 +462,12 @@ AODVRoute::routeMapElement_t* AODVRoute::getRouteForDestination(LAddress::L3Type
 {
     routeMap_t::iterator it = routeMap.find(destAddr);
     return (it!=routeMap.end() && it->second->lifeTime>=simTime())?it->second:NULL;
+}
+void AODVRoute::resetRouteLifeTime(LAddress::L3Type destAddr)
+{
+    debugEV << "Route lifetime extended because the route to :" << destAddr << " was used!" << endl;
+    routeMapElement_t* route = getRouteForDestination(destAddr);
+    route->lifeTime = simTime()+routeMapElementMaxLifetime;
 }
 bool AODVRoute::hasRouteForDestination(LAddress::L3Type destAddr)
 {
@@ -439,17 +517,34 @@ bool AODVRoute::upsertRoute(routeMapElement* rtEl)
     }
     return false;
 }
-AODVRoute::routeSet_t AODVRoute::removeRoutesByNextHop(LAddress::L3Type nextHop)
+AODVRoute::routeSet_t* AODVRoute::removeRoutesByNextHop(LAddress::L3Type nextHop)
 {
     routeMap_t::iterator it;
-    routeSet_t removedRoutes;
+    routeSet_t* removedRoutes = new routeSet_t;
 
     for (it=routeMap.begin();it!=routeMap.end();it++)
     {
         if (it->second->nextHop == nextHop)
         {
-            removedRoutes.insert(it->second);
+            removedRoutes->insert(it->second);
             routeMap.erase(it);
+            nodesLastKnownSeqNoMap[it->second->destAddr]++;
+        }
+    }
+    return removedRoutes;
+}
+AODVRoute::routeSet_t* AODVRoute::removeRoutesByDestinationAndNextHop(LAddress::L3Type dest, LAddress::L3Type nextHop)
+{
+    routeMap_t::iterator it;
+    routeSet_t* removedRoutes = new routeSet_t;
+
+    for (it=routeMap.begin();it!=routeMap.end();it++)
+    {
+        if (it->second->destAddr==dest && it->second->nextHop==nextHop)
+        {
+            removedRoutes->insert(it->second);
+            routeMap.erase(it);
+            nodesLastKnownSeqNoMap[it->second->destAddr]++;
         }
     }
     return removedRoutes;
