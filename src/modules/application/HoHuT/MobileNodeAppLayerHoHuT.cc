@@ -14,9 +14,6 @@ void MobileNodeAppLayerHoHuT::initialize(int stage)
         lowerControlOut = findGate("lowerControlOut");
         lowerControlIn = findGate("lowerControlIn");
 
-        packetMapMaxPktQueueElementLifetime = par("packetMapMaxPktQueueElementLifetime");
-        packetMapMaintenancePeriod = par("packetMapMaintenancePeriod");
-
         debug = par("debug").boolValue();
         stats = par("stats").boolValue();
         calibrationMode = par("calibrationMode").boolValue();
@@ -45,7 +42,6 @@ MobileNodeAppLayerHoHuT::~MobileNodeAppLayerHoHuT() {}
 
 void MobileNodeAppLayerHoHuT::finish()
 {
-    destroyPktMap();
     if(calibrationMode)
     {
         xmlSaveFormatFileEnc("xml_radio_maps/radioMap.xml",radioMapXML,"UTF-8",1);
@@ -80,42 +76,7 @@ void MobileNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
 }
 void MobileNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
 {
-    HoHuTApplPkt* pkt;
-    NetwToApplControlInfo* cInfo;
-    ApplPkt* ctrlPkt = static_cast<ApplPkt*>(msg);
-
-    switch (msg->getKind())
-    {
-        case HAS_ROUTE_ACK:
-            pkt = getFromPktMap(ctrlPkt->getDestAddr());
-            NetwControlInfo::setControlInfo(pkt, pkt->getNetwDestAddr());
-            sendDown(pkt);
-            delete msg;
-            break;
-        case DELIVERY_ACK:
-            pkt = static_cast<HoHuTApplPkt*>(msg);
-            cInfo = static_cast<NetwToApplControlInfo*>(msg->getControlInfo());
-            debugEV << "Packet for destAddress: " << pkt->getNetwDestAddr() << " was delivered from: " << cInfo->getSrcNetwAddr() << endl;
-            delete msg;
-            break;
-        case DELIVERY_ERROR:
-            pkt = static_cast<HoHuTApplPkt*>(msg);
-            cInfo = static_cast<NetwToApplControlInfo*>(msg->getControlInfo());
-            debugEV << "Packet was not delivered to destAddress: " << pkt->getNetwDestAddr() << " from: " << cInfo->getSrcNetwAddr() << endl;
-            bubble("PACKET LOST");
-            delete msg;
-            break;
-        case DELIVERY_LOCAL_REPAIR:
-            //TODO - add it to a pktMapLocalRepair buffer. Send new RREQ. When the RREQ arrives try again.
-            pkt = static_cast<HoHuTApplPkt*>(msg);
-            pkt->removeControlInfo();
-            delete msg;
-            break;
-        default:
-            error("Unknown message of kind: "+msg->getKind());
-            delete msg;
-            break;
-    }
+    delete msg;
 }
 
 
@@ -177,7 +138,15 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
     delete msg;
     EV << "samples available for node: " << staticNodesRSSITable.count(staticNodeSignature->getSrcAddr()) << endl;
 }
+void MobileNodeAppLayerHoHuT::sendMobileNodeMsg(char* msgPayload, LAddress::L3Type netwDestAddr)
+{
+    debugEV << "Sending mobile node msg to netwDestAddr:" << netwDestAddr << endl;
 
+    HoHuTApplPkt* appPkt = new HoHuTApplPkt("mobile-node-app-msg",MOBILE_NODE_MSG);
+    appPkt->setPayload(msgPayload);
+    NetwControlInfo::setControlInfo(appPkt, netwDestAddr);
+    sendDown(appPkt);
+}
 
 xmlDocPtr MobileNodeAppLayerHoHuT::getRadioMapClustered()
 {
@@ -259,95 +228,8 @@ xmlNodePtr MobileNodeAppLayerHoHuT::getStaticNodePDFXMLNode(LAddress::L3Type sta
     return staticNodePDFXMLNode;
 }
 
-void MobileNodeAppLayerHoHuT::sendMobileNodeMsg(char* msgPayload, LAddress::L3Type netwDestAddr)
-{
-    debugEV << "Sending mobile node msg to netwDestAddr:" << netwDestAddr << endl;
 
-    HoHuTApplPkt* appPkt = new HoHuTApplPkt("mobile-node-app-msg",MOBILE_NODE_MSG);
-    appPkt->setPayload(msgPayload);
-    appPkt->setNetwDestAddr(netwDestAddr);
 
-    if (appPkt->getNetwDestAddr()==LAddress::L3BROADCAST)
-    {
-        debugEV << "It is broadcast. Send it immediately!" << endl;
-        NetwControlInfo::setControlInfo(appPkt, appPkt->getNetwDestAddr());
-        sendDown(appPkt);
-    }
-    else
-    {
-        debugEV << "It is not broadcast. Ask netw through the control channel if the route exists for node: " << appPkt->getNetwDestAddr() << endl;
-        addToPktMap(appPkt);
-        ApplPkt* ctrlPkt = new ApplPkt("ask-netw-for-route", HAS_ROUTE);
-        ctrlPkt->setDestAddr(appPkt->getNetwDestAddr());
-        sendControlDown(ctrlPkt);
-    }
-}
-
-/// PACKET MAP
-void MobileNodeAppLayerHoHuT::destroyPktMap()
-{
-    int count = 0;
-    pktMap_t::iterator it;
-    pktQueue_t pktQueue;
-
-    for (it=pktMap.begin(); it!=pktMap.end(); it++)
-    {
-       while (it->second.size()>0)
-       {
-           pktQueueElement* qEl = it->second.front();
-           it->second.pop();
-           HoHuTApplPkt* pkt = static_cast<HoHuTApplPkt*>(qEl->packet);
-           delete pkt;
-           count++;
-       }
-       debugEV << count << " pkts were destroyed for destAddr:" << it->first << endl;
-    }
-
-}
-void MobileNodeAppLayerHoHuT::addToPktMap(HoHuTApplPkt * pkt)
-{
-
-    debugEV << "Adding packet to map for address :" << pkt->getNetwDestAddr() << endl;
-    pktQueueElement* qEl = (struct pktQueueElement *) malloc(sizeof(struct pktQueueElement));
-    qEl->destAddr = pkt->getNetwDestAddr();
-    qEl->lifeTime = simTime()+packetMapMaxPktQueueElementLifetime;
-    qEl->packet = pkt;
-
-    pktMap_t::iterator it = pktMap.find(pkt->getNetwDestAddr());
-    if (it!=pktMap.end())
-    {
-        it->second.push(qEl);
-    }
-    else
-    {
-        pktQueue_t pktQueue;
-        pktQueue.push(qEl);
-        pktMap.insert(std::pair<LAddress::L3Type,pktQueue_t>(pkt->getNetwDestAddr(),pktQueue));
-    }
-}
-HoHuTApplPkt* MobileNodeAppLayerHoHuT::getFromPktMap(LAddress::L3Type destAddr)
-{
-    pktMap_t::iterator it = pktMap.find(destAddr);
-    if (it!=pktMap.end())
-    {
-        if (it->second.size()>0)
-        {
-            pktQueueElement* qEl = it->second.front();
-            it->second.pop();
-            HoHuTApplPkt* pkt = static_cast<HoHuTApplPkt*>(qEl->packet);
-            if (it->second.size()==0)
-            {
-                pktMap.erase(it);
-            }
-            return pkt;
-        }
-    }
-    return NULL;
-}
-void MobileNodeAppLayerHoHuT::runPktMapMaintenance()
-{
-    debugEV << "Checking packet queue for packets to send or expire!" << endl;
-}
 
 /*** AUX functions TODO remove this to another class common to all HoHuT app layers***/
 double MobileNodeAppLayerHoHuT::convertTodBm(double valueInWatts)

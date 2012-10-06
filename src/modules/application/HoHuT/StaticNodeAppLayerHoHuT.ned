@@ -7,8 +7,6 @@ simple StaticNodeAppLayerHoHuT
         int headerLength = default(24);
         int nodeSigPeriod = default(60);
         int nodeSigStartingTime = default(5);
-        int packetMapMaxPktQueueElementLifetime = default(20);
-        int packetMapMaintenancePeriod = default(10);
         
     gates:
         input lowerLayerIn; // to receive data from communications stack

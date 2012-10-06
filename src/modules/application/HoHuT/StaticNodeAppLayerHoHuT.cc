@@ -13,9 +13,6 @@ void StaticNodeAppLayerHoHuT::initialize(int stage)
         lowerControlOut = findGate("lowerControlOut");
         lowerControlIn = findGate("lowerControlIn");
 
-        packetMapMaxPktQueueElementLifetime = par("packetMapMaxPktQueueElementLifetime");
-        packetMapMaintenancePeriod = par("packetMapMaintenancePeriod");
-
         nodeSigStartingTime = par("nodeSigStartingTime");
         nodeSigPeriod = par("nodeSigPeriod");
 
@@ -33,7 +30,6 @@ StaticNodeAppLayerHoHuT::~StaticNodeAppLayerHoHuT() {}
 
 void StaticNodeAppLayerHoHuT::finish()
 {
-    destroyPktMap();
     cancelAndDelete(selfTimer);
 }
 
@@ -83,55 +79,18 @@ void StaticNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
             break;
     }
 }
-
 void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
 {
-    HoHuTApplPkt* pkt;
-    NetwToApplControlInfo* cInfo;
-    ApplPkt* ctrlPkt = static_cast<ApplPkt*>(msg);
-
-    switch (msg->getKind())
-    {
-        case HAS_ROUTE_ACK:
-            pkt = getFromPktMap(ctrlPkt->getDestAddr());
-            NetwControlInfo::setControlInfo(pkt, pkt->getNetwDestAddr());
-            sendDown(pkt);
-            delete msg;
-            break;
-        case DELIVERY_ACK:
-            pkt = static_cast<HoHuTApplPkt*>(msg);
-            cInfo = static_cast<NetwToApplControlInfo*>(msg->getControlInfo());
-            debugEV << "Packet for destAddress: " << pkt->getNetwDestAddr() << " was delivered from: " << cInfo->getSrcNetwAddr() << endl;
-            delete msg;
-            break;
-        case DELIVERY_ERROR:
-            pkt = static_cast<HoHuTApplPkt*>(msg);
-            cInfo = static_cast<NetwToApplControlInfo*>(msg->getControlInfo());
-            debugEV << "Packet was not delivered to destAddress: " << pkt->getNetwDestAddr() << " from: " << cInfo->getSrcNetwAddr() << endl;
-            bubble("PACKET LOST");
-            delete msg;
-            break;
-        case DELIVERY_LOCAL_REPAIR:
-            //TODO - add it to a pktMapLocalRepair buffer. Send new RREQ. When the RREQ arrives try again.
-            pkt = static_cast<HoHuTApplPkt*>(msg);
-            pkt->removeControlInfo();
-            delete msg;
-            break;
-        default:
-            error("Unknown message of kind: "+msg->getKind());
-            delete msg;
-            break;
-    }
-
+    delete msg; //dont do nothing for now
 }
 
-/**** APP ****/
+
 void StaticNodeAppLayerHoHuT::sendStaticNodeSig()
 {
     debugEV << "Sending SIGNATURE" << endl;
-    HoHuTApplPkt* nodeSignature = new HoHuTApplPkt("node-sig",STATIC_NODE_SIG);
-    NetwControlInfo::setControlInfo(nodeSignature, nodeSignature->getDestAddr());
-    sendDown(nodeSignature);
+    HoHuTApplPkt* appPkt = new HoHuTApplPkt("node-sig",STATIC_NODE_SIG);
+    NetwControlInfo::setControlInfo(appPkt, LAddress::L3BROADCAST);
+    sendDown(appPkt);
 }
 void StaticNodeAppLayerHoHuT::sendStaticNodeMsg(char* msgPayload, LAddress::L3Type netwDestAddr)
 {
@@ -139,86 +98,6 @@ void StaticNodeAppLayerHoHuT::sendStaticNodeMsg(char* msgPayload, LAddress::L3Ty
 
     HoHuTApplPkt* appPkt = new HoHuTApplPkt("static-node-app-msg",STATIC_NODE_MSG);
     appPkt->setPayload(msgPayload);
-    appPkt->setNetwDestAddr(netwDestAddr);
-
-    if (appPkt->getNetwDestAddr()==LAddress::L3BROADCAST)
-    {
-        debugEV << "It is broadcast. Send it immediately!" << endl;
-        NetwControlInfo::setControlInfo(appPkt, appPkt->getNetwDestAddr());
-        sendDown(appPkt);
-    }
-    else
-    {
-        debugEV << "It is not broadcast. Ask netw through the control channel if the route exists for node: " << appPkt->getNetwDestAddr() << endl;
-        addToPktMap(appPkt);
-        ApplPkt* ctrlPkt = new ApplPkt("ask-netw-for-route", HAS_ROUTE);
-        ctrlPkt->setDestAddr(appPkt->getNetwDestAddr());
-        sendControlDown(ctrlPkt);
-    }
-}
-
-/// PACKET MAP
-void StaticNodeAppLayerHoHuT::destroyPktMap()
-{
-    int count = 0;
-    pktMap_t::iterator it;
-    pktQueue_t pktQueue;
-
-    for (it=pktMap.begin(); it!=pktMap.end(); it++)
-    {
-       while (it->second.size()>0)
-       {
-           pktQueueElement* qEl = it->second.front();
-           it->second.pop();
-           HoHuTApplPkt* pkt = static_cast<HoHuTApplPkt*>(qEl->packet);
-           delete pkt;
-           count++;
-       }
-       debugEV << count << " pkts were destroyed for destAddr:" << it->first << endl;
-    }
-
-}
-void StaticNodeAppLayerHoHuT::addToPktMap(HoHuTApplPkt * pkt)
-{
-
-    debugEV << "Adding packet to map for address :" << pkt->getNetwDestAddr() << endl;
-    pktQueueElement* qEl = (struct pktQueueElement *) malloc(sizeof(struct pktQueueElement));
-    qEl->destAddr = pkt->getNetwDestAddr();
-    qEl->lifeTime = simTime()+packetMapMaxPktQueueElementLifetime;
-    qEl->packet = pkt;
-
-    pktMap_t::iterator it = pktMap.find(pkt->getNetwDestAddr());
-    if (it!=pktMap.end())
-    {
-        it->second.push(qEl);
-    }
-    else
-    {
-        pktQueue_t pktQueue;
-        pktQueue.push(qEl);
-        pktMap.insert(std::pair<LAddress::L3Type,pktQueue_t>(pkt->getNetwDestAddr(),pktQueue));
-    }
-}
-HoHuTApplPkt* StaticNodeAppLayerHoHuT::getFromPktMap(LAddress::L3Type destAddr)
-{
-    pktMap_t::iterator it = pktMap.find(destAddr);
-    if (it!=pktMap.end())
-    {
-        if (it->second.size()>0)
-        {
-            pktQueueElement* qEl = it->second.front();
-            it->second.pop();
-            HoHuTApplPkt* pkt = static_cast<HoHuTApplPkt*>(qEl->packet);
-            if (it->second.size()==0)
-            {
-                pktMap.erase(it);
-            }
-            return pkt;
-        }
-    }
-    return NULL;
-}
-void StaticNodeAppLayerHoHuT::runPktMapMaintenance()
-{
-    debugEV << "Checking packet queue for packets to send or expire!" << endl;
+    NetwControlInfo::setControlInfo(appPkt, netwDestAddr);
+    sendDown(appPkt);
 }
