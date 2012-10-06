@@ -97,8 +97,8 @@ module Host802154_2400MHz_HoHuT_mobile
         net.upperControlOut --> transport.lowerControlIn;
         net.upperControlIn <-- transport.lowerControlOut;
 
-        transport.upperLayerOut --> app.lowerGateIn;
-        transport.upperLayerIn <-- app.lowerGateOut;
+        transport.upperLayerOut --> app.lowerLayerIn;
+        transport.upperLayerIn <-- app.lowerLayerOut;
         transport.upperControlOut --> app.lowerControlIn;
         transport.upperControlIn <-- app.lowerControlOut;
 

@@ -2,78 +2,118 @@
 #define MOBILE_NODE_APP_LAYER_HOHUT_H
 
 #include <omnetpp.h>
-#include "BaseModule.h"
+#include <queue>
+#include <map>
+#include <vector>
+#include "BaseApplLayer.h"
 #include "BaseMobility.h"
 #include "NetwControlInfo.h"
-
-//c++ libs used
+#include "NetwToApplControlInfo.h"
+#include "HoHuTApplPkt_m.h"
+#include "ApplPkt_m.h"
 #include "Coord.h"
 #include "libxml/parser.h"
 #include "libxml/tree.h"
 #include "string.h"
 #include "algorithm"
-#include <vector>
-#include <map>
 
-#include "src/modules/messages/HoHuT/HoHuTApplPkt_m.h"
 
-class MobileNodeAppLayerHoHuT : public BaseModule
+class MobileNodeAppLayerHoHuT : public BaseApplLayer
 {
     public:
 		virtual ~MobileNodeAppLayerHoHuT();
-		virtual xmlDocPtr getRadioMapClustered();
 		virtual void initialize(int stage);
-		virtual void handleStaticNodeSig (cMessage *msg);
-		virtual xmlNodePtr getStaticNodePDFXMLNode(LAddress::L3Type staticNodeAddress);
-		virtual double getStaticNodeMeanRSSI(LAddress::L3Type staticNodeAddress);
-		virtual void handleMessage(cMessage *msg);
-		virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);
 		virtual void finish();
 
-		virtual double convertTodBm(double valueInWatts);
-        virtual const char* convertNumberToString(double number);
-        virtual bool inArray(const int needle,const std::vector<int> haystack);
+        enum MSG_TYPES
+        {
+            STATIC_NODE_SIG,         //broadcast - static node signature
+            STATIC_NODE_MSG,         //unicast - static node msg (hoven or other monitoring house devices)
+            MOBILE_NODE_MSG          //unicast - mobile node msg (alarm, posTrackingReq, etc)
+        };
+		enum AODV_CTRL_MSG_TYPES
+        {
+		    HAS_ROUTE,
+		    HAS_ROUTE_ACK,
+		    DELIVERY_ACK,
+		    DELIVERY_ERROR,
+		    DELIVERY_LOCAL_REPAIR
+        };
 
-		enum APPl_MSG_TYPES
-		{
-			SELF_TIMER,
-			STATIC_NODE_SIGNATURE,
-			MOBILE_NODE_RSSI_MEAN
-		};
+	//	static const simsignalwrap_t mobilityStateChangedSignal;
 
     protected:
-        // gates
-    	int dataOut;
-    	int dataIn;
-        int ctrlOut;
-        int ctrlIn;
-
-        // module parameters
         bool debug;
         bool stats;
-        unsigned int minimumStaticNodesForSample;
-        bool calibrationMode;       //mode in which the node receives static_refs and then writes files with the means for each (x,y)
+
+        // CONSTANTS
+        //packet map
+        int packetMapMaxPktQueueElementLifetime;
+        int packetMapMaintenancePeriod;
+        bool calibrationMode;
+        int minimumStaticNodesForSample;
+        int clusterKeySize;
 
         // position signal tracking
-        static const simsignalwrap_t mobilityStateChangedSignal;
+
         Coord currentPosition;
         Coord previousPosition;
-
-    private:
-        //statistic
         simsignal_t rssiValSignalId;
+
+        // VARS
+        // timers
+        cMessage* selfTimer;
 
         // structure to store received RSSIs
         std::vector<int> staticNodeAddressesDetected;
         std::multimap<int,double> staticNodesRSSITable;
 
         //radio map clustering
-        int clusterKeySize;
         typedef std::vector<int> clusterKey;
 
         // calibrationMode - radio Map XML
         xmlDocPtr radioMapXML;
         xmlNodePtr radioMapXMLRoot;
+
+        // packet map
+        struct pktQueueElement
+        {
+            LAddress::L3Type    destAddr;
+            simtime_t   lifeTime;
+            HoHuTApplPkt*    packet;
+        };
+        typedef std::queue<pktQueueElement*> pktQueue_t;
+        typedef std::map<LAddress::L3Type,pktQueue_t> pktMap_t;
+        pktMap_t pktMap;
+
+        //METHODS
+		virtual void handleSelfMsg(cMessage *);
+        virtual void handleLowerMsg(cMessage *);
+        virtual void handleLowerControl(cMessage *);
+        virtual void handleUpperMsg(cMessage * m) { delete m; }
+        virtual void handleUpperControl(cMessage * m) { delete m; }
+
+        //static node sigs handling
+        virtual void handleLowerStaticNodeSig (cMessage *msg);
+        virtual double getStaticNodeMeanRSSI(LAddress::L3Type staticNodeAddress);
+
+        //radio map
+        virtual xmlDocPtr getRadioMapClustered();
+        virtual xmlNodePtr getStaticNodePDFXMLNode(LAddress::L3Type staticNodeAddress);
+
+        virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);
+        void sendMobileNodeMsg(char*,LAddress::L3Type);
+
+        //packets map
+        void destroyPktMap();
+        void addToPktMap(HoHuTApplPkt *);
+        HoHuTApplPkt* getFromPktMap(LAddress::L3Type);
+        void runPktMapMaintenance();
+
+        //aux
+        virtual double convertTodBm(double valueInWatts);
+        virtual const char* convertNumberToString(double number);
+        virtual bool inArray(const int needle,const std::vector<int> haystack);
 };
 
 #endif // MOBILE_NODE_APP_LAYER_H

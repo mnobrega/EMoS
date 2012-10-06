@@ -19,11 +19,14 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
 
 		enum MSG_TYPES
         {
-            STATIC_NODE_SIG,        //broadcast - static node signature
-            MOBILE_NODE_MSG,        //unicast - mobile node msg (alarm, posTrackingReq, etc)
-            STATIC_NODE_MSG,        //unicast - static node msg (hoven or other monitoring house devices)
-            STATIC_NODE_SIG_TIMER   //self msg -signature sending timer
+            STATIC_NODE_SIG,         //broadcast - static node signature
+            STATIC_NODE_MSG,         //unicast - static node msg (hoven or other monitoring house devices)
+            MOBILE_NODE_MSG          //unicast - mobile node msg (alarm, posTrackingReq, etc)
         };
+		enum SELF_MSG_TYPES
+		{
+		    STATIC_NODE_SIG_TIMER   //self msg -signature sending timer
+		};
 		enum AODV_CTRL_MSG_TYPES
         {
 		    HAS_ROUTE,

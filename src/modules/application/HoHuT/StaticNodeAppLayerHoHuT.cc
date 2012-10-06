@@ -34,6 +34,7 @@ StaticNodeAppLayerHoHuT::~StaticNodeAppLayerHoHuT() {}
 void StaticNodeAppLayerHoHuT::finish()
 {
     destroyPktMap();
+    cancelAndDelete(selfTimer);
 }
 
 void StaticNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
