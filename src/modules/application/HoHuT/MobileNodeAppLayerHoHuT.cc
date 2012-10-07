@@ -2,6 +2,8 @@
 
 Define_Module(MobileNodeAppLayerHoHuT);
 
+const simsignalwrap_t MobileNodeAppLayerHoHuT::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
+
 void MobileNodeAppLayerHoHuT::initialize(int stage)
 {
     BaseApplLayer::initialize(stage);
@@ -25,7 +27,7 @@ void MobileNodeAppLayerHoHuT::initialize(int stage)
     	debugEV << "in initialize() stage 1...";
 
     	rssiValSignalId = registerSignal("rssiVal");
-   //     findHost()->subscribe(mobilityStateChangedSignal, this);
+    	findHost()->subscribe(mobilityStateChangedSignal, this);
         previousPosition = new Coord(-1,-1,-1);
         currentPosition = new Coord(0,0,0);
 
@@ -45,7 +47,7 @@ void MobileNodeAppLayerHoHuT::finish()
     if(calibrationMode)
     {
         xmlSaveFormatFileEnc("xml_radio_maps/radioMap.xml",radioMapXML,"UTF-8",1);
-        xmlSaveFormatFileEnc("xml_radio_maps/radioMapClustered.xml",this->getRadioMapClustered(),"UTF-8",1);
+        //xmlSaveFormatFileEnc("xml_radio_maps/radioMapClustered.xml",this->getRadioMapClustered(),"UTF-8",1);
         xmlFreeDoc(radioMapXML);
         xmlCleanupParser();
         xmlMemoryDump();
@@ -59,14 +61,29 @@ void MobileNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
 }
 void MobileNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
 {
-    switch (msg->getKind())
+    NetwToApplControlInfo* cInfo;
+    HoHuTApplPkt* applPkt;
+
+    switch (applPkt->getKind())
     {
+        case STATIC_NODE_MSG:
+            cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
+            applPkt = static_cast<HoHuTApplPkt*>(msg);
+            debugEV << "received rssi: " << cInfo->getRSSI() << endl;
+            debugEV << "Received a node msg from static node: " << cInfo->getSrcNetwAddr() << endl;
+            debugEV << "msg data:" << applPkt->getPayload() << endl;
+            delete msg;
+            break;
+        case MOBILE_NODE_MSG:
+            cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
+            applPkt = static_cast<HoHuTApplPkt*>(msg);
+            debugEV << "received rssi: " << cInfo->getRSSI() << endl;
+            debugEV << "Received a node msg from mobile node: " << cInfo->getSrcNetwAddr() << endl;
+            debugEV << "msg data:" << applPkt->getPayload() << endl;
+            delete msg;
+            break;
         case STATIC_NODE_SIG:
             handleLowerStaticNodeSig(msg);
-            break;
-        case STATIC_NODE_MSG:
-            debugEV << "Received a static node msg! " << endl;
-            delete msg;
             break;
         default:
             error("Unknown message of kind: "+msg->getKind());
@@ -83,23 +100,25 @@ void MobileNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
 /**** APP ****/
 void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
 {
-    HoHuTApplPkt* staticNodeSignature = check_and_cast<HoHuTApplPkt*>(msg);
+    HoHuTApplPkt* staticNodeSig = static_cast<HoHuTApplPkt*>(msg);
 
-    EV << "MobileNode says: Received STATIC_NODE_SIGNATURE from node: " << staticNodeSignature->getSrcAddr() << endl;
+    NetwToApplControlInfo* cInfo = static_cast<NetwToApplControlInfo*>(staticNodeSig->removeControlInfo());
+    LAddress::L3Type srcAddress = cInfo->getSrcNetwAddr();
+    double srcRSSI = cInfo->getRSSI();
+
+    debugEV << "MobileNode says: Received STATIC_NODE_SIGNATURE from node: " << srcAddress << endl;
 
     //calibrationMode and new position
     if (calibrationMode && previousPosition != currentPosition)
     {
         xmlNodePtr positionNode = NULL;
         xmlNodePtr staticNodePDFXML = NULL;
-        bool addPositionToRadioMap = false;
 
         //for each static node collected
         for (unsigned int i=0; i<staticNodeAddressesDetected.size();i++)
         {
             if (staticNodesRSSITable.count(staticNodeAddressesDetected[i])>=minimumStaticNodesForSample)
             {
-                addPositionToRadioMap = true;
                 if (positionNode==NULL)
                 {
                     positionNode = xmlNewNode(NULL, BAD_CAST "position");
@@ -110,8 +129,7 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
                 xmlAddChild(positionNode, staticNodePDFXML);
             }
         }
-
-        if (addPositionToRadioMap)
+        if (positionNode!=NULL)
         {
             xmlAddChild(radioMapXMLRoot, positionNode);
         }
@@ -125,29 +143,19 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
     }
 
     // COLLECT
-    //staticNodesRSSITable.insert(std::make_pair(staticNodeSignature->getSrcAddr(),staticNodeSignature->getSignalStrength()));
-    if (!inArray(staticNodeSignature->getSrcAddr(),staticNodeAddressesDetected))
+    staticNodesRSSITable.insert(std::make_pair(srcAddress,srcRSSI));
+    if (!inArray(srcAddress,staticNodeAddressesDetected))
     {
-        staticNodeAddressesDetected.push_back(staticNodeSignature->getSrcAddr());
+        staticNodeAddressesDetected.push_back(srcAddress);
     }
     if (stats)
     {
-       //emit(rssiValSignalId, staticNodeSignature->getSignalStrength());
+       emit(rssiValSignalId, srcRSSI);
     }
 
     delete msg;
-    EV << "samples available for node: " << staticNodesRSSITable.count(staticNodeSignature->getSrcAddr()) << endl;
+    debugEV << "samples available for node: " << staticNodesRSSITable.count(srcAddress) << endl;
 }
-void MobileNodeAppLayerHoHuT::sendMobileNodeMsg(char* msgPayload, LAddress::L3Type netwDestAddr)
-{
-    debugEV << "Sending mobile node msg to netwDestAddr:" << netwDestAddr << endl;
-
-    HoHuTApplPkt* appPkt = new HoHuTApplPkt("mobile-node-app-msg",MOBILE_NODE_MSG);
-    appPkt->setPayload(msgPayload);
-    NetwControlInfo::setControlInfo(appPkt, netwDestAddr);
-    sendDown(appPkt);
-}
-
 xmlDocPtr MobileNodeAppLayerHoHuT::getRadioMapClustered()
 {
     std::map<double, int> pairsMeanStaticNodeAddress;
@@ -182,18 +190,6 @@ xmlDocPtr MobileNodeAppLayerHoHuT::getRadioMapClustered()
 
     return radioMapClusteredXML;
 }
-
-void MobileNodeAppLayerHoHuT::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
-{
-    Enter_Method_Silent();
-//    if (signalID == mobilityStateChangedSignal)
-//    {
-//        BaseMobility* baseMobility;
-//        baseMobility = dynamic_cast<BaseMobility *>(obj);
-//        currentPosition = baseMobility->getCurrentPosition();
-//    }
-}
-
 double MobileNodeAppLayerHoHuT::getStaticNodeMeanRSSI(LAddress::L3Type staticNodeAddress)
 {
     cStdDev stat("staticNodeStat");
@@ -206,7 +202,6 @@ double MobileNodeAppLayerHoHuT::getStaticNodeMeanRSSI(LAddress::L3Type staticNod
     }
     return stat.getMean();
 }
-
 xmlNodePtr MobileNodeAppLayerHoHuT::getStaticNodePDFXMLNode(LAddress::L3Type staticNodeAddress)
 {
     cStdDev stat("staticNodeStat");
@@ -229,9 +224,33 @@ xmlNodePtr MobileNodeAppLayerHoHuT::getStaticNodePDFXMLNode(LAddress::L3Type sta
 }
 
 
+// MOBILE NODE MSG
+void MobileNodeAppLayerHoHuT::sendMobileNodeMsg(char* msgPayload, LAddress::L3Type netwDestAddr)
+{
+    debugEV << "Sending mobile node msg to netwDestAddr:" << netwDestAddr << endl;
+
+    HoHuTApplPkt* appPkt = new HoHuTApplPkt("mobile-node-app-msg",MOBILE_NODE_MSG);
+    appPkt->setPayload(msgPayload);
+    NetwControlInfo::setControlInfo(appPkt, netwDestAddr);
+    sendDown(appPkt);
+}
 
 
-/*** AUX functions TODO remove this to another class common to all HoHuT app layers***/
+// MOBILITY
+void MobileNodeAppLayerHoHuT::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
+{
+    Enter_Method_Silent();
+    if (signalID == mobilityStateChangedSignal)
+    {
+        BaseMobility* baseMobility;
+        baseMobility = dynamic_cast<BaseMobility *>(obj);
+        currentPosition = baseMobility->getCurrentPosition();
+    }
+}
+
+
+
+// AUX
 double MobileNodeAppLayerHoHuT::convertTodBm(double valueInWatts)
 {
     return 10*log10(valueInWatts/0.001);

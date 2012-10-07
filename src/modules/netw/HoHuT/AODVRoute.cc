@@ -102,18 +102,23 @@ void AODVRoute::handleUpperApplPkt (cMessage* msg)
     NetwControlInfo* cInfo = static_cast<NetwControlInfo*>(appPkt->removeControlInfo());
     LAddress::L3Type destAddress = cInfo->getNetwAddr();
 
-    if (destAddress==LAddress::L3BROADCAST || hasRouteForDestination(destAddress))
+    if (LAddress::isL3Broadcast(destAddress))
     {
-        if (destAddress==LAddress::L3BROADCAST)
-        {
-            debugEV << "Broadcasting ApplPkt" << endl;
-        }
-        else
-        {
-            debugEV << "Route found for destAddr: " << destAddress << endl;
-        }
+        debugEV << "Broadcasting ApplPkt" << endl;
+        AODVData* data = new AODVData(msg->getName(),DATA);
+        data->setFinalDestAddr(LAddress::L3BROADCAST);
+        data->setInitialSrcAddr(myNetwAddr);
+        data->setSrcAddr(myNetwAddr);
+        data->setDestAddr(LAddress::L3BROADCAST);
+        data->encapsulate(appPkt);
+        NetwToMacControlInfo::setControlInfo(data,LAddress::L2BROADCAST);
+        sendDown(data);
+    }
+    else if (hasRouteForDestination(destAddress))
+    {
+        debugEV << "Route found for destAddr: " << destAddress << endl;
 
-        AODVData* data = new AODVData("aodv-data",DATA);
+        AODVData* data = new AODVData(msg->getName(),DATA);
         routeMapElement* fwdRoute = getRouteForDestination(destAddress);
         data->setFinalDestAddr(destAddress);
         data->setInitialSrcAddr(myNetwAddr);
@@ -173,7 +178,6 @@ void AODVRoute::handleLowerDATA(cMessage* msg)
 
     if (data->getFinalDestAddr()!=myNetwAddr && data->getInitialSrcAddr()!=myNetwAddr && !LAddress::isL3Broadcast(data->getDestAddr())) //intermediate node and NOT BROADCAST
     {
-        debugEV << "DATA msg arrived to intermediate node" << endl;
         addressSet_t::iterator it;
         routeMapElement* fwdRoute = getRouteForDestination(data->getFinalDestAddr());
 
@@ -186,11 +190,11 @@ void AODVRoute::handleLowerDATA(cMessage* msg)
         data->setDestAddr(fwdRoute->nextHop);
         data->setSrcAddr(myNetwAddr);
         NetwToMacControlInfo::setControlInfo(data,arp->getMacAddr(fwdRoute->nextHop));
+
         sendDown(data);
     }
     else if (data->getFinalDestAddr()==myNetwAddr || LAddress::isL3Broadcast(data->getDestAddr())) //DESTINATION
     {
-        debugEV << "DATA msg arrived to final destination!" << endl;
         ApplPkt* applPkt = static_cast<ApplPkt*>(data->decapsulate());
         NetwToApplControlInfo::setControlInfo(applPkt,cInfo->getRSSI(),data->getInitialSrcAddr());
         sendUp(applPkt);
@@ -301,21 +305,26 @@ void AODVRoute::handleLowerRREQ(cMessage* msg)
         else if (rreq->getFinalDestAddr()==myNetwAddr)
         {
             debugEV << "FINAL DEST NODE - received a RREQ from node: " << rreq->getInitialSrcAddr() << endl;
-            upsertReverseRoute(rreq);
+            if (upsertReverseRoute(rreq))
+            {
+                nodeSeqNo++;
+                AODVRouteResponse* rrep = new AODVRouteResponse("AODV-RREP",RREP);
+                rrep->setRouteDestAddr(myNetwAddr);
+                rrep->setRouteDestSeqNo(nodeSeqNo);
+                rrep->setRouteSrcAddr(rreq->getInitialSrcAddr());
+                rrep->setHopCount(0);
 
-            nodeSeqNo++;
-            AODVRouteResponse* rrep = new AODVRouteResponse("AODV-RREP",RREP);
-            rrep->setRouteDestAddr(myNetwAddr);
-            rrep->setRouteDestSeqNo(nodeSeqNo);
-            rrep->setRouteSrcAddr(rreq->getInitialSrcAddr());
-            rrep->setHopCount(0);
+                routeMapElement* revRoute = getRouteForDestination(rreq->getInitialSrcAddr());
+                rrep->setDestAddr(revRoute->nextHop);
+                rrep->setSrcAddr(myNetwAddr);
 
-            routeMapElement* revRoute = getRouteForDestination(rreq->getInitialSrcAddr());
-            rrep->setDestAddr(revRoute->nextHop);
-            rrep->setSrcAddr(myNetwAddr);
-
-            NetwToMacControlInfo::setControlInfo(rrep, arp->getMacAddr(revRoute->nextHop));
-            sendDown(rrep);
+                NetwToMacControlInfo::setControlInfo(rrep, arp->getMacAddr(revRoute->nextHop));
+                sendDown(rrep);
+            }
+            else
+            {
+                debugEV << "The rreq was worse than the existing one! Dont upsert!" << endl;
+            }
             delete msg;
         }
         //source - ignore
@@ -343,7 +352,7 @@ void AODVRoute::handleLowerControlPacketDropped (cMessage * msg)
     debugEV << "Transmission failed received!" << endl;
     MacPkt* macPkt = static_cast<MacPkt*>(msg);
     NetwPkt* netwPkt = static_cast<NetwPkt*>(macPkt->decapsulate());
-    if (msg->getKind()==DATA)
+    if (netwPkt->getKind()==DATA)
     {
         if (!localRepair)
         {

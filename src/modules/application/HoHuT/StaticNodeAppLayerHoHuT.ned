@@ -5,7 +5,7 @@ simple StaticNodeAppLayerHoHuT
     parameters:
         bool debug = default(false); 			
         int headerLength = default(24);
-        int nodeSigPeriod = default(60);
+        int nodeSigPeriod = default(1);
         int nodeSigStartingTime = default(5);
         
     gates:

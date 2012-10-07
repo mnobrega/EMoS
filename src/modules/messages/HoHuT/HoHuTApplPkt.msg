@@ -8,6 +8,4 @@ class LAddress::L3Type extends void;
 message HoHuTApplPkt extends ApplPkt
 {
     string payload;
-    int lifeTime;
-    LAddress::L3Type netwDestAddr;
 }

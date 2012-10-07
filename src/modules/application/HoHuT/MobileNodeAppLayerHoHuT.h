@@ -16,6 +16,7 @@
 #include "libxml/tree.h"
 #include "string.h"
 #include "algorithm"
+#include "MiXiMDefs.h"
 
 
 class MobileNodeAppLayerHoHuT : public BaseApplLayer
@@ -32,14 +33,13 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
             MOBILE_NODE_MSG          //unicast - mobile node msg (alarm, posTrackingReq, etc)
         };
 
-	//	static const simsignalwrap_t mobilityStateChangedSignal;
-
     protected:
         bool debug;
         bool stats;
         bool calibrationMode;
         unsigned int minimumStaticNodesForSample;
         int clusterKeySize;
+        const static simsignalwrap_t mobilityStateChangedSignal;
 
         // position signal tracking
         Coord currentPosition;
