@@ -65,14 +65,20 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
             double stdDev;
         }staticNodePDF_t;
         typedef std::set<staticNodePDF_t*> staticNodesPDFSet_t;
-        typedef std::map<Coord, staticNodesPDFSet_t> radioMapSet_t;
+        typedef struct radioMapPosition
+        {
+            Coord pos;
+            staticNodesPDFSet_t* staticNodesPDFSet;
+        }radioMapPosition_t;
+        typedef std::set<radioMapPosition_t*> radioMapSet_t;
         radioMapSet_t radioMap;
-
+        //radio map clustered
         typedef struct radioMapClusterKey
         {
             addressVec_t* nodeAddrs;
         }radioMapClusterKey_t;
-        typedef std::map<radioMapClusterKey_t*, radioMapSet_t*> clusteredRadioMap_t;
+        typedef std::map<radioMapClusterKey_t*, radioMapPosition_t*> clusteredRadioMap_t;
+        clusteredRadioMap_t clusteredRadioMap;
 
 
         //METHODS

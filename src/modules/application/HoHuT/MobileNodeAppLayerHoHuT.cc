@@ -39,8 +39,8 @@ void MobileNodeAppLayerHoHuT::finish()
 {
     if(calibrationMode)
     {
-//        xmlSaveFormatFileEnc("xml_radio_maps/radioMap.xml",convertRadioMapToXML(),"UTF-8",1);
-        //xmlSaveFormatFileEnc("xml_radio_maps/radioMapClustered.xml",this->getRadioMapClustered(),"UTF-8",1);
+        xmlSaveFormatFileEnc("xml_radio_maps/radioMap.xml",convertRadioMapToXML(),"UTF-8",1);
+        //xmlSaveFormatFileEnc("xml_radio_maps/radioMapClustered.xml",convertRadioMapClusteredToXML(),"UTF-8",1);
         xmlCleanupParser();
         xmlMemoryDump();
     }
@@ -108,9 +108,7 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
         std::pair<addressRSSIMap_t::iterator,addressRSSIMap_t::iterator> ppp;
         addressRSSIMap_t::iterator it;
 
-        staticNodePDF_t* staticNodePDF;
-        staticNodesPDFSet_t* staticNodesPDFSet;
-
+        radioMapPosition_t* radioMapPosition=NULL;
         for (unsigned int i=0; i<staticNodeAddrCollected.size();i++)
         {
             if (staticNodesRSSITable.count(staticNodeAddrCollected[i])>=minimumStaticNodesForSample)
@@ -121,24 +119,29 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
                     stat.collect((*it).second);
                 }
 
-                staticNodePDF = (struct staticNodePDF*) malloc(sizeof(struct staticNodePDF));
+                staticNodePDF_t* staticNodePDF = (struct staticNodePDF*) malloc(sizeof(struct staticNodePDF));
                 staticNodePDF->addr = staticNodeAddrCollected[i];
                 staticNodePDF->mean = convertTodBm(stat.getMean());
                 staticNodePDF->stdDev = convertTodBm(stat.getStddev());
 
-                if (radioMap.find(previousPosition)==radioMap.end())
+                if (radioMapPosition==NULL)
                 {
-                    staticNodesPDFSet = new staticNodesPDFSet_t;
-                    staticNodesPDFSet->insert(staticNodePDF);
-                    radioMap.insert(std::pair<Coord,staticNodesPDFSet_t*>(previousPosition,staticNodesPDFSet));
+                    radioMapPosition = (struct radioMapPosition*) malloc(sizeof(struct radioMapPosition));
+                    radioMapPosition->pos = previousPosition;
+                    radioMapPosition->staticNodesPDFSet = new staticNodesPDFSet_t;
+                    radioMapPosition->staticNodesPDFSet->insert(staticNodePDF);
                 }
                 else
                 {
-                    staticNodesPDFSet = radioMap.find(previousPosition)->second;
-                    staticNodesPDFSet->insert(staticNodePDF);
+                    radioMapPosition->staticNodesPDFSet->insert(staticNodePDF);
                 }
             }
         }
+        if (radioMapPosition!=NULL)
+        {
+            radioMap.insert(radioMapPosition);
+        }
+
         staticNodesRSSITable.clear();
         previousPosition = currentPosition;
     }
@@ -174,37 +177,37 @@ bool MobileNodeAppLayerHoHuT::hasCollectedNode(LAddress::L3Type nodeAddr)
 }
 xmlDocPtr MobileNodeAppLayerHoHuT::convertRadioMapToXML()
 {
-//    radioMapSet_t::iterator it;
-//    staticNodePDFSet_t::iterator it2;
-//    radioMapPosition_t* pos;
-//    staticNodePDF_t* sig;
-//
-//    xmlDocPtr xmlDoc = xmlNewDoc(BAD_CAST "1.0");
-//    xmlNodePtr xmlDocRoot = xmlNewNode(NULL,BAD_CAST "radioMap");
-//    xmlNodePtr positionNode;
-//    xmlDocSetRootElement(xmlDoc, xmlDocRoot);
-//
-//    for (it=radioMapSet.begin(); it!=radioMapSet.end();it++)
-//    {
-//        pos = (*it);
-//        positionNode = xmlNewNode(NULL, BAD_CAST "position");
-//        xmlNewProp(positionNode, BAD_CAST "x", BAD_CAST this->convertNumberToString(pos->position.x));
-//        xmlNewProp(positionNode, BAD_CAST "y", BAD_CAST this->convertNumberToString(pos->position.y));
-//
-//        staticNodePDFSet_t* staticNodes = pos->staticNodesPDF;
-//        for (it2=staticNodes->begin(); it2!=staticNodes->end();it2++)
-//        {
-//            sig = (*it2);
-//            xmlNodePtr staticNodePDFXMLNode = xmlNewNode(NULL,BAD_CAST "staticNodePDF");
-//            xmlNewProp(staticNodePDFXMLNode,BAD_CAST "address", BAD_CAST this->convertNumberToString(sig->addr));
-//            xmlNewProp(staticNodePDFXMLNode,BAD_CAST "mean", BAD_CAST this->convertNumberToString(sig->mean));
-//            xmlNewProp(staticNodePDFXMLNode,BAD_CAST "stdDev", BAD_CAST this->convertNumberToString(sig->stdDev));
-//            xmlAddChild(positionNode,staticNodePDFXMLNode);
-//        }
-//        xmlAddChild(xmlDocRoot,positionNode);
-//    }
-//
-//    return xmlDoc;
+    radioMapSet_t::iterator it;
+    staticNodesPDFSet_t::iterator it2;
+    radioMapPosition_t* position;
+    staticNodePDF_t* sig;
+
+    xmlDocPtr xmlDoc = xmlNewDoc(BAD_CAST "1.0");
+    xmlNodePtr xmlDocRoot = xmlNewNode(NULL,BAD_CAST "radioMap");
+    xmlNodePtr positionNode;
+    xmlDocSetRootElement(xmlDoc, xmlDocRoot);
+
+    for (it=radioMap.begin(); it!=radioMap.end();it++)
+    {
+        position = (*it);
+        positionNode = xmlNewNode(NULL, BAD_CAST "position");
+        xmlNewProp(positionNode, BAD_CAST "x", BAD_CAST convertNumberToString(position->pos.x));
+        xmlNewProp(positionNode, BAD_CAST "y", BAD_CAST convertNumberToString(position->pos.y));
+
+        staticNodesPDFSet_t* staticNodes = position->staticNodesPDFSet;
+        for (it2=staticNodes->begin(); it2!=staticNodes->end();it2++)
+        {
+            sig = (*it2);
+            xmlNodePtr staticNodePDFXMLNode = xmlNewNode(NULL,BAD_CAST "staticNodePDF");
+            xmlNewProp(staticNodePDFXMLNode,BAD_CAST "address", BAD_CAST this->convertNumberToString(sig->addr));
+            xmlNewProp(staticNodePDFXMLNode,BAD_CAST "mean", BAD_CAST this->convertNumberToString(sig->mean));
+            xmlNewProp(staticNodePDFXMLNode,BAD_CAST "stdDev", BAD_CAST this->convertNumberToString(sig->stdDev));
+            xmlAddChild(positionNode,staticNodePDFXMLNode);
+        }
+        xmlAddChild(xmlDocRoot,positionNode);
+    }
+
+    return xmlDoc;
 }
 
 
