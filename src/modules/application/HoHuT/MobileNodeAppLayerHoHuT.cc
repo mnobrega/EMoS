@@ -30,13 +30,6 @@ void MobileNodeAppLayerHoHuT::initialize(int stage)
     	findHost()->subscribe(mobilityStateChangedSignal, this);
         previousPosition = new Coord(-1,-1,-1);
         currentPosition = new Coord(0,0,0);
-
-        if (calibrationMode)
-        {
-            radioMapXML = xmlNewDoc(BAD_CAST "1.0");
-            radioMapXMLRoot = xmlNewNode(NULL,BAD_CAST "radioMap");
-            xmlDocSetRootElement(radioMapXML, radioMapXMLRoot);
-        }
     }
 }
 
@@ -46,9 +39,8 @@ void MobileNodeAppLayerHoHuT::finish()
 {
     if(calibrationMode)
     {
-        xmlSaveFormatFileEnc("xml_radio_maps/radioMap.xml",radioMapXML,"UTF-8",1);
+//        xmlSaveFormatFileEnc("xml_radio_maps/radioMap.xml",convertRadioMapToXML(),"UTF-8",1);
         //xmlSaveFormatFileEnc("xml_radio_maps/radioMapClustered.xml",this->getRadioMapClustered(),"UTF-8",1);
-        xmlFreeDoc(radioMapXML);
         xmlCleanupParser();
         xmlMemoryDump();
     }
@@ -111,29 +103,42 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
     //calibrationMode and new position
     if (calibrationMode && previousPosition != currentPosition)
     {
-        xmlNodePtr positionNode = NULL;
-        xmlNodePtr staticNodePDFXML = NULL;
+        cStdDev stat("staticNodeStat");
 
-        //for each static node collected
-        for (unsigned int i=0; i<staticNodeAddressesDetected.size();i++)
+        std::pair<addressRSSIMap_t::iterator,addressRSSIMap_t::iterator> ppp;
+        addressRSSIMap_t::iterator it;
+
+        staticNodePDF_t* staticNodePDF;
+        staticNodesPDFSet_t* staticNodesPDFSet;
+
+        for (unsigned int i=0; i<staticNodeAddrCollected.size();i++)
         {
-            if (staticNodesRSSITable.count(staticNodeAddressesDetected[i])>=minimumStaticNodesForSample)
+            if (staticNodesRSSITable.count(staticNodeAddrCollected[i])>=minimumStaticNodesForSample)
             {
-                if (positionNode==NULL)
+                ppp = staticNodesRSSITable.equal_range(staticNodeAddrCollected[i]);
+                for (it=ppp.first; it != ppp.second; ++it)
                 {
-                    positionNode = xmlNewNode(NULL, BAD_CAST "position");
-                    xmlNewProp(positionNode, BAD_CAST "x", BAD_CAST this->convertNumberToString(previousPosition.x));
-                    xmlNewProp(positionNode, BAD_CAST "y", BAD_CAST this->convertNumberToString(previousPosition.y));
+                    stat.collect((*it).second);
                 }
-                staticNodePDFXML = this->getStaticNodePDFXMLNode(staticNodeAddressesDetected[i]);
-                xmlAddChild(positionNode, staticNodePDFXML);
+
+                staticNodePDF = (struct staticNodePDF*) malloc(sizeof(struct staticNodePDF));
+                staticNodePDF->addr = staticNodeAddrCollected[i];
+                staticNodePDF->mean = convertTodBm(stat.getMean());
+                staticNodePDF->stdDev = convertTodBm(stat.getStddev());
+
+                if (radioMap.find(previousPosition)==radioMap.end())
+                {
+                    staticNodesPDFSet = new staticNodesPDFSet_t;
+                    staticNodesPDFSet->insert(staticNodePDF);
+                    radioMap.insert(std::pair<Coord,staticNodesPDFSet_t*>(previousPosition,staticNodesPDFSet));
+                }
+                else
+                {
+                    staticNodesPDFSet = radioMap.find(previousPosition)->second;
+                    staticNodesPDFSet->insert(staticNodePDF);
+                }
             }
         }
-        if (positionNode!=NULL)
-        {
-            xmlAddChild(radioMapXMLRoot, positionNode);
-        }
-
         staticNodesRSSITable.clear();
         previousPosition = currentPosition;
     }
@@ -144,9 +149,9 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
 
     // COLLECT
     staticNodesRSSITable.insert(std::make_pair(srcAddress,srcRSSI));
-    if (!inArray(srcAddress,staticNodeAddressesDetected))
+    if (!hasCollectedNode(srcAddress))
     {
-        staticNodeAddressesDetected.push_back(srcAddress);
+        staticNodeAddrCollected.push_back(srcAddress);
     }
     if (stats)
     {
@@ -156,71 +161,50 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
     delete msg;
     debugEV << "samples available for node: " << staticNodesRSSITable.count(srcAddress) << endl;
 }
-xmlDocPtr MobileNodeAppLayerHoHuT::getRadioMapClustered()
+bool MobileNodeAppLayerHoHuT::hasCollectedNode(LAddress::L3Type nodeAddr)
 {
-    std::map<double, int> pairsMeanStaticNodeAddress;
-    std::multimap<clusterKey,xmlNodePtr> clusteredRadioMap;
-    clusterKey clusterKey;
-    double mean;
-    int staticNodeAddress;
-
-    xmlNodePtr position = NULL;
-    xmlNodePtr staticNodePDF = NULL;
-    xmlDocPtr radioMapClusteredXML = xmlNewDoc(BAD_CAST "1.0");
-    xmlNodePtr radioMapClusteredXMLRoot = xmlNewNode(NULL,BAD_CAST "radioMapClustered");
-    xmlDocSetRootElement(radioMapClusteredXML, radioMapClusteredXMLRoot);
-
-    for (position=radioMapXMLRoot->children; position; position=position->next)
+    for (unsigned int i=0; i<staticNodeAddrCollected.size();i++)
     {
-        for (staticNodePDF=position->children; staticNodePDF; staticNodePDF=staticNodePDF->next)
+        if (staticNodeAddrCollected[i]==nodeAddr)
         {
-            mean = atof(reinterpret_cast<const char*>(xmlGetProp(staticNodePDF, BAD_CAST "mean")));
-            staticNodeAddress = atoi(reinterpret_cast<const char*>(xmlGetProp(staticNodePDF,BAD_CAST "address")));
-            pairsMeanStaticNodeAddress.insert(std::make_pair(mean,staticNodeAddress));
+            return true;
         }
-
-        //TODO: sorting map<double,int>
-
-        //TODO: sorting by address the clusterkeys
-
-        //TODO: save pair(clusterkey, xmlnodeptr) in the clusteredRadioMap
     }
-
-    //TODO: circle thru the clusteredRadioMap and put the result in the XML file
-
-    return radioMapClusteredXML;
+    return false;
 }
-double MobileNodeAppLayerHoHuT::getStaticNodeMeanRSSI(LAddress::L3Type staticNodeAddress)
+xmlDocPtr MobileNodeAppLayerHoHuT::convertRadioMapToXML()
 {
-    cStdDev stat("staticNodeStat");
-
-    std::pair<std::multimap<int,double>::iterator, std::multimap<int,double>::iterator> ppp;
-    ppp = staticNodesRSSITable.equal_range(staticNodeAddress);
-    for (std::multimap<int,double>::iterator it=ppp.first; it != ppp.second; ++it)
-    {
-        stat.collect((*it).second);
-    }
-    return stat.getMean();
-}
-xmlNodePtr MobileNodeAppLayerHoHuT::getStaticNodePDFXMLNode(LAddress::L3Type staticNodeAddress)
-{
-    cStdDev stat("staticNodeStat");
-    std::multimap<int,double>::iterator it;
-
-    xmlNodePtr staticNodePDFXMLNode = xmlNewNode(NULL,BAD_CAST "staticNodePDF");
-    xmlNewProp(staticNodePDFXMLNode,BAD_CAST "address", BAD_CAST this->convertNumberToString(staticNodeAddress));
-
-    std::pair<std::multimap<int,double>::iterator, std::multimap<int,double>::iterator> ppp;
-    ppp = staticNodesRSSITable.equal_range(staticNodeAddress);
-    for (it=ppp.first; it != ppp.second; ++it)
-    {
-        stat.collect((*it).second);
-    }
-
-    xmlNewProp(staticNodePDFXMLNode,BAD_CAST "mean", BAD_CAST this->convertNumberToString(this->convertTodBm(stat.getMean())));
-    xmlNewProp(staticNodePDFXMLNode,BAD_CAST "stdDev", BAD_CAST this->convertNumberToString(this->convertTodBm(stat.getStddev())));
-
-    return staticNodePDFXMLNode;
+//    radioMapSet_t::iterator it;
+//    staticNodePDFSet_t::iterator it2;
+//    radioMapPosition_t* pos;
+//    staticNodePDF_t* sig;
+//
+//    xmlDocPtr xmlDoc = xmlNewDoc(BAD_CAST "1.0");
+//    xmlNodePtr xmlDocRoot = xmlNewNode(NULL,BAD_CAST "radioMap");
+//    xmlNodePtr positionNode;
+//    xmlDocSetRootElement(xmlDoc, xmlDocRoot);
+//
+//    for (it=radioMapSet.begin(); it!=radioMapSet.end();it++)
+//    {
+//        pos = (*it);
+//        positionNode = xmlNewNode(NULL, BAD_CAST "position");
+//        xmlNewProp(positionNode, BAD_CAST "x", BAD_CAST this->convertNumberToString(pos->position.x));
+//        xmlNewProp(positionNode, BAD_CAST "y", BAD_CAST this->convertNumberToString(pos->position.y));
+//
+//        staticNodePDFSet_t* staticNodes = pos->staticNodesPDF;
+//        for (it2=staticNodes->begin(); it2!=staticNodes->end();it2++)
+//        {
+//            sig = (*it2);
+//            xmlNodePtr staticNodePDFXMLNode = xmlNewNode(NULL,BAD_CAST "staticNodePDF");
+//            xmlNewProp(staticNodePDFXMLNode,BAD_CAST "address", BAD_CAST this->convertNumberToString(sig->addr));
+//            xmlNewProp(staticNodePDFXMLNode,BAD_CAST "mean", BAD_CAST this->convertNumberToString(sig->mean));
+//            xmlNewProp(staticNodePDFXMLNode,BAD_CAST "stdDev", BAD_CAST this->convertNumberToString(sig->stdDev));
+//            xmlAddChild(positionNode,staticNodePDFXMLNode);
+//        }
+//        xmlAddChild(xmlDocRoot,positionNode);
+//    }
+//
+//    return xmlDoc;
 }
 
 
@@ -263,18 +247,4 @@ const char* MobileNodeAppLayerHoHuT::convertNumberToString(double number)
     std::string output = s.str();
     const char* inCharPointerFormat = output.c_str();
     return inCharPointerFormat;
-}
-
-bool MobileNodeAppLayerHoHuT::inArray(const int needle,const std::vector<int> haystack)
-{
-    int max = haystack.size();
-    if (max==0) return false;
-    for (int i=0; i<max; i++)
-    {
-        if (haystack[i]==needle)
-        {
-            return true;
-        }
-    }
-    return false;
 }

@@ -39,7 +39,11 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         bool calibrationMode;
         unsigned int minimumStaticNodesForSample;
         int clusterKeySize;
+
         const static simsignalwrap_t mobilityStateChangedSignal;
+
+        typedef std::vector<LAddress::L3Type> addressVec_t;
+        typedef std::multimap<LAddress::L3Type,double> addressRSSIMap_t;
 
         // position signal tracking
         Coord currentPosition;
@@ -50,15 +54,26 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         cMessage* selfTimer;
 
         // structure to store received RSSIs
-        std::vector<int> staticNodeAddressesDetected;
-        std::multimap<int,double> staticNodesRSSITable;
+        addressVec_t staticNodeAddrCollected;
+        addressRSSIMap_t staticNodesRSSITable;
 
-        //radio map clustering
-        typedef std::vector<int> clusterKey;
+        //radio map
+        typedef struct staticNodePDF
+        {
+            LAddress::L3Type addr;
+            double mean;
+            double stdDev;
+        }staticNodePDF_t;
+        typedef std::set<staticNodePDF_t*> staticNodesPDFSet_t;
+        typedef std::map<Coord, staticNodesPDFSet_t> radioMapSet_t;
+        radioMapSet_t radioMap;
 
-        // calibrationMode - radio Map XML
-        xmlDocPtr radioMapXML;
-        xmlNodePtr radioMapXMLRoot;
+        typedef struct radioMapClusterKey
+        {
+            addressVec_t* nodeAddrs;
+        }radioMapClusterKey_t;
+        typedef std::map<radioMapClusterKey_t*, radioMapSet_t*> clusteredRadioMap_t;
+
 
         //METHODS
 		virtual void handleSelfMsg(cMessage *);
@@ -66,21 +81,21 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         virtual void handleLowerControl(cMessage *);
 
         //static node sigs handling
-        virtual void handleLowerStaticNodeSig (cMessage *);
-        virtual double getStaticNodeMeanRSSI(LAddress::L3Type);
+        void handleLowerStaticNodeSig (cMessage *);
         void sendMobileNodeMsg(char*,LAddress::L3Type);
+        bool hasCollectedNode(LAddress::L3Type);
 
         //radio map
-        virtual xmlDocPtr getRadioMapClustered();
-        virtual xmlNodePtr getStaticNodePDFXMLNode(LAddress::L3Type);
+        xmlDocPtr convertRadioMapToXML();
+        xmlDocPtr convertClusteredRadioMapToXML();
 
-        //stats
+        //mobility
         virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
 
         //aux
         virtual double convertTodBm(double valueInWatts);
         virtual const char* convertNumberToString(double number);
-        virtual bool inArray(const int needle,const std::vector<int> haystack);
+
 
         virtual void handleUpperMsg(cMessage * m) { delete m; }
         virtual void handleUpperControl(cMessage * m) { delete m; }
