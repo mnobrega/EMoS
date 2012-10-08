@@ -36,9 +36,6 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
     protected:
         bool debug;
         bool stats;
-        bool calibrationMode;
-        unsigned int minimumStaticNodesForSample;
-        int clusterKeySize;
 
         const static simsignalwrap_t mobilityStateChangedSignal;
 
@@ -58,13 +55,22 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         addressRSSIMap_t staticNodesRSSITable;
 
         //radio map
+        bool calibrationMode;
+        unsigned int minimumStaticNodesForSample;
         typedef struct staticNodePDF
         {
             LAddress::L3Type addr;
             double mean;
             double stdDev;
         }staticNodePDF_t;
-        typedef std::set<staticNodePDF_t*> staticNodesPDFSet_t;
+        struct staticNodePDFCompare
+        {
+            bool operator() (staticNodePDF_t* lhs, staticNodePDF_t* rhs)
+            {
+                return lhs->mean>rhs->mean; //mean DESC - staticNodesPDF are ordered from largest mean to lowest
+            }
+        };
+        typedef std::set<staticNodePDF_t*,staticNodePDFCompare> staticNodesPDFSet_t;
         typedef struct radioMapPosition
         {
             Coord pos;
@@ -72,12 +78,11 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         }radioMapPosition_t;
         typedef std::set<radioMapPosition_t*> radioMapSet_t;
         radioMapSet_t radioMap;
+
+
         //radio map clustered
-        typedef struct radioMapClusterKey
-        {
-            addressVec_t* nodeAddrs;
-        }radioMapClusterKey_t;
-        typedef std::map<radioMapClusterKey_t*, radioMapPosition_t*> clusteredRadioMap_t;
+        unsigned int clusterKeySize;
+        typedef std::map<addressVec_t*, radioMapSet_t*> clusteredRadioMap_t;
         clusteredRadioMap_t clusteredRadioMap;
 
 
@@ -92,8 +97,10 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         bool hasCollectedNode(LAddress::L3Type);
 
         //radio map
+        void clusterizeRadioMap();
         xmlDocPtr convertRadioMapToXML();
         xmlDocPtr convertClusteredRadioMapToXML();
+        radioMapSet_t* getRadioMapSetByClusterKey(addressVec_t*);
 
         //mobility
         virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
