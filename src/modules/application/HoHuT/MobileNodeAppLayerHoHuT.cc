@@ -380,7 +380,6 @@ void MobileNodeAppLayerHoHuT::receiveSignal(cComponent *source, simsignal_t sign
 }
 
 
-
 // AUX
 double MobileNodeAppLayerHoHuT::convertTodBm(double valueInWatts)
 {

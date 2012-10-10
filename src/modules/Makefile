@@ -72,6 +72,7 @@ OBJS = \
     $O/application/TestApplication.o \
     $O/application/TrafficGen.o \
     $O/application/BurstApplLayerBattery.o \
+    $O/application/HoHuT/BaseStationAppLayerHoHuT.o \
     $O/application/HoHuT/StaticNodeAppLayerHoHuT.o \
     $O/application/HoHuT/MobileNodeAppLayerHoHuT.o \
     $O/application/ieee80211p/BaseWaveApplLayer.o \
@@ -495,6 +496,22 @@ $O/application/TrafficGen.o: application/TrafficGen.cc \
 	../base/utils/miximkerneldefs.h \
 	application/TrafficGen.h \
 	utility/Packet.h
+$O/application/HoHuT/BaseStationAppLayerHoHuT.o: application/HoHuT/BaseStationAppLayerHoHuT.cc \
+	../base/messages/ApplPkt_m.h \
+	../base/modules/BaseApplLayer.h \
+	../base/modules/BaseBattery.h \
+	../base/modules/BaseLayer.h \
+	../base/modules/BaseModule.h \
+	../base/modules/BatteryAccess.h \
+	../base/utils/HoHuT/NetwToApplControlInfo.h \
+	../base/utils/HostState.h \
+	../base/utils/MiXiMDefs.h \
+	../base/utils/NetwControlInfo.h \
+	../base/utils/PassedMessage.h \
+	../base/utils/SimpleAddress.h \
+	../base/utils/miximkerneldefs.h \
+	application/HoHuT/BaseStationAppLayerHoHuT.h \
+	messages/HoHuT/HoHuTApplPkt_m.h
 $O/application/HoHuT/MobileNodeAppLayerHoHuT.o: application/HoHuT/MobileNodeAppLayerHoHuT.cc \
 	../base/messages/ApplPkt_m.h \
 	../base/modules/BaseApplLayer.h \

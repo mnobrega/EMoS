@@ -1,5 +1,6 @@
 package org.mixim.examples.HoHuT;
 
+import org.mixim.modules.node.HoHuT.Host802154_2400MHz_HoHuT_base;
 import org.mixim.modules.node.HoHuT.Host802154_2400MHz_HoHuT_static;
 import org.mixim.modules.node.HoHuT.Host802154_2400MHz_HoHuT_mobile;
 
@@ -15,6 +16,7 @@ network HoHuT
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
+        double numHostsBase;	//total number of base stations in the network
         double numHostsStatic; // total number of static hosts in the network
         double numHostsMobile; // total number of mobile hosts in the network
 
@@ -50,6 +52,11 @@ network HoHuT
             parameters:
                 numHosts = numHostsMobile;
             @display("i=device/palm2_s;p=10,12.5;b=0,0;is=n");
+        }
+        baseStation[numHostsBase]: Host802154_2400MHz_HoHuT_base {
+            parameters:
+                numHosts = numHostsBase;
+        	@display("i=device/pc2_s;p=10,12.5;b=0,0;is=n");
         }
 
     connections allowunconnected:
