@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<clusteredRadioMap clusterKeySize="2">
+<radioMapClusters clusterKeySize="2">
   <cluster>
     <clusterKey>
       <staticNode address="1000"/>
@@ -18,4 +18,4 @@
     </clusterKey>
     <position x="11.5" y="21"/>
   </cluster>
-</clusteredRadioMap>
+</radioMapClusters>

@@ -503,6 +503,8 @@ $O/application/HoHuT/BaseStationAppLayerHoHuT.o: application/HoHuT/BaseStationAp
 	../base/modules/BaseLayer.h \
 	../base/modules/BaseModule.h \
 	../base/modules/BatteryAccess.h \
+	../base/utils/Coord.h \
+	../base/utils/FWMath.h \
 	../base/utils/HoHuT/NetwToApplControlInfo.h \
 	../base/utils/HostState.h \
 	../base/utils/MiXiMDefs.h \
@@ -540,6 +542,8 @@ $O/application/HoHuT/StaticNodeAppLayerHoHuT.o: application/HoHuT/StaticNodeAppL
 	../base/modules/BaseLayer.h \
 	../base/modules/BaseModule.h \
 	../base/modules/BatteryAccess.h \
+	../base/utils/Coord.h \
+	../base/utils/FWMath.h \
 	../base/utils/HoHuT/NetwToApplControlInfo.h \
 	../base/utils/HostState.h \
 	../base/utils/MiXiMDefs.h \
@@ -1104,6 +1108,8 @@ $O/messages/HoHuT/AODVRouteResponse_m.o: messages/HoHuT/AODVRouteResponse_m.cc \
 	messages/HoHuT/AODVRouteResponse_m.h
 $O/messages/HoHuT/HoHuTApplPkt_m.o: messages/HoHuT/HoHuTApplPkt_m.cc \
 	../base/messages/ApplPkt_m.h \
+	../base/utils/Coord.h \
+	../base/utils/FWMath.h \
 	../base/utils/MiXiMDefs.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \

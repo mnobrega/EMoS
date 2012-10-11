@@ -19,7 +19,8 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
 
 		enum MSG_TYPES
         {
-            STATIC_NODE_SIG,         //broadcast - static node signature
+            STATIC_NODE_SIG,         //broadcast-ttl1 - static node signature
+            BASE_STATION_SIG,        //broadcast-fwd - base station signature (inform the mobile nodes of the base station netwaddr)
             STATIC_NODE_MSG,         //unicast - static node msg (hoven or other monitoring house devices)
             MOBILE_NODE_MSG          //unicast - mobile node msg (alarm, posTrackingReq, etc)
         };

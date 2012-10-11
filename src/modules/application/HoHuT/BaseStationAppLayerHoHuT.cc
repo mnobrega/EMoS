@@ -13,10 +13,15 @@ void BaseStationAppLayerHoHuT::initialize(int stage)
         lowerControlOut = findGate("lowerControlOut");
         lowerControlIn = findGate("lowerControlIn");
         debug = par("debug").boolValue();
+        useClustering = par("useClustering").boolValue();
+        radioMapXML = par("radioMapXML");
+        radioMapClustersXML = par("radioMapClustersXML");
     }
     else if (stage == 1)
     {
     	debugEV << "in initialize() stage 1...";
+    	loadRadioMapFromXML(radioMapXML);
+    	loadRadioMapClustersFromXML(radioMapClustersXML);
     }
 }
 
@@ -73,4 +78,104 @@ void BaseStationAppLayerHoHuT::handleLowerMsg(cMessage * msg)
 void BaseStationAppLayerHoHuT::handleLowerControl(cMessage* msg)
 {
     delete msg; //dont do nothing for now
+}
+
+void BaseStationAppLayerHoHuT::loadRadioMapFromXML(cXMLElement* xml)
+{
+    cXMLElementList::const_iterator i;
+    cXMLElementList::const_iterator j;
+
+    std::string rootTag = xml->getTagName();
+    ASSERT(rootTag=="radioMap");
+
+    cXMLElementList positions = xml->getChildren();
+    for (i=positions.begin();i!=positions.end();++i)
+    {
+        //<position x="9.5" y="17">
+        cXMLElement* position = *i;
+        radioMapPosition* radioMapPosition = (struct radioMapPosition*) malloc(sizeof(struct radioMapPosition));
+        ASSERT(position->getAttribute("x"));
+        radioMapPosition->pos.x = convertStringToNumber(position->getAttribute("x"));
+        ASSERT(position->getAttribute("y"));
+        radioMapPosition->pos.y = convertStringToNumber(position->getAttribute("y"));
+        radioMapPosition->pos.z = 0;
+        radioMapPosition->staticNodesPDFSet = new staticNodesPDFSet_t;
+
+
+        cXMLElementList staticNodePDFs = position->getChildren();
+        for (j=staticNodePDFs.begin();j!=staticNodePDFs.end();++j)
+        {
+            //<staticNodePDF address="1001" mean="-22.37" stdDev="-21.4491"/>
+            cXMLElement* staticNodePDF = *j;
+            staticNodePDF_t* radioMapStaticNodePDF = (struct staticNodePDF*) malloc(sizeof(struct staticNodePDF));
+            ASSERT(staticNodePDF->getAttribute("address"));
+            radioMapStaticNodePDF->addr = convertStringToNumber(staticNodePDF->getAttribute("address"));
+            ASSERT(staticNodePDF->getAttribute("mean"));
+            radioMapStaticNodePDF->mean = convertStringToNumber(staticNodePDF->getAttribute("mean"));
+            ASSERT(staticNodePDF->getAttribute("stdDev"));
+            radioMapStaticNodePDF->stdDev = convertStringToNumber(staticNodePDF->getAttribute("stdDev"));
+            radioMapPosition->staticNodesPDFSet->insert(radioMapStaticNodePDF);
+        }
+
+        radioMap.insert(radioMapPosition);
+    }
+}
+
+void BaseStationAppLayerHoHuT::loadRadioMapClustersFromXML(cXMLElement* xml)
+{
+    cXMLElementList::const_iterator i;
+    cXMLElementList::const_iterator j;
+    cXMLElementList::const_iterator k;
+
+    std::string rootTag = xml->getTagName();
+    ASSERT(rootTag=="radioMapClusters");
+
+    cXMLElementList clusters = xml->getChildren();
+    for (i=clusters.begin();i!=clusters.end();++i)
+    {
+        cXMLElement* cluster = *i;
+        cXMLElementList clusterElements = cluster->getChildren();
+        coordVec_t* radioMapPositions = new coordVec_t;
+        addressVec_t* radioMapClusterKey;
+        for (j=clusterElements.begin(); j!=clusterElements.end();++j)
+        {
+            cXMLElement* clusterElement = *j;
+
+            if (strcmp(clusterElement->getTagName(),"clusterKey")==0)
+            {
+                cXMLElementList clusterKey = clusterElement->getChildren();
+                radioMapClusterKey = new addressVec_t;
+                for (k=clusterKey.begin(); k!=clusterKey.end(); ++k)
+                {
+                    //<staticNode address="1000"/>
+                    cXMLElement* staticNode = *k;
+                    ASSERT(staticNode->getAttribute("address"));
+                    radioMapClusterKey->push_back(convertStringToNumber(staticNode->getAttribute("address")));
+                }
+            }
+
+            //<position x="9.5" y="15"/>
+            if (strcmp(clusterElement->getTagName(),"position")==0)
+            {
+                cXMLElement* position = clusterElement;
+                ASSERT(position->getAttribute("x"));
+                ASSERT(position->getAttribute("y"));
+                Coord radioMapPosition = new Coord(convertStringToNumber(position->getAttribute("x")),convertStringToNumber(position->getAttribute("y")),0);
+                radioMapPositions->push_back(radioMapPosition);
+            }
+        }
+
+        radioMapClusters.insert(std::pair<addressVec_t*,coordVec_t*>(radioMapClusterKey,radioMapPositions));
+    }
+}
+
+double BaseStationAppLayerHoHuT::convertStringToNumber(const std::string& str)
+{
+    std::istringstream i(str);
+    double x;
+    if (!(i >> x))
+    {
+        return 0;
+    }
+    return x;
 }

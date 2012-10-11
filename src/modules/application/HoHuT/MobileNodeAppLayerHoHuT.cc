@@ -21,6 +21,8 @@ void MobileNodeAppLayerHoHuT::initialize(int stage)
         calibrationMode = par("calibrationMode").boolValue();
         minimumStaticNodesForSample = par("minimumStaticNodesForSample");
         clusterKeySize = par("clusterKeySize");
+        collectedDataSendingTimePeriod = par("collectedDataSendingTimePeriod");
+        baseStationNetwAddr = par("baseStationNetwAddr");
     }
     else if (stage == 1) //initialize vars, subscribe signals, etc
     {
@@ -30,6 +32,9 @@ void MobileNodeAppLayerHoHuT::initialize(int stage)
     	findHost()->subscribe(mobilityStateChangedSignal, this);
         previousPosition = new Coord(-1,-1,-1);
         currentPosition = new Coord(0,0,0);
+
+        selfTimer = new cMessage("beacon-timer",SEND_COLLECTED_DATA_TIMER);
+        scheduleAt(simTime() + collectedDataSendingTimePeriod, selfTimer);
     }
 }
 
@@ -37,10 +42,11 @@ MobileNodeAppLayerHoHuT::~MobileNodeAppLayerHoHuT() {}
 
 void MobileNodeAppLayerHoHuT::finish()
 {
+    cancelAndDelete(selfTimer);
     if(calibrationMode)
     {
         xmlSaveFormatFileEnc("xml_radio_maps/radioMap.xml",convertRadioMapToXML(),"UTF-8",1);
-        xmlSaveFormatFileEnc("xml_radio_maps/radioMapClustered.xml",convertRadioMapClustersToXML(),"UTF-8",1);
+        xmlSaveFormatFileEnc("xml_radio_maps/radioMapClusters.xml",convertRadioMapClustersToXML(),"UTF-8",1);
         xmlCleanupParser();
         xmlMemoryDump();
     }
@@ -49,7 +55,16 @@ void MobileNodeAppLayerHoHuT::finish()
 //HANDLING MSGS
 void MobileNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
 {
-    delete msg;
+    switch(msg->getKind())
+    {
+        case SEND_COLLECTED_DATA_TIMER:
+            sendCollectedDataToBaseStations();
+            break;
+        default:
+            error ("Unknown msg kind");
+            delete msg;
+            break;
+    }
 }
 void MobileNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
 {
@@ -111,8 +126,8 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
             if (staticNodesRSSITable.count(staticNodeAddrCollected[i])>=minimumStaticNodesForSample)
             {
                 cStdDev stat("staticNodeStat");
-                addressRSSIMap_t::iterator it;
-                std::pair<addressRSSIMap_t::iterator,addressRSSIMap_t::iterator> ppp;
+                addressRSSIMultiMap_t::iterator it;
+                std::pair<addressRSSIMultiMap_t::iterator,addressRSSIMultiMap_t::iterator> ppp;
 
                 ppp = staticNodesRSSITable.equal_range(staticNodeAddrCollected[i]);
                 for (it=ppp.first; it != ppp.second; ++it)
@@ -148,10 +163,6 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
         staticNodesRSSITable.clear();
         previousPosition = currentPosition;
     }
-    else if (!calibrationMode) //not calibration mode TODO - fix this in order to send a vector of measurements
-    {
-        //collect samples during t=x and when x is reached send the result to the closest static node
-    }
 
     // COLLECT
     staticNodesRSSITable.insert(std::make_pair(srcAddress,srcRSSI));
@@ -167,6 +178,72 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
     delete msg;
     debugEV << "samples available for node: " << staticNodesRSSITable.count(srcAddress) << endl;
 }
+void MobileNodeAppLayerHoHuT::sendCollectedDataToBaseStations()
+{
+    debugEV << "preparing to send collected data!" << endl;
+
+
+    addressVec_t::iterator i;
+    addressRSSIMap_t::iterator j;
+    addressRSSIMap_t* collectedData = new addressRSSIMap_t;
+
+    for (unsigned int i=0; i<staticNodeAddrCollected.size();i++)
+    {
+        if (staticNodesRSSITable.count(staticNodeAddrCollected[i])>=minimumStaticNodesForSample)
+        {
+            cStdDev stat("staticNodeStat");
+            addressRSSIMultiMap_t::iterator it;
+            std::pair<addressRSSIMultiMap_t::iterator,addressRSSIMultiMap_t::iterator> ppp;
+
+            ppp = staticNodesRSSITable.equal_range(staticNodeAddrCollected[i]);
+            for (it=ppp.first; it != ppp.second; ++it)
+            {
+                stat.collect((*it).second);
+            }
+
+            collectedData->insert(std::pair<LAddress::L3Type,double>(staticNodeAddrCollected[i],convertTodBm(stat.getMean())));
+            staticNodesRSSITable.erase(staticNodeAddrCollected[i]);
+
+            debugEV << "RSSI was collected for node: " << staticNodeAddrCollected[i] << " and will be sent to all available base stations" << endl;
+        }
+    }
+
+    if (collectedData->size()>0)
+    {
+        addressRSSIMap_t* collectedRSSIs = new addressRSSIMap_t;
+        for (j=collectedData->begin();j!=collectedData->end();j++)
+        {
+            collectedRSSIs->insert(std::pair<LAddress::L3Type,double>(j->first,j->second));
+        }
+
+        HoHuTApplPkt* appPkt = new HoHuTApplPkt("collected-rssi",MOBILE_NODE_MSG);
+        appPkt->setPayload("test 5");
+        appPkt->setHoHuTMsgType(COLLECTED_RSSI);
+        appPkt->setCollectedRSSIs(*collectedRSSIs);
+        appPkt->setRealPosition(currentPosition);
+        NetwControlInfo::setControlInfo(appPkt,baseStationNetwAddr);
+        sendDown(appPkt);
+
+        debugEV << "collected-rssi sent to baseStation:" << baseStationNetwAddr << endl;
+    }
+
+    if (!selfTimer->isScheduled())
+    {
+        scheduleAt(simTime()+collectedDataSendingTimePeriod,selfTimer);
+    }
+}
+void MobileNodeAppLayerHoHuT::sendMobileNodeMsg(char* msgPayload, LAddress::L3Type netwDestAddr)
+{
+    debugEV << "Sending mobile node msg to netwDestAddr:" << netwDestAddr << endl;
+
+    HoHuTApplPkt* appPkt = new HoHuTApplPkt("mobile-node-app-msg",MOBILE_NODE_MSG);
+    appPkt->setPayload(msgPayload);
+    NetwControlInfo::setControlInfo(appPkt, netwDestAddr);
+    sendDown(appPkt);
+}
+
+
+//// RADIO MAP & CLUSTERS
 bool MobileNodeAppLayerHoHuT::hasCollectedNode(LAddress::L3Type nodeAddr)
 {
     for (unsigned int i=0; i<staticNodeAddrCollected.size();i++)
@@ -288,7 +365,7 @@ xmlDocPtr MobileNodeAppLayerHoHuT::convertRadioMapClustersToXML()
     LAddress::L3Type staticNodeAddress;
 
     xmlDocPtr xmlDoc = xmlNewDoc(BAD_CAST "1.0");
-    xmlNodePtr xmlDocRoot = xmlNewNode(NULL,BAD_CAST "clusteredRadioMap");
+    xmlNodePtr xmlDocRoot = xmlNewNode(NULL,BAD_CAST "radioMapClusters");
     xmlNewProp(xmlDocRoot,BAD_CAST "clusterKeySize",BAD_CAST convertNumberToString(clusterKeySize));
     xmlDocSetRootElement(xmlDoc, xmlDocRoot);
 
@@ -319,18 +396,6 @@ xmlDocPtr MobileNodeAppLayerHoHuT::convertRadioMapClustersToXML()
         xmlAddChild(xmlDocRoot,clusterNode);
     }
     return xmlDoc;
-}
-
-
-// MOBILE NODE MSG
-void MobileNodeAppLayerHoHuT::sendMobileNodeMsg(char* msgPayload, LAddress::L3Type netwDestAddr)
-{
-    debugEV << "Sending mobile node msg to netwDestAddr:" << netwDestAddr << endl;
-
-    HoHuTApplPkt* appPkt = new HoHuTApplPkt("mobile-node-app-msg",MOBILE_NODE_MSG);
-    appPkt->setPayload(msgPayload);
-    NetwControlInfo::setControlInfo(appPkt, netwDestAddr);
-    sendDown(appPkt);
 }
 
 

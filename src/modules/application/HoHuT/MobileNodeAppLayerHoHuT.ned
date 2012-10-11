@@ -5,16 +5,12 @@ simple MobileNodeAppLayerHoHuT
     parameters:
         bool debug = default(false);
         bool stats = default(true);										// gather statistical data
-        //general AODV stuff		
         int headerLength = default(24);
-        int nodeSigPeriod = default(60);
-        int nodeSigStartingTime = default(5);
-        int packetMapMaxPktQueueElementLifetime = default(20);
-        int packetMapMaintenancePeriod = default(10);
-        //mobile node stuff
         int minimumStaticNodesForSample = default(10);					// static node sigs received limit per static node
         int clusterKeySize = default(2);								// size of the cluster KEY
-        bool calibrationMode = default(false);							// calibration of the static node position table 	
+        bool calibrationMode = default(false);							// calibration of the static node position table
+        int collectedDataSendingTimePeriod = default(60);				// period to send a new collected sample to the base station
+        int baseStationNetwAddr = default(0); 	
         
     gates:
         input lowerLayerIn; // to receive data from communications stack
