@@ -15,14 +15,24 @@ void StaticNodeAppLayerHoHuT::initialize(int stage)
 
         nodeSigStartingTime = par("nodeSigStartingTime");
         nodeSigPeriod = par("nodeSigPeriod");
+        testAODV = par("testAODV");
 
         debug = par("debug").boolValue();
     }
     else if (stage == 1) //initialize vars, subscribe signals, etc
     {
     	debugEV << "in initialize() stage 1...";
-    	selfTimer = new cMessage("beacon-timer",STATIC_NODE_SIG_TIMER);
-    	scheduleAt(simTime() + nodeSigStartingTime +uniform(0,0.001), selfTimer);
+
+    	if (!testAODV)
+    	{
+            selfTimer = new cMessage("beacon-timer",STATIC_NODE_SIG_TIMER);
+            scheduleAt(simTime() + nodeSigStartingTime +uniform(0,0.001), selfTimer);
+    	}
+    	else
+    	{
+    	    selfTimer = new cMessage("test-aodv",STATIC_NODE_AODV_TEST);
+    	    scheduleAt(simTime()+nodeSigStartingTime,selfTimer);
+    	}
     }
 }
 
@@ -39,6 +49,9 @@ void StaticNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
     {
         case STATIC_NODE_SIG_TIMER:
             sendStaticNodeSig();
+            break;
+        case STATIC_NODE_AODV_TEST:
+            sendStaticNodeAODVTest();
             break;
         default:
             error("Unknown message of kind: "+msg->getKind());
@@ -103,4 +116,9 @@ void StaticNodeAppLayerHoHuT::sendStaticNodeMsg(char* msgPayload, LAddress::L3Ty
     appPkt->setPayload(msgPayload);
     NetwControlInfo::setControlInfo(appPkt, netwDestAddr);
     sendDown(appPkt);
+}
+void StaticNodeAppLayerHoHuT::sendStaticNodeAODVTest()
+{
+    debugEV << "Sending static node AODV test to netwaddr : 1003";
+    sendStaticNodeMsg("aodv-test",1003);
 }

@@ -8,14 +8,7 @@
     <position x="9.5" y="15"/>
     <position x="9.5" y="17"/>
     <position x="9.5" y="19"/>
-    <position x="9.5" y="21"/>
-    <position x="13.5" y="21"/>
-  </cluster>
-  <cluster>
-    <clusterKey>
-      <staticNode address="1001"/>
-      <staticNode address="1002"/>
-    </clusterKey>
     <position x="11.5" y="21"/>
+    <position x="13.5" y="21"/>
   </cluster>
 </radioMapClusters>

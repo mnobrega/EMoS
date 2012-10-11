@@ -8,6 +8,9 @@ simple StaticNodeAppLayerHoHuT
         int nodeSigPeriod = default(1);
         int nodeSigStartingTime = default(5);
         
+        //thesis examples
+        bool testAODV = default(false);
+        
     gates:
         input lowerLayerIn; // to receive data from communications stack
         output lowerLayerOut; // to send data to communications stack

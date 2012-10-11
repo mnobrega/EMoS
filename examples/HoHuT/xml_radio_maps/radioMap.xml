@@ -1,30 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <radioMap>
-  <position x="13.5" y="21">
-    <staticNodePDF address="1001" mean="-25.1375" stdDev="-25.8723"/>
-    <staticNodePDF address="1000" mean="-25.7289" stdDev="-28.0773"/>
+  <position x="9.5" y="17">
+    <staticNodePDF address="1001" mean="-25.6006" stdDev="-25.081"/>
+    <staticNodePDF address="1000" mean="-56.0246" stdDev="-56.7782"/>
+    <staticNodePDF address="1002" mean="-58.5221" stdDev="-59.6005"/>
+  </position>
+  <position x="11.5" y="21">
+    <staticNodePDF address="1001" mean="-17.6382" stdDev="-13.1495"/>
+    <staticNodePDF address="1000" mean="-21.1406" stdDev="-17.0883"/>
+  </position>
+  <position x="9.5" y="19">
+    <staticNodePDF address="1001" mean="-22.1676" stdDev="-19.1157"/>
+    <staticNodePDF address="1000" mean="-36.965" stdDev="-36.397"/>
   </position>
   <position x="9.5" y="15">
     <staticNodePDF address="1000" mean="-39.4824" stdDev="-38.135"/>
     <staticNodePDF address="1001" mean="-43.7771" stdDev="-41.8845"/>
     <staticNodePDF address="1003" mean="-60.5988" stdDev="-60.5624"/>
   </position>
-  <position x="9.5" y="17">
-    <staticNodePDF address="1001" mean="-22.37" stdDev="-21.4491"/>
-    <staticNodePDF address="1000" mean="-51.3517" stdDev="-52.7713"/>
-    <staticNodePDF address="1002" mean="-54.864" stdDev="-52.4922"/>
-  </position>
-  <position x="9.5" y="19">
-    <staticNodePDF address="1001" mean="-24.0754" stdDev="-23.2639"/>
-    <staticNodePDF address="1000" mean="-42.8846" stdDev="-42.9833"/>
-  </position>
-  <position x="9.5" y="21">
-    <staticNodePDF address="1001" mean="-23.6746" stdDev="-21.3028"/>
-    <staticNodePDF address="1000" mean="-27.5966" stdDev="-23.9213"/>
-  </position>
-  <position x="11.5" y="21">
-    <staticNodePDF address="1001" mean="-24.8631" stdDev="-24.7019"/>
-    <staticNodePDF address="1002" mean="-27.1021" stdDev="-24.9447"/>
-    <staticNodePDF address="1000" mean="-27.5163" stdDev="-26.6384"/>
+  <position x="13.5" y="21">
+    <staticNodePDF address="1001" mean="-18.5608" stdDev="-14.8915"/>
+    <staticNodePDF address="1000" mean="-28.4277" stdDev="-27.7883"/>
   </position>
 </radioMap>

@@ -26,11 +26,13 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
         };
 		enum SELF_MSG_TYPES
 		{
-		    STATIC_NODE_SIG_TIMER   //self msg -signature sending timer
+		    STATIC_NODE_SIG_TIMER,   //self msg -signature sending timer
+		    STATIC_NODE_AODV_TEST   // self msg - AODV test msg
 		};
 
     protected:
         bool debug;
+        bool testAODV;
 
         // CONSTANTS
         //node signature
@@ -46,6 +48,7 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
         virtual void handleLowerControl(cMessage *);
         void sendStaticNodeSig();
         void sendStaticNodeMsg(char*,LAddress::L3Type);
+        void sendStaticNodeAODVTest();
 
         //not implemented
         virtual void handleUpperMsg(cMessage * m) { delete m; }
