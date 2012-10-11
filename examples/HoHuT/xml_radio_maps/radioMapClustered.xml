@@ -1,38 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<clusteredRadioMap>
+<clusteredRadioMap clusterKeySize="2">
   <cluster>
     <clusterKey>
       <staticNode address="1000"/>
+      <staticNode address="1001"/>
     </clusterKey>
-    <position x="9.5" y="15">
-      <staticNodePDF address="1000" mean="-43.2378" stdDev="-39.6228"/>
-      <staticNodePDF address="1001" mean="-43.4288" stdDev="-40.308"/>
-      <staticNodePDF address="1003" mean="-60.5988" stdDev="-60.5624"/>
-    </position>
+    <position x="9.5" y="15"/>
+    <position x="9.5" y="17"/>
+    <position x="9.5" y="19"/>
+    <position x="9.5" y="21"/>
+    <position x="13.5" y="21"/>
   </cluster>
   <cluster>
     <clusterKey>
       <staticNode address="1001"/>
+      <staticNode address="1002"/>
     </clusterKey>
-    <position x="9.5" y="21">
-      <staticNodePDF address="1001" mean="-25.9355" stdDev="-25.0129"/>
-    </position>
-    <position x="9.5" y="17">
-      <staticNodePDF address="1001" mean="-30.3654" stdDev="-26.6451"/>
-      <staticNodePDF address="1000" mean="-56.0246" stdDev="-56.7782"/>
-      <staticNodePDF address="1002" mean="-56.9469" stdDev="-57.5115"/>
-    </position>
-    <position x="11.5" y="21">
-      <staticNodePDF address="1001" mean="-23.6972" stdDev="-22.9365"/>
-      <staticNodePDF address="1000" mean="-24.4927" stdDev="-21.8054"/>
-    </position>
-    <position x="9.5" y="19">
-      <staticNodePDF address="1001" mean="-24.8469" stdDev="-20.3739"/>
-      <staticNodePDF address="1000" mean="-36.965" stdDev="-36.397"/>
-    </position>
-    <position x="13.5" y="21">
-      <staticNodePDF address="1001" mean="-25.3831" stdDev="-25.8245"/>
-      <staticNodePDF address="1000" mean="-28.6863" stdDev="-28.0758"/>
-    </position>
+    <position x="11.5" y="21"/>
   </cluster>
 </clusteredRadioMap>

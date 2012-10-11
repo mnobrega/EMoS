@@ -80,10 +80,11 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         radioMapSet_t radioMap;
 
 
-        //radio map clustered
+        //clusters - radio map
         unsigned int clusterKeySize;
-        typedef std::map<addressVec_t*, radioMapSet_t*> clusteredRadioMap_t;
-        clusteredRadioMap_t clusteredRadioMap;
+        typedef std::vector<Coord> coordVec_t;
+        typedef std::map<addressVec_t*,coordVec_t*> radioMapCluster_t;
+        radioMapCluster_t radioMapClusters;
 
 
         //METHODS
@@ -97,10 +98,10 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         bool hasCollectedNode(LAddress::L3Type);
 
         //radio map
-        void clusterizeRadioMap();
         xmlDocPtr convertRadioMapToXML();
-        xmlDocPtr convertClusteredRadioMapToXML();
-        radioMapSet_t* getRadioMapSetByClusterKey(addressVec_t*);
+        xmlDocPtr convertRadioMapClustersToXML();
+        void clusterizeRadioMapPosition(radioMapPosition_t*);
+        coordVec_t* getCoordSetByClusterKey(addressVec_t*);
 
         //mobility
         virtual void receiveSignal(cComponent *, simsignal_t, cObject *);

@@ -40,8 +40,7 @@ void MobileNodeAppLayerHoHuT::finish()
     if(calibrationMode)
     {
         xmlSaveFormatFileEnc("xml_radio_maps/radioMap.xml",convertRadioMapToXML(),"UTF-8",1);
-        clusterizeRadioMap();
-        xmlSaveFormatFileEnc("xml_radio_maps/radioMapClustered.xml",convertClusteredRadioMapToXML(),"UTF-8",1);
+        xmlSaveFormatFileEnc("xml_radio_maps/radioMapClustered.xml",convertRadioMapClustersToXML(),"UTF-8",1);
         xmlCleanupParser();
         xmlMemoryDump();
     }
@@ -57,7 +56,7 @@ void MobileNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
     NetwToApplControlInfo* cInfo;
     HoHuTApplPkt* applPkt;
 
-    switch (applPkt->getKind())
+    switch (msg->getKind())
     {
         case STATIC_NODE_MSG:
             cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
@@ -79,7 +78,8 @@ void MobileNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
             handleLowerStaticNodeSig(msg);
             break;
         default:
-            error("Unknown message of kind: "+msg->getKind());
+            //error("Unknown message of kind: "+msg->getKind());
+            debugEV << "Unknown msg kind received! Deleting!" << endl;
             delete msg;
             break;
     }
@@ -104,16 +104,16 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
     //calibrationMode and new position
     if (calibrationMode && previousPosition != currentPosition)
     {
-        cStdDev stat("staticNodeStat");
-
-        std::pair<addressRSSIMap_t::iterator,addressRSSIMap_t::iterator> ppp;
-        addressRSSIMap_t::iterator it;
-
         radioMapPosition_t* radioMapPosition=NULL;
+
         for (unsigned int i=0; i<staticNodeAddrCollected.size();i++)
         {
             if (staticNodesRSSITable.count(staticNodeAddrCollected[i])>=minimumStaticNodesForSample)
             {
+                cStdDev stat("staticNodeStat");
+                addressRSSIMap_t::iterator it;
+                std::pair<addressRSSIMap_t::iterator,addressRSSIMap_t::iterator> ppp;
+
                 ppp = staticNodesRSSITable.equal_range(staticNodeAddrCollected[i]);
                 for (it=ppp.first; it != ppp.second; ++it)
                 {
@@ -138,9 +138,11 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
                 }
             }
         }
+
         if (radioMapPosition!=NULL)
         {
             radioMap.insert(radioMapPosition);
+            clusterizeRadioMapPosition(radioMapPosition);
         }
 
         staticNodesRSSITable.clear();
@@ -176,63 +178,43 @@ bool MobileNodeAppLayerHoHuT::hasCollectedNode(LAddress::L3Type nodeAddr)
     }
     return false;
 }
-void MobileNodeAppLayerHoHuT::clusterizeRadioMap()
+void MobileNodeAppLayerHoHuT::clusterizeRadioMapPosition(radioMapPosition_t* radioMapPosition)
 {
-    radioMapSet_t::iterator it;
-    staticNodesPDFSet_t::iterator it2;
-    clusteredRadioMap_t::iterator it3;
-
-    staticNodesPDFSet_t* staticNodes;
-    radioMapPosition_t* position;
-    addressVec_t* clusterKey, cRadioMapClusterKeyVec;
-    radioMapSet_t* radioMapSet;
-    LAddress::L3Type nodeAddr;
-    unsigned int i;
-
-    for (it=radioMap.begin(); it!=radioMap.end();it++)
+    staticNodesPDFSet_t::iterator it;
+    addressVec_t* positionKey = new addressVec_t;
+    for (it=radioMapPosition->staticNodesPDFSet->begin(); it!=radioMapPosition->staticNodesPDFSet->end();it++)
     {
-        position = (*it);
-        staticNodes = position->staticNodesPDFSet;
-        clusterKey = new addressVec_t;
-        for (it2=staticNodes->begin(),i=0 ; it2!=staticNodes->end() && i<clusterKeySize ; it2++)
+        positionKey->push_back((*it)->addr);
+        if (positionKey->size()==clusterKeySize)
         {
-            nodeAddr = (*it2)->addr;
-            clusterKey->push_back(nodeAddr);
-            i++;
-        }
-
-        if (clusterKey->size()==clusterKeySize)
-        {
-            radioMapSet = getRadioMapSetByClusterKey(clusterKey);
-            if (radioMapSet!=NULL)
-            {
-                radioMapSet->insert(position);
-            }
-            else
-            {
-                radioMapSet = new radioMapSet_t;
-                radioMapSet->insert(position);
-                clusteredRadioMap.insert(std::pair<addressVec_t*,radioMapSet_t*>(clusterKey,radioMapSet));
-            }
-        }
-        else
-        {
-            debugEV << "Clusterkey is not valid for position " << convertNumberToString(position->pos.x) << ","
-                    << convertNumberToString(position->pos.y) << " clusterkeysize=" << clusterKey->size() << endl;
-            error ("Position with less than clusterKeySize nodes detected. Please decrement clusterKeySize in the omnetpp.ini!");
+            break;
         }
     }
-
+    if (positionKey->size()!=clusterKeySize)
+    {
+        error("Error creating cluster key for position. Please decrement the clusterKeySize in the config file.");
+    }
+    coordVec_t* clusterCoordsSet = getCoordSetByClusterKey(positionKey);
+    if (clusterCoordsSet==NULL)
+    {
+        clusterCoordsSet = new coordVec_t;
+        clusterCoordsSet->push_back(new Coord(radioMapPosition->pos.x,radioMapPosition->pos.y,radioMapPosition->pos.z));
+        radioMapClusters.insert(std::pair<addressVec_t*,coordVec_t*>(positionKey,clusterCoordsSet));
+    }
+    else
+    {
+        clusterCoordsSet->push_back(new Coord(radioMapPosition->pos.x,radioMapPosition->pos.y,radioMapPosition->pos.z));
+    }
 }
-MobileNodeAppLayerHoHuT::radioMapSet_t* MobileNodeAppLayerHoHuT::getRadioMapSetByClusterKey(addressVec_t* clusterKey)
+MobileNodeAppLayerHoHuT::coordVec_t* MobileNodeAppLayerHoHuT::getCoordSetByClusterKey(addressVec_t* clusterKey)
 {
-    clusteredRadioMap_t::iterator it;
+    radioMapCluster_t::iterator it;
     addressVec_t* cKey;
     addressVec_t::iterator it2;
     addressVec_t::iterator it3;
     unsigned int numFound;
 
-    for (it=clusteredRadioMap.begin();it!=clusteredRadioMap.end();it++)
+    for (it=radioMapClusters.begin();it!=radioMapClusters.end();it++)
     {
         cKey = it->first;
         numFound=0;
@@ -289,32 +271,28 @@ xmlDocPtr MobileNodeAppLayerHoHuT::convertRadioMapToXML()
 
     return xmlDoc;
 }
-xmlDocPtr MobileNodeAppLayerHoHuT::convertClusteredRadioMapToXML()
+xmlDocPtr MobileNodeAppLayerHoHuT::convertRadioMapClustersToXML()
 {
-    clusteredRadioMap_t::iterator it;
-    radioMapSet_t::iterator it2;
-    staticNodesPDFSet_t::iterator it3;
+    radioMapCluster_t::iterator it;
+    coordVec_t::iterator it2;
     addressVec_t::iterator it4;
 
     addressVec_t* clusterKey;
-    radioMapSet_t* positions;
-    radioMapPosition_t* position;
-    staticNodePDF_t* sig;
-    staticNodesPDFSet_t* staticNodes;
+    coordVec_t* positions;
 
     xmlNodePtr clusterNode;
     xmlNodePtr clusterKeyNode;
     xmlNodePtr clusterKeyStaticNode;
     xmlNodePtr positionNode;
-    xmlNodePtr staticNodePDFXMLNode;
 
     LAddress::L3Type staticNodeAddress;
 
     xmlDocPtr xmlDoc = xmlNewDoc(BAD_CAST "1.0");
     xmlNodePtr xmlDocRoot = xmlNewNode(NULL,BAD_CAST "clusteredRadioMap");
+    xmlNewProp(xmlDocRoot,BAD_CAST "clusterKeySize",BAD_CAST convertNumberToString(clusterKeySize));
     xmlDocSetRootElement(xmlDoc, xmlDocRoot);
 
-    for(it=clusteredRadioMap.begin();it!=clusteredRadioMap.end();it++)
+    for(it=radioMapClusters.begin();it!=radioMapClusters.end();it++)
     {
         clusterKey = it->first;
         clusterNode = xmlNewNode(NULL, BAD_CAST "cluster");
@@ -331,21 +309,10 @@ xmlDocPtr MobileNodeAppLayerHoHuT::convertClusteredRadioMapToXML()
         positions = it->second;
         for (it2=positions->begin(); it2!=positions->end(); it2++)
         {
-            position = (*it2);
+            Coord position = (*it2);
             positionNode = xmlNewNode(NULL, BAD_CAST "position");
-            xmlNewProp(positionNode, BAD_CAST "x", BAD_CAST convertNumberToString(position->pos.x));
-            xmlNewProp(positionNode, BAD_CAST "y", BAD_CAST convertNumberToString(position->pos.y));
-
-            staticNodes = position->staticNodesPDFSet;
-            for (it3=staticNodes->begin(); it3!=staticNodes->end();it3++)
-            {
-                sig = (*it3);
-                staticNodePDFXMLNode = xmlNewNode(NULL,BAD_CAST "staticNodePDF");
-                xmlNewProp(staticNodePDFXMLNode,BAD_CAST "address", BAD_CAST convertNumberToString(sig->addr));
-                xmlNewProp(staticNodePDFXMLNode,BAD_CAST "mean", BAD_CAST convertNumberToString(sig->mean));
-                xmlNewProp(staticNodePDFXMLNode,BAD_CAST "stdDev", BAD_CAST convertNumberToString(sig->stdDev));
-                xmlAddChild(positionNode,staticNodePDFXMLNode);
-            }
+            xmlNewProp(positionNode, BAD_CAST "x", BAD_CAST convertNumberToString(position.x));
+            xmlNewProp(positionNode, BAD_CAST "y", BAD_CAST convertNumberToString(position.y));
             xmlAddChild(clusterNode,positionNode);
         }
 
