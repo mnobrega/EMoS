@@ -22,7 +22,6 @@ void MobileNodeAppLayerHoHuT::initialize(int stage)
         minimumStaticNodesForSample = par("minimumStaticNodesForSample");
         clusterKeySize = par("clusterKeySize");
         collectedDataSendingTimePeriod = par("collectedDataSendingTimePeriod");
-        baseStationNetwAddr = par("baseStationNetwAddr");
     }
     else if (stage == 1) //initialize vars, subscribe signals, etc
     {
@@ -35,6 +34,26 @@ void MobileNodeAppLayerHoHuT::initialize(int stage)
 
         selfTimer = new cMessage("beacon-timer",SEND_COLLECTED_DATA_TIMER);
         scheduleAt(simTime() + collectedDataSendingTimePeriod, selfTimer);
+
+        cModule *const pHost = findHost();
+        const cModule* netw  = FindModule<BaseNetwLayer*>::findSubModule(pHost);
+        if(!netw) {
+            netw = pHost->getSubmodule("netwl");
+            if(!netw) {
+                opp_error("Could not find network layer module. This means "
+                          "either no network layer module is present or the "
+                          "used network layer module does not subclass from "
+                          "BaseNetworkLayer.");
+            }
+        }
+        const AddressingInterface *const addrScheme = FindModule<AddressingInterface*>::findSubModule(pHost);
+        if(addrScheme) {
+            myAppAddr = addrScheme->myNetwAddr(netw);
+        } else {
+            myAppAddr = LAddress::L3Type( netw->getId() );
+        }
+
+        debugEV << "myAppAddr = " << myAppAddr << endl;
     }
 }
 
@@ -211,20 +230,33 @@ void MobileNodeAppLayerHoHuT::sendCollectedDataToBaseStations()
     if (collectedData->size()>0)
     {
         addressRSSIMap_t* collectedRSSIs = new addressRSSIMap_t;
+        double maxRSSI;
+        LAddress::L3Type maxRSSIDestAddr = -1;
         for (j=collectedData->begin();j!=collectedData->end();j++)
         {
             collectedRSSIs->insert(std::pair<LAddress::L3Type,double>(j->first,j->second));
+            if (maxRSSIDestAddr==-1)
+            {
+                maxRSSI = j->second;
+                maxRSSIDestAddr = j->first;
+            }
+            else if (maxRSSI != std::max(maxRSSI,j->second))
+            {
+                maxRSSI = j->second;
+                maxRSSIDestAddr = j->first;
+            }
         }
 
         HoHuTApplPkt* appPkt = new HoHuTApplPkt("collected-rssi",MOBILE_NODE_MSG);
+        appPkt->setSrcAppAddress(myAppAddr);
         appPkt->setPayload("test 5");
         appPkt->setHoHuTMsgType(COLLECTED_RSSI);
         appPkt->setCollectedRSSIs(*collectedRSSIs);
         appPkt->setRealPosition(currentPosition);
-        NetwControlInfo::setControlInfo(appPkt,baseStationNetwAddr);
+        NetwControlInfo::setControlInfo(appPkt,maxRSSIDestAddr);
         sendDown(appPkt);
 
-        debugEV << "collected-rssi sent to baseStation:" << baseStationNetwAddr << endl;
+        debugEV << "collected-rssi sent to maxRSSI node:" << maxRSSIDestAddr << endl;
     }
 
     if (!selfTimer->isScheduled())

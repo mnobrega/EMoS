@@ -59,12 +59,7 @@ void BaseStationAppLayerHoHuT::handleLowerMsg(cMessage * msg)
             delete msg;
             break;
         case MOBILE_NODE_MSG:
-            cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
-            applPkt = static_cast<HoHuTApplPkt*>(msg);
-            debugEV << "received rssi: " << cInfo->getRSSI() << endl;
-            debugEV << "Received a node msg from mobile node: " << cInfo->getSrcNetwAddr() << endl;
-            debugEV << "msg data:" << applPkt->getPayload() << endl;
-            delete msg;
+            handleMobileNodeMsg(msg);
             break;
         case STATIC_NODE_SIG: //static nodes ignore this msg types. they are only for the mobile nodes
             delete msg;
@@ -78,6 +73,19 @@ void BaseStationAppLayerHoHuT::handleLowerMsg(cMessage * msg)
 void BaseStationAppLayerHoHuT::handleLowerControl(cMessage* msg)
 {
     delete msg; //dont do nothing for now
+}
+
+//Note: mobile node msgs are always sent through static nodes
+void BaseStationAppLayerHoHuT::handleMobileNodeMsg(cMessage* msg)
+{
+    NetwToApplControlInfo* cInfo;
+    HoHuTApplPkt* applPkt;
+    cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
+    applPkt = static_cast<HoHuTApplPkt*>(msg);
+    debugEV << "received rssi: " << cInfo->getRSSI() << endl;
+    debugEV << "Received a node msg from mobile node with appAddr: " << applPkt->getSrcAppAddress() << endl;
+    debugEV << "msg data:" << applPkt->getPayload() << endl;
+    delete msg;
 }
 
 void BaseStationAppLayerHoHuT::loadRadioMapFromXML(cXMLElement* xml)

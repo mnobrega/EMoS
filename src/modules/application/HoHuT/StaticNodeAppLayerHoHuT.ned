@@ -5,11 +5,11 @@ simple StaticNodeAppLayerHoHuT
     parameters:
         bool debug = default(false); 			
         int headerLength = default(24);
+        
         int nodeSigPeriod = default(1);
         int nodeSigStartingTime = default(5);
-        
-        //thesis examples
-        bool testAODV = default(false);
+        bool beaconMode = default(false); 		//this mode sets this node as a beacon sending node sigs
+        int baseStationNetwAddr = default(0); 	
         
     gates:
         input lowerLayerIn; // to receive data from communications stack

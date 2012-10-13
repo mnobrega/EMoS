@@ -24,20 +24,29 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
             STATIC_NODE_MSG,         //unicast - static node msg (hoven or other monitoring house devices)
             MOBILE_NODE_MSG          //unicast - mobile node msg (alarm, posTrackingReq, etc)
         };
+        //identifies the type of HoHuTAppl msg
+        enum HOHUT_MSG_TYPE
+        {
+            COLLECTED_RSSI,         //msg with the means of several rssis collected from the static nodes
+            HELP_REQUEST,           //msg with a help request sent by the mobile node
+            HUMAN_TEMPERATURE_MEAN, //human temperature
+            HUMAN_HEART_BPM_MEAN    //human heart BPM mean
+        };
 		enum SELF_MSG_TYPES
 		{
 		    STATIC_NODE_SIG_TIMER,   //self msg -signature sending timer
-		    STATIC_NODE_AODV_TEST   // self msg - AODV test msg
+		    STATIC_NODE_MSG_TIMER   // self msg - msg s
 		};
 
     protected:
         bool debug;
-        bool testAODV;
 
         // CONSTANTS
         //node signature
         int nodeSigStartingTime;
         int nodeSigPeriod;
+        bool beaconMode;
+        LAddress::L3Type baseStationNetwAddr;
 
         // timers
         cMessage* selfTimer;
@@ -46,9 +55,9 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
 		virtual void handleSelfMsg(cMessage *);
         virtual void handleLowerMsg(cMessage *);
         virtual void handleLowerControl(cMessage *);
+        void handleMobileNodeMsg(cMessage*);
         void sendStaticNodeSig();
         void sendStaticNodeMsg(char*,LAddress::L3Type);
-        void sendStaticNodeAODVTest();
 
         //not implemented
         virtual void handleUpperMsg(cMessage * m) { delete m; }

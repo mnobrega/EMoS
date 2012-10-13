@@ -15,7 +15,8 @@ void StaticNodeAppLayerHoHuT::initialize(int stage)
 
         nodeSigStartingTime = par("nodeSigStartingTime");
         nodeSigPeriod = par("nodeSigPeriod");
-        testAODV = par("testAODV");
+        beaconMode = par("beaconMode");
+        baseStationNetwAddr = par("baseStationNetwAddr");
 
         debug = par("debug").boolValue();
     }
@@ -23,15 +24,15 @@ void StaticNodeAppLayerHoHuT::initialize(int stage)
     {
     	debugEV << "in initialize() stage 1...";
 
-    	if (!testAODV)
+    	if (beaconMode)
     	{
             selfTimer = new cMessage("beacon-timer",STATIC_NODE_SIG_TIMER);
             scheduleAt(simTime() + nodeSigStartingTime +uniform(0,0.001), selfTimer);
     	}
     	else
     	{
-    	    selfTimer = new cMessage("test-aodv",STATIC_NODE_AODV_TEST);
-    	    scheduleAt(simTime()+nodeSigStartingTime,selfTimer);
+            selfTimer = new cMessage("msg-timer",STATIC_NODE_MSG_TIMER);
+            scheduleAt(simTime()+uniform(0,0.001),selfTimer);
     	}
     }
 }
@@ -50,8 +51,12 @@ void StaticNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
         case STATIC_NODE_SIG_TIMER:
             sendStaticNodeSig();
             break;
-        case STATIC_NODE_AODV_TEST:
-            sendStaticNodeAODVTest();
+        case STATIC_NODE_MSG_TIMER:
+            //AODV TEST
+//            if (findHost()->getIndex()==0)
+//            {
+//                sendStaticNodeMsg((char*)"test-msg",1003);
+//            }
             break;
         default:
             error("Unknown message of kind: "+msg->getKind());
@@ -76,12 +81,7 @@ void StaticNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
             delete msg;
             break;
         case MOBILE_NODE_MSG:
-            cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
-            applPkt = static_cast<HoHuTApplPkt*>(msg);
-            debugEV << "received rssi: " << cInfo->getRSSI() << endl;
-            debugEV << "Received a node msg from mobile node: " << cInfo->getSrcNetwAddr() << endl;
-            debugEV << "msg data:" << applPkt->getPayload() << endl;
-            delete msg;
+            handleMobileNodeMsg(msg);
             break;
         case STATIC_NODE_SIG: //static nodes ignore this msg types. they are only for the mobile nodes
             delete msg;
@@ -96,16 +96,27 @@ void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
 {
     delete msg; //dont do nothing for now
 }
-
-void StaticNodeAppLayerHoHuT::sendStaticNodeSig()
+void StaticNodeAppLayerHoHuT::handleMobileNodeMsg(cMessage* msg)
 {
-    debugEV << "Sending SIGNATURE" << endl;
-    HoHuTApplPkt* appPkt = new HoHuTApplPkt("node-sig",STATIC_NODE_SIG);
-    NetwControlInfo::setControlInfo(appPkt, LAddress::L3BROADCAST);
-    sendDown(appPkt);
-    if (!selfTimer->isScheduled())
+    NetwToApplControlInfo* cInfo;
+    HoHuTApplPkt* applPkt;
+
+    applPkt = static_cast<HoHuTApplPkt*>(msg);
+    cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
+    debugEV << "received rssi: " << cInfo->getRSSI() << endl;
+    debugEV << "Received a node msg from mobile node: " << cInfo->getSrcNetwAddr() << endl;
+    debugEV << "msg data:" << applPkt->getPayload() << endl;
+
+    switch (applPkt->getHoHuTMsgType())
     {
-        scheduleAt(simTime()+nodeSigPeriod,selfTimer);
+        case COLLECTED_RSSI:
+            NetwControlInfo::setControlInfo(applPkt,baseStationNetwAddr); //fwd msg to the base station
+            sendDown(applPkt);
+            break;
+        default:
+            error("Unknown HoHuTMsgType");
+            delete msg;
+            break;
     }
 }
 void StaticNodeAppLayerHoHuT::sendStaticNodeMsg(char* msgPayload, LAddress::L3Type netwDestAddr)
@@ -117,8 +128,14 @@ void StaticNodeAppLayerHoHuT::sendStaticNodeMsg(char* msgPayload, LAddress::L3Ty
     NetwControlInfo::setControlInfo(appPkt, netwDestAddr);
     sendDown(appPkt);
 }
-void StaticNodeAppLayerHoHuT::sendStaticNodeAODVTest()
+void StaticNodeAppLayerHoHuT::sendStaticNodeSig()
 {
-    debugEV << "Sending static node AODV test to netwaddr : 1003";
-    sendStaticNodeMsg("aodv-test",1003);
+    debugEV << "Sending SIGNATURE" << endl;
+    HoHuTApplPkt* appPkt = new HoHuTApplPkt("node-sig",STATIC_NODE_SIG);
+    NetwControlInfo::setControlInfo(appPkt, LAddress::L3BROADCAST);
+    sendDown(appPkt);
+    if (!selfTimer->isScheduled())
+    {
+        scheduleAt(simTime()+nodeSigPeriod,selfTimer);
+    }
 }

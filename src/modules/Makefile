@@ -516,15 +516,18 @@ $O/application/HoHuT/BaseStationAppLayerHoHuT.o: application/HoHuT/BaseStationAp
 	messages/HoHuT/HoHuTApplPkt_m.h
 $O/application/HoHuT/MobileNodeAppLayerHoHuT.o: application/HoHuT/MobileNodeAppLayerHoHuT.cc \
 	../base/messages/ApplPkt_m.h \
+	../base/modules/AddressingInterface.h \
 	../base/modules/BaseApplLayer.h \
 	../base/modules/BaseBattery.h \
 	../base/modules/BaseLayer.h \
 	../base/modules/BaseMobility.h \
 	../base/modules/BaseModule.h \
+	../base/modules/BaseNetwLayer.h \
 	../base/modules/BaseWorldUtility.h \
 	../base/modules/BatteryAccess.h \
 	../base/utils/Coord.h \
 	../base/utils/FWMath.h \
+	../base/utils/FindModule.h \
 	../base/utils/HoHuT/NetwToApplControlInfo.h \
 	../base/utils/HostState.h \
 	../base/utils/MiXiMDefs.h \

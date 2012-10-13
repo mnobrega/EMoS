@@ -10,8 +10,7 @@ simple MobileNodeAppLayerHoHuT
         int clusterKeySize = default(2);								// size of the cluster KEY
         bool calibrationMode = default(false);							// calibration of the static node position table
         int collectedDataSendingTimePeriod = default(60);				// period to send a new collected sample to the base station
-        int baseStationNetwAddr = default(0); 	
-        
+                
     gates:
         input lowerLayerIn; // to receive data from communications stack
         output lowerLayerOut; // to send data to communications stack

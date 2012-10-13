@@ -17,6 +17,9 @@
 #include "string.h"
 #include "algorithm"
 #include "MiXiMDefs.h"
+#include "FindModule.h"
+#include "BaseNetwLayer.h"
+#include "AddressingInterface.h"
 
 
 class MobileNodeAppLayerHoHuT : public BaseApplLayer
@@ -50,6 +53,8 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         bool debug;
         bool stats;
 
+        LAddress::L3Type myAppAddr;
+
         const static simsignalwrap_t mobilityStateChangedSignal;
 
         typedef std::vector<LAddress::L3Type> addressVec_t;
@@ -60,7 +65,6 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         Coord currentPosition;
         Coord previousPosition;
         simsignal_t rssiValSignalId;
-        LAddress::L3Type baseStationNetwAddr;
 
         // timers
         cMessage* selfTimer;

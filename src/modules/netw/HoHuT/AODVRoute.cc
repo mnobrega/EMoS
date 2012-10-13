@@ -128,7 +128,7 @@ void AODVRoute::handleUpperApplPkt (cMessage* msg)
         NetwToMacControlInfo::setControlInfo(data,arp->getMacAddr(fwdRoute->nextHop));
         sendDown(data);
     }
-    else //try to find route
+    else if (destAddress!=myNetwAddr) //try to find route
     {
         debugEV << "Route NOT FOUND! Sending RREQ for destAddr: " << destAddress << endl;
 
@@ -152,6 +152,10 @@ void AODVRoute::handleUpperApplPkt (cMessage* msg)
 
         NetwToMacControlInfo::setControlInfo(rreq,LAddress::L2BROADCAST);
         sendDown(rreq);
+    }
+    else
+    {
+        delete msg;
     }
 }
 void AODVRoute::handleLowerRERR(cMessage* msg)

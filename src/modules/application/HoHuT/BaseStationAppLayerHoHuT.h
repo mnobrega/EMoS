@@ -77,6 +77,7 @@ class BaseStationAppLayerHoHuT : public BaseApplLayer
 		virtual void handleSelfMsg(cMessage *);
         virtual void handleLowerMsg(cMessage *);
         virtual void handleLowerControl(cMessage *);
+        void handleMobileNodeMsg (cMessage *);
 
         void loadRadioMapFromXML(cXMLElement*);
         void loadRadioMapClustersFromXML(cXMLElement*);
