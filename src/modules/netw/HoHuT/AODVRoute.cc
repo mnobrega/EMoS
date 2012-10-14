@@ -197,7 +197,7 @@ void AODVRoute::handleLowerDATA(cMessage* msg)
 
         sendDown(data);
     }
-    else if (data->getFinalDestAddr()==myNetwAddr || LAddress::isL3Broadcast(data->getDestAddr())) //DESTINATION
+    else if (data->getFinalDestAddr()==myNetwAddr || LAddress::isL3Broadcast(data->getFinalDestAddr())) //DESTINATION
     {
         ApplPkt* applPkt = static_cast<ApplPkt*>(data->decapsulate());
         NetwToApplControlInfo::setControlInfo(applPkt,cInfo->getRSSI(),data->getInitialSrcAddr());
@@ -215,11 +215,11 @@ void AODVRoute::handleLowerRREP(cMessage* msg)
     int hopCountToRouteDestination = rrep->getHopCount()+1;
     rrep->setHopCount(hopCountToRouteDestination);
     upsertNodeSeqNo(rrep->getRouteDestAddr(), rrep->getRouteDestSeqNo());
-    rrep->removeControlInfo();
 
     //intermediate node
     if (rrep->getRouteDestAddr()!=myNetwAddr && rrep->getRouteSrcAddr()!=myNetwAddr)
     {
+        rrep->removeControlInfo();
         debugEV << "Arrived to INTERMEDIATE NODE! Save fwd route and rev msg" << endl;
         upsertForwardRoute(rrep);
         routeMapElement* revRoute = getRouteForDestination(rrep->getRouteSrcAddr());
@@ -235,17 +235,20 @@ void AODVRoute::handleLowerRREP(cMessage* msg)
         upsertForwardRoute(rrep);
         LAddress::L3Type destAddr = rrep->getRouteDestAddr();
 
-        debugEV << "Sending app pkt to destination addr: " << destAddr << endl;
         ApplPkt* appPkt = getFromPktMap(destAddr);
-        AODVData* data = new AODVData("aodv-data",DATA);
-        routeMapElement* fwdRoute = getRouteForDestination(destAddr);
-        data->setFinalDestAddr(destAddr);
-        data->setInitialSrcAddr(myNetwAddr);
-        data->setSrcAddr(myNetwAddr);
-        data->setDestAddr(fwdRoute->nextHop);
-        data->encapsulate(appPkt);
-        NetwToMacControlInfo::setControlInfo(data,arp->getMacAddr(fwdRoute->nextHop));
-        sendDown(data);
+        if (appPkt!=NULL) //appPkt could have been already sent by another route from a previous RREP
+        {
+            debugEV << "Sending app pkt to destination addr: " << destAddr << endl;
+            AODVData* data = new AODVData("aodv-data",DATA);
+            routeMapElement* fwdRoute = getRouteForDestination(destAddr);
+            data->setFinalDestAddr(destAddr);
+            data->setInitialSrcAddr(myNetwAddr);
+            data->setSrcAddr(myNetwAddr);
+            data->setDestAddr(fwdRoute->nextHop);
+            data->encapsulate(appPkt);
+            NetwToMacControlInfo::setControlInfo(data,arp->getMacAddr(fwdRoute->nextHop));
+            sendDown(data);
+        }
         delete msg;
     }
     //route destination node - ignore
@@ -303,6 +306,7 @@ void AODVRoute::handleLowerRREQ(cMessage* msg)
 
                 NetwToMacControlInfo::setControlInfo(rrep, arp->getMacAddr(revRoute->nextHop));
                 sendDown(rrep);
+                delete msg;
             }
         }
         //destination

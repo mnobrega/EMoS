@@ -53,10 +53,10 @@ void StaticNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
             break;
         case STATIC_NODE_MSG_TIMER:
             //AODV TEST
-//            if (findHost()->getIndex()==0)
-//            {
-//                sendStaticNodeMsg((char*)"test-msg",1003);
-//            }
+            if (findHost()->getIndex()==0)
+            {
+                sendStaticNodeMsg((char*)"test-msg",1003);
+            }
             break;
         default:
             error("Unknown message of kind: "+msg->getKind());
@@ -98,11 +98,8 @@ void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
 }
 void StaticNodeAppLayerHoHuT::handleMobileNodeMsg(cMessage* msg)
 {
-    NetwToApplControlInfo* cInfo;
-    HoHuTApplPkt* applPkt;
-
-    applPkt = static_cast<HoHuTApplPkt*>(msg);
-    cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
+    HoHuTApplPkt* applPkt = static_cast<HoHuTApplPkt*>(msg);
+    NetwToApplControlInfo* cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
     debugEV << "received rssi: " << cInfo->getRSSI() << endl;
     debugEV << "Received a node msg from mobile node: " << cInfo->getSrcNetwAddr() << endl;
     debugEV << "msg data:" << applPkt->getPayload() << endl;
