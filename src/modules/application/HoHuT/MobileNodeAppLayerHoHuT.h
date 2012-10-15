@@ -58,7 +58,6 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         const static simsignalwrap_t mobilityStateChangedSignal;
 
         typedef std::vector<LAddress::L3Type> addressVec_t;
-        typedef std::map<LAddress::L3Type,double> addressRSSIMap_t;
         typedef std::multimap<LAddress::L3Type,double> addressRSSIMultiMap_t;
 
         // position signal tracking
@@ -98,6 +97,22 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         }radioMapPosition_t;
         typedef std::set<radioMapPosition_t*> radioMapSet_t;
         radioMapSet_t radioMap;
+
+
+        //collected data from static nodes
+        typedef struct staticNodeSigsSample
+        {
+            LAddress::L3Type addr;
+            double mean;
+        }staticNodeSigsSample_t;
+        struct staticNodeSigsSampleCompare
+        {
+            bool operator() (staticNodeSigsSample_t* lhs, staticNodeSigsSample_t* rhs)
+            {
+                return lhs->mean > rhs->mean; //mean DESC - static nodes samples are order by desc mean
+            }
+        };
+        typedef std::set<staticNodeSigsSample_t*,staticNodeSigsSampleCompare> staticNodeSigsSamplesSet_t;
 
 
         //clusters - radio map

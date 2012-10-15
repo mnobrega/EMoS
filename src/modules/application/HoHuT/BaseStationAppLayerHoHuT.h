@@ -41,8 +41,13 @@ class BaseStationAppLayerHoHuT : public BaseApplLayer
         bool useClustering;
         cXMLElement* radioMapXML;
         cXMLElement* radioMapClustersXML;
+        cXMLElement* normalStandardDistribXML;
 
         typedef std::vector<LAddress::L3Type> addressVec_t;
+
+        //standard cumulative normal distribution
+        typedef std::map<double,double> normalStandardTable_t;
+        normalStandardTable_t normalStandardTable;
 
         //radio map
         typedef struct staticNodePDF
@@ -79,6 +84,7 @@ class BaseStationAppLayerHoHuT : public BaseApplLayer
         virtual void handleLowerControl(cMessage *);
         void handleMobileNodeMsg (cMessage *);
 
+        void loadNormalStandard(cXMLElement*);
         void loadRadioMapFromXML(cXMLElement*);
         void loadRadioMapClustersFromXML(cXMLElement*);
 

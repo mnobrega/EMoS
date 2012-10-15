@@ -16,12 +16,14 @@ void BaseStationAppLayerHoHuT::initialize(int stage)
         useClustering = par("useClustering").boolValue();
         radioMapXML = par("radioMapXML");
         radioMapClustersXML = par("radioMapClustersXML");
+        normalStandardDistribXML = par("normalStandardDistribXML");
     }
     else if (stage == 1)
     {
     	debugEV << "in initialize() stage 1...";
     	loadRadioMapFromXML(radioMapXML);
     	loadRadioMapClustersFromXML(radioMapClustersXML);
+    	loadNormalStandard(normalStandardDistribXML);
     }
 }
 
@@ -85,9 +87,47 @@ void BaseStationAppLayerHoHuT::handleMobileNodeMsg(cMessage* msg)
     debugEV << "received rssi: " << cInfo->getRSSI() << endl;
     debugEV << "Received a node msg from mobile node with appAddr: " << applPkt->getSrcAppAddress() << endl;
     debugEV << "msg data:" << applPkt->getPayload() << endl;
+
+
     delete msg;
 }
 
+void BaseStationAppLayerHoHuT::loadNormalStandard(cXMLElement* xml)
+{
+    cXMLElementList::const_iterator row;
+    cXMLElementList::const_iterator cell;
+
+    std::string rootTag = xml->getTagName();
+    ASSERT(rootTag=="table");
+
+    cXMLElementList rows = xml->getChildren();
+    for (row=rows.begin();row!=rows.end();++row)
+    {
+        cXMLElement* cell;
+        double zValue;
+        double normalDist;
+
+        cXMLElementList cells = (*row)->getChildren();
+        for (unsigned int i=0; i<cells.size();i++)
+        {
+            if (i==0)
+            {
+                cell = cells[i];
+                zValue = convertStringToNumber(cell->getAttribute("value"));
+            }
+            else if (i==1)
+            {
+                cell = cells[i];
+                normalDist = convertStringToNumber(cell->getAttribute("value"));
+            }
+            else
+            {
+                error("Too many cells in row for the standard normal XML");
+            }
+        }
+        normalStandardTable.insert(std::pair<double,double>(zValue,normalDist));
+    }
+}
 void BaseStationAppLayerHoHuT::loadRadioMapFromXML(cXMLElement* xml)
 {
     cXMLElementList::const_iterator i;

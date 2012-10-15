@@ -8,6 +8,7 @@ simple BaseStationAppLayerHoHuT
         bool useClustering = default(true);
         xml radioMapXML = default(xml("<radioMap/>"));
         xml radioMapClustersXML = default(xml("<radioMapClusters/>"));
+        xml normalStandardDistribXML = default(xml("<table/>"));
         
     gates:
         input lowerLayerIn; // to receive data from communications stack

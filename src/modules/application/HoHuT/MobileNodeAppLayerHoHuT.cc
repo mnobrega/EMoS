@@ -64,8 +64,8 @@ void MobileNodeAppLayerHoHuT::finish()
     cancelAndDelete(selfTimer);
     if(calibrationMode)
     {
-        xmlSaveFormatFileEnc("xml_radio_maps/radioMap.xml",convertRadioMapToXML(),"UTF-8",1);
-        xmlSaveFormatFileEnc("xml_radio_maps/radioMapClusters.xml",convertRadioMapClustersToXML(),"UTF-8",1);
+        xmlSaveFormatFileEnc("xml_data_files/radioMap.xml",convertRadioMapToXML(),"UTF-8",1);
+        xmlSaveFormatFileEnc("xml_data_files/radioMapClusters.xml",convertRadioMapClustersToXML(),"UTF-8",1);
         xmlCleanupParser();
         xmlMemoryDump();
     }
@@ -201,10 +201,9 @@ void MobileNodeAppLayerHoHuT::sendCollectedDataToBaseStations()
 {
     debugEV << "preparing to send collected data!" << endl;
 
-
     addressVec_t::iterator i;
-    addressRSSIMap_t::iterator j;
-    addressRSSIMap_t* collectedData = new addressRSSIMap_t;
+    staticNodeSigsSamplesSet_t::iterator j;
+    staticNodeSigsSamplesSet_t* collectedData = new staticNodeSigsSamplesSet_t;
 
     for (unsigned int i=0; i<staticNodeAddrCollected.size();i++)
     {
@@ -220,7 +219,11 @@ void MobileNodeAppLayerHoHuT::sendCollectedDataToBaseStations()
                 stat.collect((*it).second);
             }
 
-            collectedData->insert(std::pair<LAddress::L3Type,double>(staticNodeAddrCollected[i],convertTodBm(stat.getMean())));
+            staticNodeSigsSample_t* staticNodeSigsSample = (struct staticNodeSigsSample*) malloc(sizeof(struct staticNodeSigsSample));
+            staticNodeSigsSample->addr = staticNodeAddrCollected[i];
+            staticNodeSigsSample->mean = convertTodBm(stat.getMean());
+            collectedData->insert(staticNodeSigsSample);
+
             staticNodesRSSITable.erase(staticNodeAddrCollected[i]);
 
             debugEV << "RSSI was collected for node: " << staticNodeAddrCollected[i] << " and will be sent to all available base stations" << endl;
@@ -229,29 +232,15 @@ void MobileNodeAppLayerHoHuT::sendCollectedDataToBaseStations()
 
     if (collectedData->size()>0)
     {
-        addressRSSIMap_t* collectedRSSIs = new addressRSSIMap_t;
-        double maxRSSI;
-        LAddress::L3Type maxRSSIDestAddr = -1;
-        for (j=collectedData->begin();j!=collectedData->end();j++)
-        {
-            collectedRSSIs->insert(std::pair<LAddress::L3Type,double>(j->first,j->second));
-            if (maxRSSIDestAddr==-1)
-            {
-                maxRSSI = j->second;
-                maxRSSIDestAddr = j->first;
-            }
-            else if (maxRSSI != std::max(maxRSSI,j->second))
-            {
-                maxRSSI = j->second;
-                maxRSSIDestAddr = j->first;
-            }
-        }
+        j = collectedData->begin();
+        staticNodeSigsSample_t* el = *j;
+        LAddress::L3Type maxRSSIDestAddr = el->addr; //biggest mean addr
 
         HoHuTApplPkt* appPkt = new HoHuTApplPkt("collected-rssi",MOBILE_NODE_MSG);
         appPkt->setSrcAppAddress(myAppAddr);
         appPkt->setPayload("test 5");
         appPkt->setHoHuTMsgType(COLLECTED_RSSI);
-        appPkt->setCollectedRSSIs(*collectedRSSIs);
+        appPkt->setCollectedRSSIs(*collectedData);
         appPkt->setRealPosition(currentPosition);
         NetwControlInfo::setControlInfo(appPkt,maxRSSIDestAddr);
         sendDown(appPkt);

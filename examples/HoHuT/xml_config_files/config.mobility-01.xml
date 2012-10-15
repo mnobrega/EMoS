@@ -3,17 +3,21 @@
 	<moveto x="9.5" y="12"/>
 	<wait t="10"/>
 	<moveto x="9.5" y="15"/>
-	<wait t="10"/>
+	<wait t="60"/>
 	<moveto x="9.5" y="17"/>
-	<wait t="10"/>
+	<wait t="20"/>
 	<moveto x="9.5" y="19"/>
-	<wait t="10"/>
+	<wait t="40"/>
 	<moveto x="9.5" y="21"/>
 	<wait t="10"/>
 	<moveto x="11.5" y="21"/>
 	<wait t="10"/>
 	<moveto x="13.5" y="21"/>
-	<wait t="10"/>
+	<wait t="5"/>
 	<moveto x="14.5" y="21"/>
 	<wait t="10"/>
+	<moveto x="15.5" y="19"/>
+	<wait t="55"/>
+	<moveto x="16.8" y="14"/>
+	<wait t="20"/>
 </movement>

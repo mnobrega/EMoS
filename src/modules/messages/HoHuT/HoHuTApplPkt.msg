@@ -1,11 +1,23 @@
 cplusplus {{
 	#include "ApplPkt_m.h"
 	#include "Coord.h"
-	typedef std::map<LAddress::L3Type,double> addressRSSIMap_t;
+	typedef struct staticNodeSigsSample
+    {
+        LAddress::L3Type addr;
+        double mean;
+    }staticNodeSigsSample_t;
+    struct staticNodeSigsSampleCompare
+    {
+        bool operator() (staticNodeSigsSample_t* lhs, staticNodeSigsSample_t* rhs)
+        {
+            return lhs->mean > rhs->mean; //mean DESC - static nodes samples are order by desc mean
+        }
+    };
+    typedef std::set<staticNodeSigsSample_t*,staticNodeSigsSampleCompare> staticNodeSigsSamplesSet_t;
 }}
 
 class ApplPkt;
-class noncobject addressRSSIMap_t;
+class noncobject staticNodeSigsSamplesSet_t;
 class Coord extends void;
 class LAddress::L3Type extends void;
 
@@ -17,8 +29,8 @@ message HoHuTApplPkt extends ApplPkt
     
     //mobile msg data
     LAddress::L3Type srcAppAddress; //equal to the netwAddr
-	addressRSSIMap_t collectedRSSIs;
+	staticNodeSigsSamplesSet_t collectedRSSIs;
 	
-	//debug data
+	//stat data
 	Coord realPosition;
 }
