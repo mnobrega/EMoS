@@ -202,8 +202,8 @@ void MobileNodeAppLayerHoHuT::sendCollectedDataToBaseStations()
     debugEV << "preparing to send collected data!" << endl;
 
     addressVec_t::iterator i;
-    staticNodeSigsSamplesSet_t::iterator j;
-    staticNodeSigsSamplesSet_t* collectedData = new staticNodeSigsSamplesSet_t;
+    addressRSSIMap_t::iterator j;
+    addressRSSIMap_t* collectedData = new staticNodeSigsMap_t;
 
     for (unsigned int i=0; i<staticNodeAddrCollected.size();i++)
     {
@@ -219,11 +219,7 @@ void MobileNodeAppLayerHoHuT::sendCollectedDataToBaseStations()
                 stat.collect((*it).second);
             }
 
-            staticNodeSigsSample_t* staticNodeSigsSample = (struct staticNodeSigsSample*) malloc(sizeof(struct staticNodeSigsSample));
-            staticNodeSigsSample->addr = staticNodeAddrCollected[i];
-            staticNodeSigsSample->mean = convertTodBm(stat.getMean());
-            collectedData->insert(staticNodeSigsSample);
-
+            collectedData->insert(std::pair<LAddress::L3Type,double>(staticNodeAddrCollected[i],convertTodBm(stat.getMean())));
             staticNodesRSSITable.erase(staticNodeAddrCollected[i]);
 
             debugEV << "RSSI was collected for node: " << staticNodeAddrCollected[i] << " and will be sent to all available base stations" << endl;
@@ -232,9 +228,21 @@ void MobileNodeAppLayerHoHuT::sendCollectedDataToBaseStations()
 
     if (collectedData->size()>0)
     {
-        j = collectedData->begin();
-        staticNodeSigsSample_t* el = *j;
-        LAddress::L3Type maxRSSIDestAddr = el->addr; //biggest mean addr
+        double maxRSSI;
+        LAddress::L3Type maxRSSIDestAddr = -1;
+        for (j=collectedData->begin();j!=collectedData->end();j++)
+        {
+            if (maxRSSIDestAddr==-1)
+            {
+                maxRSSI = j->second;
+                maxRSSIDestAddr = j->first;
+            }
+            else if (maxRSSI != std::max(maxRSSI,j->second))
+            {
+                maxRSSI = j->second;
+                maxRSSIDestAddr = j->first;
+            }
+        }
 
         HoHuTApplPkt* appPkt = new HoHuTApplPkt("collected-rssi",MOBILE_NODE_MSG);
         appPkt->setSrcAppAddress(myAppAddr);
