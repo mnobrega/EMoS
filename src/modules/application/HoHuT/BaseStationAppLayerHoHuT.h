@@ -49,7 +49,7 @@ class BaseStationAppLayerHoHuT : public BaseApplLayer
         typedef std::map<double,double> normalStandardTable_t;
         normalStandardTable_t normalStandardTable;
 
-        //radio map
+        //RADIO MAP
         typedef struct staticNodePDF
         {
             LAddress::L3Type addr;
@@ -71,12 +71,28 @@ class BaseStationAppLayerHoHuT : public BaseApplLayer
         }radioMapPosition_t;
         typedef std::set<radioMapPosition_t*> radioMapSet_t;
         radioMapSet_t radioMap;
+        unsigned int clusterKeySize;
 
-
-        //clusters - radio map
+        //CLUSTERS
         typedef std::vector<Coord> coordVec_t;
         typedef std::map<addressVec_t*,coordVec_t*> radioMapCluster_t;
         radioMapCluster_t radioMapClusters;
+
+        //COLLECTED NODES
+        typedef struct staticNodeRSSISample
+        {
+            LAddress::L3Type addr;
+            double mean;
+        }staticNodeRSSISample_t;
+        struct staticNodeRSSISampleCompare
+        {
+            bool operator() (staticNodeRSSISample_t* lhs, staticNodeRSSISample_t* rhs)
+            {
+                return lhs->mean>rhs->mean; //mean DESC
+            }
+        };
+        typedef std::set<staticNodeRSSISample*,staticNodeRSSISampleCompare> staticNodeSamplesSet_t;
+        typedef std::map<LAddress::L3Type,double> addressRSSIMap_t;
 
         //METHODS
 		virtual void handleSelfMsg(cMessage *);
@@ -88,11 +104,18 @@ class BaseStationAppLayerHoHuT : public BaseApplLayer
         void loadRadioMapFromXML(cXMLElement*);
         void loadRadioMapClustersFromXML(cXMLElement*);
 
+        //position calculation
+        Coord getNodeLocation(staticNodeSamplesSet_t*);
+        radioMapSet_t* getCandidatePositions(staticNodeSamplesSet_t*);
+        coordVec_t* getCoordSetByClusterKey(addressVec_t* clusterKey);
+
         //not implemented
         virtual void handleUpperMsg(cMessage * m) { delete m; }
         virtual void handleUpperControl(cMessage * m) { delete m; }
 
+        //AUX
         double convertStringToNumber(const std::string&);
+        staticNodeSamplesSet_t* getOrderedCollectedRSSIs(addressRSSIMap_t*);
 };
 
 #endif // BASE_STATION_APP_LAYER_H

@@ -88,10 +88,104 @@ void BaseStationAppLayerHoHuT::handleMobileNodeMsg(cMessage* msg)
     debugEV << "Received a node msg from mobile node with appAddr: " << applPkt->getSrcAppAddress() << endl;
     debugEV << "msg data:" << applPkt->getPayload() << endl;
 
+    staticNodeSamplesSet_t* collectedRSSIs = getOrderedCollectedRSSIs(static_cast<addressRSSIMap_t*>(&(applPkt->getCollectedRSSIs())));
+    Coord mobileNodePosition = getNodeLocation(collectedRSSIs);
 
     delete msg;
 }
 
+//LOCALIZATION
+Coord BaseStationAppLayerHoHuT::getNodeLocation(staticNodeSamplesSet_t* staticNodeSamples)
+{
+    radioMapSet_t::iterator position;
+    staticNodesPDFSet_t::iterator staticNodePDF;
+    radioMapSet_t* candidatePositions = getCandidatePositions(staticNodeSamples);
+
+    for (position=candidatePositions->begin(); position!=candidatePositions->end();position++)
+    {
+        radioMapPosition_t* rMapPosition = *position;
+        Coord curCoord = rMapPosition->pos;
+        staticNodesPDFSet_t* staticNodesPDFs = rMapPosition->staticNodesPDFSet;
+        for (staticNodePDF=staticNodesPDFs->begin(); staticNodePDF!=staticNodesPDFs->end();staticNodePDF++)
+        {
+            //TODO - for each staticNodePDF calculate the P
+
+            //if P > max then x=l and max=p
+        }
+    }
+}
+BaseStationAppLayerHoHuT::radioMapSet_t* BaseStationAppLayerHoHuT::getCandidatePositions(staticNodeSamplesSet_t* staticNodeSamples)
+{
+    if (useClustering)
+    {
+        staticNodeSamplesSet_t::iterator nodeSample;
+        unsigned int nodeNumber = 0;
+        addressVec_t* sampleKey = new addressVec_t;
+        for (nodeSample=staticNodeSamples->begin();nodeSample!=staticNodeSamples->end() && nodeNumber < clusterKeySize; nodeSample++)
+        {
+            sampleKey->push_back((*nodeSample)->addr);
+            nodeNumber++;
+        }
+
+        coordVec_t* clusterPositions = getCoordSetByClusterKey(sampleKey);
+        if (clusterPositions!=NULL)
+        {
+            radioMapSet_t* candidatePositions = new radioMapSet_t;
+            radioMapSet_t::iterator rMapPos;
+            coordVec_t::iterator coord;
+            for (coord=clusterPositions->begin();coord!=clusterPositions->end();coord++)
+            {
+                Coord pos = *coord;
+                for (rMapPos=radioMap.begin(); rMapPos!=radioMap.end();rMapPos++)
+                {
+                    radioMapPosition_t* radioMapPosition = *rMapPos;
+                    if (radioMapPosition->pos==pos)
+                    {
+                        candidatePositions->insert(radioMapPosition);
+                    }
+                }
+            }
+            return candidatePositions;
+        }
+        else
+        {
+            error("Radio map has no information for the specified key. This shouldnt happen.");
+        }
+    }
+    return &radioMap;
+}
+BaseStationAppLayerHoHuT::coordVec_t* BaseStationAppLayerHoHuT::getCoordSetByClusterKey(addressVec_t* clusterKey)
+{
+    radioMapCluster_t::iterator it;
+    addressVec_t* cKey;
+    addressVec_t::iterator it2;
+    addressVec_t::iterator it3;
+    unsigned int numFound;
+
+    for (it=radioMapClusters.begin();it!=radioMapClusters.end();it++)
+    {
+        cKey = it->first;
+        numFound=0;
+        for (it2=clusterKey->begin(); it2!=clusterKey->end();it2++)
+        {
+            for (it3=cKey->begin(); it3!=cKey->end(); it3++)
+            {
+                if (*it2==*it3)
+                {
+                    numFound++;
+                }
+            }
+        }
+        if (numFound==clusterKey->size())
+        {
+            return it->second;
+        }
+    }
+    return NULL;
+}
+
+
+//XML FILES
 void BaseStationAppLayerHoHuT::loadNormalStandard(cXMLElement* xml)
 {
     cXMLElementList::const_iterator row;
@@ -178,6 +272,8 @@ void BaseStationAppLayerHoHuT::loadRadioMapClustersFromXML(cXMLElement* xml)
     std::string rootTag = xml->getTagName();
     ASSERT(rootTag=="radioMapClusters");
 
+    clusterKeySize = convertStringToNumber(xml->getAttribute("clusterKeySize"));
+
     cXMLElementList clusters = xml->getChildren();
     for (i=clusters.begin();i!=clusters.end();++i)
     {
@@ -217,6 +313,21 @@ void BaseStationAppLayerHoHuT::loadRadioMapClustersFromXML(cXMLElement* xml)
     }
 }
 
+//AUX
+BaseStationAppLayerHoHuT::staticNodeSamplesSet_t* BaseStationAppLayerHoHuT::getOrderedCollectedRSSIs(addressRSSIMap_t* appPktCollectedRSSIs)
+{
+    addressRSSIMap_t::iterator i;
+    staticNodeSamplesSet_t* orderedCollectedRSSIs = new staticNodeSamplesSet_t;
+
+    for (i=appPktCollectedRSSIs->begin();i!=appPktCollectedRSSIs->end();i++)
+    {
+        staticNodeRSSISample_t* staticNodePDF = (struct staticNodeRSSISample*) malloc(sizeof(struct staticNodeRSSISample));
+        staticNodePDF->addr = i->first;
+        staticNodePDF->mean = i->second;
+        orderedCollectedRSSIs->insert(staticNodePDF);
+    }
+    return orderedCollectedRSSIs;
+}
 double BaseStationAppLayerHoHuT::convertStringToNumber(const std::string& str)
 {
     std::istringstream i(str);
