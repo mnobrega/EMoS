@@ -90,7 +90,7 @@ void MobileNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
     switch(msg->getKind())
     {
         case SEND_COLLECTED_DATA_TIMER:
-            sendCollectedDataToBaseStations();
+            sendCollectedDataToClosestStaticNode();
             break;
         default:
             error ("Unknown msg kind");
@@ -214,7 +214,7 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
     delete msg;
     debugEV << "samples available for node: " << staticNodesRSSITable.count(srcAddress) << endl;
 }
-void MobileNodeAppLayerHoHuT::sendCollectedDataToBaseStations()
+void MobileNodeAppLayerHoHuT::sendCollectedDataToClosestStaticNode()
 {
     debugEV << "preparing to send collected data!" << endl;
 
@@ -239,7 +239,7 @@ void MobileNodeAppLayerHoHuT::sendCollectedDataToBaseStations()
             collectedData->insert(std::pair<LAddress::L3Type,double>(staticNodeAddrCollected[i],convertTodBm(stat.getMean())));
             staticNodesRSSITable.erase(staticNodeAddrCollected[i]);
 
-            debugEV << "RSSI was collected for node: " << staticNodeAddrCollected[i] << " and will be sent to all available base stations" << endl;
+            debugEV << "RSSI was collected for node: " << staticNodeAddrCollected[i] << " and will be sent to closest static node" << endl;
         }
     }
 

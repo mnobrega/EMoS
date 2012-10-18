@@ -117,7 +117,7 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
 
         //static node sigs handling
         void handleLowerStaticNodeSig (cMessage *);
-        void sendCollectedDataToBaseStations();
+        void sendCollectedDataToClosestStaticNode();
         void sendMobileNodeMsg(char*,LAddress::L3Type);
         bool hasCollectedNode(LAddress::L3Type);
 
