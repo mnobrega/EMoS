@@ -12,6 +12,8 @@
 #include "ApplPkt_m.h"
 #include "Coord.h"
 #include <sstream>
+#include <iostream>
+#include <iomanip>
 
 class BaseStationAppLayerHoHuT : public BaseApplLayer
 {
@@ -45,7 +47,7 @@ class BaseStationAppLayerHoHuT : public BaseApplLayer
 
         typedef std::vector<LAddress::L3Type> addressVec_t;
 
-        //standard cumulative normal distribution
+        //STANDARD NORMAL DISTRIB
         typedef std::map<double,double> normalStandardTable_t;
         normalStandardTable_t normalStandardTable;
 
@@ -79,6 +81,7 @@ class BaseStationAppLayerHoHuT : public BaseApplLayer
         radioMapCluster_t radioMapClusters;
 
         //COLLECTED NODES
+        unsigned int maxPositionPDFsSize;
         typedef struct staticNodeRSSISample
         {
             LAddress::L3Type addr;
@@ -116,6 +119,7 @@ class BaseStationAppLayerHoHuT : public BaseApplLayer
         //AUX
         double convertStringToNumber(const std::string&);
         staticNodeSamplesSet_t* getOrderedCollectedRSSIs(addressRSSIMap_t*);
+        double roundNumber(double, int);
 };
 
 #endif // BASE_STATION_APP_LAYER_H

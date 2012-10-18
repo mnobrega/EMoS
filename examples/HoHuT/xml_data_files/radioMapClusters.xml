@@ -1,765 +1,492 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<radioMapClusters clusterKeySize="1">
+<radioMapClusters clusterKeySize="2">
   <cluster>
     <clusterKey>
       <staticNode address="1000"/>
+      <staticNode address="1001"/>
     </clusterKey>
     <position x="2" y="2"/>
     <position x="3" y="2"/>
     <position x="4" y="2"/>
     <position x="5" y="2"/>
-    <position x="7" y="2"/>
-    <position x="9" y="2"/>
-    <position x="7.5" y="7.5"/>
-    <position x="6.5" y="7.5"/>
-    <position x="5.5" y="7.5"/>
-    <position x="2.5" y="7.5"/>
-    <position x="2" y="9"/>
-    <position x="4.5" y="7.5"/>
-    <position x="2.5" y="7.5"/>
-    <position x="2" y="6"/>
-    <position x="2" y="5"/>
-    <position x="2" y="4"/>
-    <position x="2" y="3"/>
-    <position x="2" y="2"/>
-    <position x="3" y="2"/>
-    <position x="4" y="2"/>
-    <position x="5" y="2"/>
     <position x="6" y="2"/>
     <position x="7" y="2"/>
     <position x="8" y="2"/>
-    <position x="4.5" y="7.5"/>
-    <position x="2" y="8"/>
-    <position x="8.5" y="7.5"/>
-    <position x="6.5" y="7.5"/>
-    <position x="2.5" y="7.5"/>
-    <position x="2" y="7"/>
-    <position x="2" y="6"/>
-    <position x="2" y="5"/>
-    <position x="2" y="!"/>
-    <position x="2" y="3"/>
-    <position x="2" y="2"/>
-    <position x="3" y="2"/>
-    <position x="4" y="2"/>
-    <position x="5" y="2"/>
-    <position x="6" y="2"/>
-    <position x="7" y="2"/>
-    <position x="8" y="2"/>
-    <position x="6.5" y="7.5"/>
-    <position x="3.5" y="7.5"/>
-    <position x="7.5" y="7.5"/>
-    <position x="5.5" y="7.5"/>
-    <position x="4.5" y="7.5"/>
-    <position x="3.5" y="7.5"/>
-    <position x="2" y="6"/>
-    <position x="2" y="5"/>
+    <position x="7" y="4"/>
+    <position x="6" y="4"/>
+    <position x="5" y="4"/>
+    <position x="4" y="4"/>
+    <position x="3" y="4"/>
     <position x="2" y="4"/>
-    <position x="2" y="3"/>
-    <position x="2" y="2"/>
-    <position x="3" y="2"/>
-    <position x="4" y="2"/>
-    <position x="5" y="2"/>
-    <position x="6.5" y="7.5"/>
-    <position x="5.5" y="7.5"/>
-    <position x="4.5" y="7.5"/>
-    <position x="3.5" y="7.5"/>
-    <position x="2" y="8"/>
+    <position x="2" y="6"/>
+    <position x="3" y="6"/>
+    <position x="4" y="6"/>
+    <position x="5" y="6"/>
+    <position x="6" y="6"/>
+    <position x="7" y="6"/>
   </cluster>
   <cluster>
     <clusterKey>
       <staticNode address="1001"/>
+      <staticNode address="1002"/>
     </clusterKey>
-    <position x="6" y="2"/>
-    <position x="8" y="2"/>
-    <position x="10" y="2"/>
-    <position x="11" y="2"/>
-    <position x="12" y="2"/>
-    <position x="13" y="2"/>
-    <position x="14" y="2"/>
-    <position x="15" y="2"/>
-    <position x="16" y="2"/>
-    <position x="17" y="2"/>
-    <position x="18" y="2"/>
-    <position x="17.5" y="7.5"/>
-    <position x="16.5" y="7.5"/>
-    <position x="15.5" y="7.5"/>
-    <position x="14.5" y="7.5"/>
-    <position x="13.5" y="7.5"/>
-    <position x="12.5" y="7.5"/>
-    <position x="8.5" y="7.5"/>
-    <position x="22.5" y="7.5"/>
-    <position x="20.5" y="7.5"/>
-    <position x="18.5" y="7.5"/>
-    <position x="16.5" y="7.5"/>
-    <position x="12.5" y="7.5"/>
-    <position x="10.5" y="7.5"/>
-    <position x="8.5" y="7.5"/>
     <position x="9" y="2"/>
     <position x="10" y="2"/>
     <position x="11" y="2"/>
     <position x="12" y="2"/>
-    <position x="13" y="2"/>
-    <position x="14" y="2"/>
-    <position x="15" y="2"/>
-    <position x="16" y="2"/>
-    <position x="18" y="2"/>
-    <position x="19" y="2"/>
-    <position x="20.5" y="7.5"/>
-    <position x="16.5" y="7.5"/>
-    <position x="15.5" y="7.5"/>
-    <position x="14.5" y="7.5"/>
-    <position x="13.5" y="7.5"/>
-    <position x="11.5" y="7.5"/>
-    <position x="10.5" y="7.5"/>
-    <position x="18.5" y="7.5"/>
-    <position x="16.5" y="7.5"/>
-    <position x="15.5" y="7.5"/>
-    <position x="14.5" y="7.5"/>
-    <position x="13.5" y="7.5"/>
-    <position x="12.5" y="7.5"/>
-    <position x="11.5" y="7.5"/>
-    <position x="9.5" y="7.5"/>
-    <position x="9" y="2"/>
-    <position x="10" y="2"/>
-    <position x="11" y="2"/>
-    <position x="12" y="2"/>
-    <position x="13" y="2"/>
-    <position x="14" y="2"/>
-    <position x="15" y="2"/>
-    <position x="16" y="2"/>
-    <position x="17" y="2"/>
-    <position x="18" y="2"/>
-    <position x="21" y="2"/>
-    <position x="20.5" y="7.5"/>
-    <position x="18.5" y="7.5"/>
-    <position x="17.5" y="7.5"/>
-    <position x="14.5" y="7.5"/>
-    <position x="13.5" y="7.5"/>
-    <position x="12.5" y="7.5"/>
-    <position x="11.5" y="7.5"/>
-    <position x="10.5" y="7.5"/>
-    <position x="9.5" y="7.5"/>
-    <position x="17.5" y="7.5"/>
-    <position x="15.5" y="7.5"/>
-    <position x="13.5" y="7.5"/>
-    <position x="11.5" y="7.5"/>
-    <position x="9.5" y="7.5"/>
-    <position x="8.5" y="7.5"/>
-    <position x="7" y="2"/>
-    <position x="8" y="2"/>
-    <position x="9" y="2"/>
-    <position x="10" y="2"/>
-    <position x="11" y="2"/>
-    <position x="12" y="2"/>
-    <position x="13" y="2"/>
-    <position x="14" y="2"/>
-    <position x="15" y="2"/>
-    <position x="16" y="2"/>
-    <position x="17" y="2"/>
-    <position x="18" y="2"/>
-    <position x="20.5" y="7.5"/>
-    <position x="13.5" y="7.5"/>
-    <position x="12.5" y="7.5"/>
-    <position x="11.5" y="7.5"/>
+    <position x="13" y="4"/>
+    <position x="12" y="4"/>
+    <position x="11" y="4"/>
+    <position x="10" y="4"/>
+    <position x="9" y="4"/>
+    <position x="9" y="6"/>
+    <position x="10" y="6"/>
+    <position x="11" y="6"/>
+    <position x="12" y="6"/>
+    <position x="12" y="8"/>
+    <position x="10" y="8"/>
   </cluster>
   <cluster>
     <clusterKey>
       <staticNode address="1002"/>
+      <staticNode address="1003"/>
     </clusterKey>
-    <position x="19" y="2"/>
-    <position x="20" y="2"/>
-    <position x="21" y="2"/>
-    <position x="22" y="2"/>
-    <position x="23" y="2"/>
-    <position x="24" y="2"/>
-    <position x="24" y="3"/>
-    <position x="24" y="4"/>
-    <position x="24" y="5"/>
-    <position x="24" y="7"/>
-    <position x="23.5" y="7.5"/>
-    <position x="21.5" y="7.5"/>
-    <position x="19.5" y="7.5"/>
-    <position x="18.5" y="7.5"/>
-    <position x="23.5" y="7.5"/>
-    <position x="21.5" y="7.5"/>
-    <position x="19.5" y="7.5"/>
-    <position x="17" y="2"/>
-    <position x="20" y="2"/>
-    <position x="21" y="2"/>
-    <position x="22" y="2"/>
-    <position x="23" y="2"/>
-    <position x="24" y="2"/>
-    <position x="24" y="3"/>
-    <position x="24" y="4"/>
-    <position x="24" y="5"/>
-    <position x="24" y="6"/>
-    <position x="24" y="7"/>
-    <position x="18.5" y="7.5"/>
-    <position x="17.5" y="7.5"/>
-    <position x="24" y="9"/>
-    <position x="24" y="8"/>
-    <position x="20.5" y="7.5"/>
-    <position x="19" y="2"/>
-    <position x="20" y="2"/>
-    <position x="22" y="2"/>
-    <position x="23" y="2"/>
-    <position x="24" y="2"/>
-    <position x="24" y="3"/>
-    <position x="24" y="4"/>
-    <position x="24" y="5"/>
-    <position x="24" y="6"/>
-    <position x="24" y="7"/>
-    <position x="23.5" y="7.5"/>
-    <position x="22.5" y="7.5"/>
-    <position x="21.5" y="7.5"/>
-    <position x="24" y="8"/>
-    <position x="21.5" y="7.5"/>
-    <position x="19.5" y="7.5"/>
-    <position x="16.5" y="7.5"/>
-    <position x="19" y="2"/>
-    <position x="20" y="2"/>
-    <position x="21" y="2"/>
-    <position x="22" y="2"/>
-    <position x="23" y="2"/>
-    <position x="24" y="2"/>
-    <position x="24" y="3"/>
-    <position x="24" y="4"/>
-    <position x="24" y="5"/>
-    <position x="24" y="6"/>
-    <position x="24" y="7"/>
-    <position x="23.5" y="7.5"/>
-    <position x="21.5" y="7.5"/>
-    <position x="19.5" y="7.5"/>
-    <position x="17.5" y="7.5"/>
-  </cluster>
-  <cluster>
-    <clusterKey>
-      <staticNode address="1005"/>
-    </clusterKey>
-    <position x="24" y="6"/>
-    <position x="22.5" y="7.5"/>
-    <position x="20.5" y="7.5"/>
-    <position x="18" y="13"/>
-    <position x="19" y="13"/>
-    <position x="20" y="13"/>
-    <position x="21" y="13"/>
-    <position x="22" y="13"/>
-    <position x="23" y="13"/>
-    <position x="24" y="13"/>
-    <position x="24" y="14"/>
-    <position x="24" y="15"/>
-    <position x="24" y="16"/>
-    <position x="24" y="17"/>
-    <position x="22.5" y="18.5"/>
-    <position x="18.5" y="18.5"/>
-    <position x="20.5" y="18.5"/>
-    <position x="19.5" y="18.5"/>
-    <position x="18" y="13"/>
-    <position x="19" y="13"/>
-    <position x="20" y="13"/>
-    <position x="21" y="13"/>
-    <position x="22" y="13"/>
-    <position x="23" y="13"/>
-    <position x="24" y="13"/>
-    <position x="24" y="12"/>
-    <position x="24" y="11"/>
-    <position x="24" y="10"/>
-    <position x="24" y="9"/>
-    <position x="24" y="8"/>
-    <position x="23.5" y="7.5"/>
-    <position x="21.5" y="7.5"/>
-    <position x="19.5" y="7.5"/>
-    <position x="20" y="13"/>
-    <position x="21" y="13"/>
-    <position x="22" y="13"/>
-    <position x="23" y="13"/>
-    <position x="24" y="13"/>
-    <position x="24" y="14"/>
-    <position x="24" y="15"/>
-    <position x="24" y="16"/>
-    <position x="24" y="17"/>
-    <position x="23.5" y="18.5"/>
-    <position x="22.5" y="18.5"/>
-    <position x="21.5" y="18.5"/>
-    <position x="18.5" y="18.5"/>
-    <position x="24" y="19"/>
-    <position x="22.5" y="18.5"/>
-    <position x="15.5" y="18.5"/>
-    <position x="15" y="13"/>
-    <position x="19" y="13"/>
-    <position x="20" y="13"/>
-    <position x="21" y="13"/>
-    <position x="22" y="13"/>
-    <position x="23" y="13"/>
-    <position x="24" y="13"/>
-    <position x="24" y="12"/>
-    <position x="24" y="11"/>
-    <position x="24" y="10"/>
-    <position x="23.5" y="7.5"/>
-    <position x="22.5" y="7.5"/>
-    <position x="21.5" y="7.5"/>
-    <position x="19.5" y="7.5"/>
-    <position x="18" y="13"/>
-    <position x="19" y="13"/>
-    <position x="20" y="13"/>
-    <position x="21" y="13"/>
-    <position x="22" y="13"/>
-    <position x="23" y="13"/>
-    <position x="24" y="13"/>
-    <position x="24" y="14"/>
-    <position x="24" y="15"/>
-    <position x="24" y="16"/>
-    <position x="24" y="17"/>
-    <position x="23.5" y="18.5"/>
-    <position x="20.5" y="18.5"/>
-    <position x="23.5" y="18.5"/>
-    <position x="21.5" y="18.5"/>
-    <position x="18.5" y="18.5"/>
-    <position x="16.5" y="18.5"/>
-    <position x="15.5" y="18.5"/>
-    <position x="17" y="13"/>
-    <position x="20" y="13"/>
-    <position x="21" y="13"/>
-    <position x="22" y="13"/>
-    <position x="23" y="13"/>
-    <position x="24" y="13"/>
-    <position x="24" y="12"/>
-    <position x="24" y="11"/>
-    <position x="24" y="10"/>
-    <position x="24" y="9"/>
-    <position x="23.5" y="7.5"/>
-    <position x="22.5" y="7.5"/>
-    <position x="20.5" y="7.5"/>
-    <position x="18.5" y="7.5"/>
-    <position x="22.5" y="7.5"/>
-  </cluster>
-  <cluster>
-    <clusterKey>
-      <staticNode address="1004"/>
-    </clusterKey>
-    <position x="11.5" y="7.5"/>
-    <position x="6" y="13"/>
-    <position x="7" y="13"/>
-    <position x="8" y="13"/>
-    <position x="9" y="13"/>
-    <position x="10" y="13"/>
-    <position x="11" y="13"/>
-    <position x="12" y="13"/>
-    <position x="13" y="13"/>
-    <position x="14" y="13"/>
-    <position x="15" y="13"/>
-    <position x="16" y="13"/>
-    <position x="17" y="13"/>
-    <position x="16.5" y="18.5"/>
-    <position x="15.5" y="18.5"/>
-    <position x="14.5" y="18.5"/>
-    <position x="11.5" y="18.5"/>
-    <position x="17.5" y="18.5"/>
-    <position x="16.5" y="18.5"/>
-    <position x="13.5" y="18.5"/>
-    <position x="12.5" y="18.5"/>
-    <position x="9.5" y="18.5"/>
-    <position x="7.5" y="18.5"/>
-    <position x="6" y="13"/>
-    <position x="7" y="13"/>
-    <position x="10" y="13"/>
-    <position x="11" y="13"/>
-    <position x="12" y="13"/>
-    <position x="13" y="13"/>
-    <position x="14" y="13"/>
-    <position x="15" y="13"/>
-    <position x="16" y="13"/>
-    <position x="17" y="13"/>
-    <position x="17.5" y="7.5"/>
-    <position x="15.5" y="7.5"/>
-    <position x="14.5" y="7.5"/>
-    <position x="13.5" y="7.5"/>
-    <position x="11.5" y="7.5"/>
-    <position x="22.5" y="7.5"/>
-    <position x="12.5" y="7.5"/>
-    <position x="8.5" y="7.5"/>
-    <position x="7.5" y="7.5"/>
-    <position x="9" y="13"/>
-    <position x="11" y="13"/>
-    <position x="12" y="13"/>
-    <position x="13" y="13"/>
-    <position x="14" y="13"/>
-    <position x="15" y="13"/>
-    <position x="16" y="13"/>
-    <position x="17" y="13"/>
-    <position x="19" y="13"/>
-    <position x="19.5" y="18.5"/>
-    <position x="14.5" y="18.5"/>
-    <position x="13.5" y="18.5"/>
-    <position x="12.5" y="18.5"/>
-    <position x="7.5" y="18.5"/>
-    <position x="13.5" y="18.5"/>
-    <position x="12.5" y="18.5"/>
-    <position x="11.5" y="18.5"/>
-    <position x="10.5" y="18.5"/>
-    <position x="9.5" y="18.5"/>
-    <position x="8" y="13"/>
-    <position x="10" y="13"/>
-    <position x="11" y="13"/>
-    <position x="12" y="13"/>
-    <position x="13" y="13"/>
-    <position x="14" y="13"/>
-    <position x="16" y="13"/>
-    <position x="17" y="13"/>
-    <position x="17.5" y="7.5"/>
-    <position x="10.5" y="7.5"/>
-    <position x="7.5" y="7.5"/>
-    <position x="19.5" y="7.5"/>
-    <position x="16.5" y="7.5"/>
-    <position x="15.5" y="7.5"/>
-    <position x="7.5" y="7.5"/>
-    <position x="8" y="13"/>
-    <position x="9" y="13"/>
-    <position x="10" y="13"/>
-    <position x="11" y="13"/>
-    <position x="12" y="13"/>
-    <position x="13" y="13"/>
-    <position x="14" y="13"/>
-    <position x="15" y="13"/>
-    <position x="16" y="13"/>
-    <position x="17" y="13"/>
-    <position x="15.5" y="18.5"/>
-    <position x="13.5" y="18.5"/>
-    <position x="11.5" y="18.5"/>
-    <position x="9.5" y="18.5"/>
-    <position x="8.5" y="18.5"/>
-    <position x="6.5" y="18.5"/>
-    <position x="4.5" y="18.5"/>
-    <position x="13.5" y="18.5"/>
-    <position x="3" y="13"/>
-    <position x="8" y="13"/>
-    <position x="9" y="13"/>
-    <position x="10" y="13"/>
-    <position x="11" y="13"/>
-    <position x="12" y="13"/>
-    <position x="13" y="13"/>
-    <position x="14" y="13"/>
-    <position x="15" y="13"/>
-    <position x="16" y="13"/>
-    <position x="18" y="13"/>
-    <position x="19" y="13"/>
-    <position x="14.5" y="7.5"/>
-    <position x="12.5" y="7.5"/>
-    <position x="18.5" y="7.5"/>
-    <position x="16.5" y="7.5"/>
-    <position x="15.5" y="7.5"/>
-    <position x="14.5" y="7.5"/>
-    <position x="10.5" y="7.5"/>
-    <position x="9.5" y="7.5"/>
+    <position x="13" y="2"/>
+    <position x="14" y="2"/>
+    <position x="15" y="2"/>
+    <position x="16" y="2"/>
+    <position x="18" y="2"/>
+    <position x="18" y="4"/>
+    <position x="17" y="4"/>
+    <position x="16" y="4"/>
+    <position x="15" y="4"/>
+    <position x="14" y="4"/>
+    <position x="13" y="6"/>
+    <position x="14" y="6"/>
+    <position x="15" y="6"/>
+    <position x="16" y="6"/>
+    <position x="16" y="8"/>
   </cluster>
   <cluster>
     <clusterKey>
       <staticNode address="1003"/>
+      <staticNode address="1004"/>
     </clusterKey>
-    <position x="10.5" y="7.5"/>
-    <position x="9.5" y="7.5"/>
-    <position x="4.5" y="7.5"/>
-    <position x="3.5" y="7.5"/>
-    <position x="2" y="8"/>
-    <position x="2" y="10"/>
-    <position x="2" y="11"/>
-    <position x="2" y="12"/>
-    <position x="3" y="13"/>
-    <position x="4" y="13"/>
-    <position x="5" y="13"/>
-    <position x="2.5" y="18.5"/>
-    <position x="2" y="24"/>
-    <position x="8.5" y="18.5"/>
-    <position x="6.5" y="18.5"/>
-    <position x="5.5" y="18.5"/>
-    <position x="2" y="18"/>
-    <position x="2" y="16"/>
-    <position x="2" y="15"/>
-    <position x="2" y="14"/>
-    <position x="2" y="13"/>
-    <position x="3" y="13"/>
-    <position x="4" y="13"/>
-    <position x="5" y="13"/>
-    <position x="8" y="13"/>
-    <position x="9" y="13"/>
-    <position x="9.5" y="7.5"/>
-    <position x="7.5" y="7.5"/>
-    <position x="6.5" y="7.5"/>
-    <position x="5.5" y="7.5"/>
-    <position x="3.5" y="7.5"/>
-    <position x="2" y="7"/>
-    <position x="9.5" y="7.5"/>
-    <position x="6.5" y="7.5"/>
-    <position x="5.5" y="7.5"/>
-    <position x="3.5" y="7.5"/>
-    <position x="2.5" y="7.5"/>
-    <position x="2" y="9"/>
-    <position x="2" y="10"/>
-    <position x="2" y="11"/>
-    <position x="2" y="12"/>
-    <position x="2" y="13"/>
-    <position x="3" y="13"/>
-    <position x="4" y="13"/>
-    <position x="5" y="13"/>
-    <position x="6" y="13"/>
-    <position x="7" y="13"/>
-    <position x="8" y="13"/>
-    <position x="10" y="13"/>
-    <position x="5.5" y="18.5"/>
-    <position x="4.5" y="18.5"/>
-    <position x="2" y="17"/>
-    <position x="2" y="16"/>
-    <position x="2" y="15"/>
-    <position x="2" y="14"/>
-    <position x="2" y="13"/>
-    <position x="3" y="13"/>
-    <position x="4" y="13"/>
-    <position x="5" y="13"/>
-    <position x="6" y="13"/>
-    <position x="7" y="13"/>
-    <position x="9" y="13"/>
-    <position x="5.5" y="7.5"/>
-    <position x="4.5" y="7.5"/>
-    <position x="3.5" y="7.5"/>
-    <position x="8.5" y="7.5"/>
-    <position x="5.5" y="7.5"/>
-    <position x="4.5" y="7.5"/>
-    <position x="2.5" y="7.5"/>
-    <position x="2" y="8"/>
-    <position x="2" y="9"/>
-    <position x="2" y="10"/>
-    <position x="2" y="11"/>
-    <position x="2" y="12"/>
-    <position x="2" y="13"/>
-    <position x="3" y="13"/>
-    <position x="4" y="13"/>
-    <position x="5" y="13"/>
-    <position x="6" y="13"/>
-    <position x="7" y="13"/>
-    <position x="5.5" y="18.5"/>
-    <position x="3.5" y="18.5"/>
-    <position x="2.5" y="18.5"/>
-    <position x="5.5" y="18.5"/>
-    <position x="3.5" y="18.5"/>
-    <position x="2.5" y="18.5"/>
-    <position x="2" y="16"/>
-    <position x="2" y="15"/>
-    <position x="2" y="14"/>
-    <position x="2" y="13"/>
-    <position x="4" y="13"/>
-    <position x="5" y="13"/>
-    <position x="6" y="13"/>
-    <position x="7" y="13"/>
-    <position x="10.5" y="7.5"/>
-    <position x="6.5" y="7.5"/>
-    <position x="2.5" y="7.5"/>
-    <position x="2" y="7"/>
-    <position x="6" y="2"/>
-    <position x="8.5" y="7.5"/>
-    <position x="7.5" y="7.5"/>
-    <position x="2.5" y="7.5"/>
-    <position x="2" y="9"/>
-    <position x="2" y="10"/>
-    <position x="2" y="11"/>
-    <position x="2" y="12"/>
-    <position x="2" y="13"/>
-    <position x="3" y="13"/>
-    <position x="4" y="13"/>
-    <position x="5" y="13"/>
+    <position x="17" y="2"/>
+    <position x="19" y="2"/>
+    <position x="20" y="2"/>
+    <position x="21" y="2"/>
+    <position x="22" y="2"/>
+    <position x="23" y="2"/>
+    <position x="24" y="2"/>
+    <position x="24" y="3"/>
+    <position x="24" y="4"/>
+    <position x="23" y="4"/>
+    <position x="22" y="4"/>
+    <position x="21" y="4"/>
+    <position x="20" y="4"/>
+    <position x="19" y="4"/>
+    <position x="17" y="6"/>
+    <position x="18" y="6"/>
+    <position x="19" y="6"/>
+    <position x="20" y="6"/>
+    <position x="21" y="6"/>
+    <position x="22" y="6"/>
+    <position x="23" y="6"/>
+    <position x="24" y="6"/>
+    <position x="19" y="8"/>
   </cluster>
   <cluster>
     <clusterKey>
+      <staticNode address="1000"/>
       <staticNode address="1006"/>
     </clusterKey>
-    <position x="2" y="13"/>
-    <position x="7.5" y="18.5"/>
-    <position x="6.5" y="18.5"/>
-    <position x="5.5" y="18.5"/>
-    <position x="4.5" y="18.5"/>
-    <position x="3.5" y="18.5"/>
-    <position x="2" y="19"/>
-    <position x="2" y="20"/>
-    <position x="2" y="21"/>
-    <position x="2" y="22"/>
-    <position x="2" y="23"/>
-    <position x="3" y="24"/>
-    <position x="4" y="24"/>
-    <position x="5" y="24"/>
-    <position x="6" y="24"/>
-    <position x="7" y="24"/>
-    <position x="8" y="24"/>
-    <position x="4.5" y="18.5"/>
-    <position x="3.5" y="18.5"/>
-    <position x="2.5" y="18.5"/>
-    <position x="2" y="17"/>
-    <position x="8.5" y="18.5"/>
-    <position x="6.5" y="18.5"/>
-    <position x="5.5" y="18.5"/>
-    <position x="3.5" y="18.5"/>
-    <position x="2.5" y="18.5"/>
-    <position x="2" y="19"/>
-    <position x="2" y="20"/>
-    <position x="2" y="21"/>
-    <position x="2" y="22"/>
-    <position x="2" y="23"/>
-    <position x="2" y="24"/>
-    <position x="3" y="24"/>
-    <position x="4" y="24"/>
-    <position x="5" y="24"/>
-    <position x="7" y="24"/>
-    <position x="8" y="24"/>
-    <position x="7.5" y="18.5"/>
-    <position x="6.5" y="18.5"/>
-    <position x="3.5" y="18.5"/>
-    <position x="2.5" y="18.5"/>
-    <position x="2" y="18"/>
-    <position x="2" y="19"/>
-    <position x="2" y="20"/>
-    <position x="2" y="21"/>
-    <position x="2" y="22"/>
-    <position x="2" y="23"/>
-    <position x="2" y="24"/>
-    <position x="3" y="24"/>
-    <position x="4" y="24"/>
-    <position x="5" y="24"/>
-    <position x="6" y="24"/>
-    <position x="7" y="24"/>
-    <position x="8" y="24"/>
-    <position x="9.5" y="18.5"/>
-    <position x="6.5" y="18.5"/>
-    <position x="4.5" y="18.5"/>
-    <position x="2" y="18"/>
-    <position x="2" y="17"/>
+    <position x="2" y="5"/>
+    <position x="8" y="6"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1001"/>
+      <staticNode address="1007"/>
+    </clusterKey>
+    <position x="8" y="4"/>
+    <position x="15" y="8"/>
+    <position x="11" y="8"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1009"/>
+      <staticNode address="1007"/>
+    </clusterKey>
+    <position x="22" y="12"/>
   </cluster>
   <cluster>
     <clusterKey>
       <staticNode address="1008"/>
+      <staticNode address="1004"/>
     </clusterKey>
-    <position x="24" y="18"/>
-    <position x="23.5" y="18.5"/>
-    <position x="21.5" y="18.5"/>
-    <position x="20.5" y="18.5"/>
-    <position x="19.5" y="18.5"/>
-    <position x="17.5" y="18.5"/>
-    <position x="18" y="24"/>
-    <position x="19" y="24"/>
-    <position x="20" y="24"/>
-    <position x="21" y="24"/>
-    <position x="22" y="24"/>
-    <position x="23" y="24"/>
-    <position x="24" y="24"/>
-    <position x="24" y="23"/>
-    <position x="24" y="22"/>
-    <position x="24" y="21"/>
-    <position x="24" y="20"/>
-    <position x="24" y="19"/>
-    <position x="23.5" y="18.5"/>
-    <position x="22.5" y="18.5"/>
-    <position x="21.5" y="18.5"/>
-    <position x="18.5" y="18.5"/>
-    <position x="24" y="18"/>
-    <position x="20.5" y="18.5"/>
-    <position x="19" y="24"/>
-    <position x="20" y="24"/>
-    <position x="21" y="24"/>
-    <position x="22" y="24"/>
-    <position x="23" y="24"/>
-    <position x="24" y="24"/>
-    <position x="24" y="23"/>
-    <position x="24" y="22"/>
-    <position x="24" y="21"/>
-    <position x="24" y="20"/>
-    <position x="23.5" y="18.5"/>
-    <position x="20.5" y="18.5"/>
-    <position x="19.5" y="18.5"/>
-    <position x="18.5" y="18.5"/>
-    <position x="18" y="13"/>
-    <position x="24" y="18"/>
-    <position x="22.5" y="18.5"/>
-    <position x="19.5" y="18.5"/>
-    <position x="18.5" y="18.5"/>
-    <position x="17" y="24"/>
-    <position x="18" y="24"/>
-    <position x="20" y="24"/>
-    <position x="21" y="24"/>
-    <position x="22" y="24"/>
-    <position x="23" y="24"/>
-    <position x="24" y="24"/>
-    <position x="24" y="23"/>
-    <position x="24" y="22"/>
-    <position x="24" y="21"/>
-    <position x="24" y="20"/>
-    <position x="24" y="19"/>
-    <position x="22.5" y="18.5"/>
-    <position x="20.5" y="18.5"/>
-    <position x="19.5" y="18.5"/>
+    <position x="21" y="8"/>
+    <position x="20" y="10"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1009"/>
+      <staticNode address="1003"/>
+    </clusterKey>
+    <position x="24" y="7"/>
+    <position x="18" y="8"/>
+    <position x="22" y="10"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1009"/>
+      <staticNode address="1004"/>
+    </clusterKey>
+    <position x="24" y="8"/>
+    <position x="23" y="8"/>
+    <position x="22" y="8"/>
+    <position x="21" y="10"/>
+    <position x="24" y="10"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1008"/>
+      <staticNode address="1003"/>
+    </clusterKey>
+    <position x="17" y="8"/>
+    <position x="17" y="10"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1009"/>
+      <staticNode address="1008"/>
+    </clusterKey>
+    <position x="20" y="8"/>
+    <position x="18" y="10"/>
+    <position x="19" y="10"/>
+    <position x="23" y="10"/>
+    <position x="24" y="11"/>
+    <position x="24" y="12"/>
+    <position x="23" y="12"/>
+    <position x="21" y="12"/>
+    <position x="20" y="12"/>
+    <position x="19" y="12"/>
+    <position x="19" y="14"/>
+    <position x="20" y="14"/>
+    <position x="21" y="14"/>
+    <position x="22" y="14"/>
+    <position x="23" y="14"/>
+    <position x="24" y="14"/>
+    <position x="24" y="15"/>
+    <position x="21" y="16"/>
+    <position x="20" y="16"/>
+    <position x="19" y="18"/>
+    <position x="22" y="18"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1006"/>
+      <staticNode address="1007"/>
+    </clusterKey>
+    <position x="9" y="8"/>
+    <position x="10" y="10"/>
+    <position x="11" y="10"/>
+    <position x="12" y="10"/>
+    <position x="14" y="10"/>
+    <position x="13" y="12"/>
+    <position x="12" y="12"/>
+    <position x="11" y="12"/>
+    <position x="10" y="12"/>
+    <position x="9" y="12"/>
+    <position x="8" y="12"/>
+    <position x="8" y="14"/>
+    <position x="9" y="14"/>
+    <position x="10" y="14"/>
+    <position x="11" y="14"/>
+    <position x="12" y="14"/>
+    <position x="13" y="14"/>
+    <position x="13" y="16"/>
+    <position x="12" y="16"/>
+    <position x="11" y="16"/>
+    <position x="10" y="16"/>
+    <position x="9" y="16"/>
+    <position x="7" y="16"/>
+    <position x="10" y="18"/>
+    <position x="12" y="18"/>
+    <position x="13" y="18"/>
   </cluster>
   <cluster>
     <clusterKey>
       <staticNode address="1007"/>
+      <staticNode address="1003"/>
     </clusterKey>
-    <position x="13.5" y="18.5"/>
-    <position x="12.5" y="18.5"/>
-    <position x="10.5" y="18.5"/>
-    <position x="9.5" y="18.5"/>
-    <position x="8.5" y="18.5"/>
-    <position x="9" y="24"/>
-    <position x="10" y="24"/>
-    <position x="11" y="24"/>
-    <position x="12" y="24"/>
-    <position x="13" y="24"/>
-    <position x="14" y="24"/>
-    <position x="15" y="24"/>
-    <position x="16" y="24"/>
+    <position x="14" y="8"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1006"/>
+      <staticNode address="1005"/>
+    </clusterKey>
+    <position x="7" y="8"/>
+    <position x="5" y="8"/>
+    <position x="3" y="10"/>
+    <position x="4" y="10"/>
+    <position x="5" y="10"/>
+    <position x="6" y="10"/>
+    <position x="7" y="10"/>
+    <position x="9" y="10"/>
+    <position x="7" y="12"/>
+    <position x="6" y="12"/>
+    <position x="5" y="12"/>
+    <position x="4" y="12"/>
+    <position x="3" y="12"/>
+    <position x="2" y="12"/>
+    <position x="2" y="13"/>
+    <position x="2" y="14"/>
+    <position x="3" y="14"/>
+    <position x="4" y="14"/>
+    <position x="5" y="14"/>
+    <position x="6" y="14"/>
+    <position x="7" y="14"/>
+    <position x="6" y="16"/>
+    <position x="5" y="16"/>
+    <position x="4" y="16"/>
+    <position x="3" y="16"/>
+    <position x="2" y="17"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1002"/>
+      <staticNode address="1007"/>
+    </clusterKey>
+    <position x="13" y="8"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1001"/>
+      <staticNode address="1006"/>
+    </clusterKey>
+    <position x="8" y="8"/>
+    <position x="6" y="8"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1000"/>
+      <staticNode address="1005"/>
+    </clusterKey>
+    <position x="4" y="8"/>
+    <position x="3" y="8"/>
+    <position x="2" y="8"/>
+    <position x="2" y="9"/>
+    <position x="2" y="10"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1006"/>
+      <staticNode address="1002"/>
+    </clusterKey>
+    <position x="8" y="10"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1008"/>
+      <staticNode address="1001"/>
+    </clusterKey>
+    <position x="18" y="12"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1007"/>
+      <staticNode address="1008"/>
+    </clusterKey>
+    <position x="13" y="10"/>
+    <position x="15" y="10"/>
+    <position x="16" y="10"/>
+    <position x="17" y="12"/>
+    <position x="16" y="12"/>
+    <position x="15" y="12"/>
+    <position x="14" y="12"/>
+    <position x="14" y="14"/>
+    <position x="15" y="14"/>
+    <position x="16" y="14"/>
+    <position x="17" y="14"/>
+    <position x="18" y="14"/>
+    <position x="17" y="16"/>
+    <position x="16" y="16"/>
+    <position x="15" y="16"/>
+    <position x="15" y="18"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1009"/>
+      <staticNode address="1014"/>
+    </clusterKey>
+    <position x="24" y="16"/>
+    <position x="23" y="16"/>
+    <position x="22" y="16"/>
+    <position x="23" y="18"/>
+    <position x="24" y="19"/>
+    <position x="24" y="20"/>
+    <position x="24" y="22"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1008"/>
+      <staticNode address="1013"/>
+    </clusterKey>
+    <position x="19" y="16"/>
+    <position x="18" y="16"/>
+    <position x="16" y="18"/>
+    <position x="17" y="18"/>
+    <position x="18" y="18"/>
+    <position x="20" y="18"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1007"/>
+      <staticNode address="1011"/>
+    </clusterKey>
+    <position x="14" y="16"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1006"/>
+      <staticNode address="1011"/>
+    </clusterKey>
+    <position x="8" y="16"/>
+    <position x="6" y="18"/>
+    <position x="7" y="18"/>
+    <position x="8" y="18"/>
+    <position x="11" y="18"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1005"/>
+      <staticNode address="1010"/>
+    </clusterKey>
+    <position x="2" y="16"/>
+    <position x="2" y="18"/>
+    <position x="3" y="18"/>
+    <position x="4" y="18"/>
+    <position x="5" y="18"/>
+    <position x="3" y="20"/>
+    <position x="2" y="20"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1012"/>
+      <staticNode address="1007"/>
+    </clusterKey>
+    <position x="9" y="18"/>
+    <position x="14" y="18"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1014"/>
+      <staticNode address="1008"/>
+    </clusterKey>
+    <position x="21" y="18"/>
+    <position x="23" y="20"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1013"/>
+      <staticNode address="1012"/>
+    </clusterKey>
+    <position x="18" y="20"/>
+    <position x="17" y="20"/>
+    <position x="16" y="20"/>
+    <position x="15" y="20"/>
+    <position x="14" y="20"/>
+    <position x="12" y="20"/>
+    <position x="14" y="22"/>
+    <position x="15" y="22"/>
+    <position x="16" y="22"/>
+    <position x="17" y="22"/>
+    <position x="18" y="22"/>
     <position x="17" y="24"/>
-    <position x="15.5" y="18.5"/>
-    <position x="14.5" y="18.5"/>
-    <position x="11.5" y="18.5"/>
-    <position x="10.5" y="18.5"/>
-    <position x="18" y="13"/>
-    <position x="17.5" y="18.5"/>
-    <position x="16.5" y="18.5"/>
-    <position x="15.5" y="18.5"/>
-    <position x="11.5" y="18.5"/>
-    <position x="10.5" y="18.5"/>
-    <position x="9.5" y="18.5"/>
-    <position x="4.5" y="18.5"/>
-    <position x="9" y="24"/>
-    <position x="10" y="24"/>
-    <position x="11" y="24"/>
-    <position x="12" y="24"/>
-    <position x="13" y="24"/>
-    <position x="14" y="24"/>
-    <position x="15" y="24"/>
     <position x="16" y="24"/>
-    <position x="17" y="24"/>
-    <position x="18" y="24"/>
-    <position x="17.5" y="18.5"/>
-    <position x="16.5" y="18.5"/>
-    <position x="14.5" y="18.5"/>
-    <position x="8.5" y="18.5"/>
-    <position x="21.5" y="18.5"/>
-    <position x="17.5" y="18.5"/>
-    <position x="16.5" y="18.5"/>
-    <position x="14.5" y="18.5"/>
-    <position x="12.5" y="18.5"/>
-    <position x="10.5" y="18.5"/>
-    <position x="7.5" y="18.5"/>
-    <position x="9" y="24"/>
-    <position x="10" y="24"/>
-    <position x="11" y="24"/>
-    <position x="12" y="24"/>
-    <position x="13" y="24"/>
-    <position x="14" y="24"/>
     <position x="15" y="24"/>
-    <position x="16" y="24"/>
+    <position x="14" y="24"/>
+    <position x="13" y="24"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1009"/>
+      <staticNode address="1013"/>
+    </clusterKey>
+    <position x="24" y="18"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1014"/>
+      <staticNode address="1013"/>
+    </clusterKey>
+    <position x="22" y="20"/>
+    <position x="21" y="20"/>
+    <position x="20" y="20"/>
+    <position x="19" y="20"/>
+    <position x="19" y="22"/>
+    <position x="20" y="22"/>
+    <position x="21" y="22"/>
+    <position x="22" y="22"/>
+    <position x="23" y="22"/>
+    <position x="24" y="23"/>
+    <position x="24" y="24"/>
+    <position x="23" y="24"/>
+    <position x="22" y="24"/>
+    <position x="21" y="24"/>
+    <position x="20" y="24"/>
     <position x="19" y="24"/>
-    <position x="17.5" y="18.5"/>
-    <position x="14.5" y="18.5"/>
-    <position x="12.5" y="18.5"/>
-    <position x="11.5" y="18.5"/>
-    <position x="10.5" y="18.5"/>
-    <position x="8.5" y="18.5"/>
-    <position x="7.5" y="18.5"/>
+    <position x="18" y="24"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1012"/>
+      <staticNode address="1011"/>
+    </clusterKey>
+    <position x="13" y="20"/>
+    <position x="11" y="20"/>
+    <position x="10" y="20"/>
+    <position x="9" y="22"/>
+    <position x="10" y="22"/>
+    <position x="11" y="22"/>
+    <position x="12" y="22"/>
+    <position x="13" y="22"/>
+    <position x="12" y="24"/>
+    <position x="11" y="24"/>
+    <position x="10" y="24"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1011"/>
+      <staticNode address="1010"/>
+    </clusterKey>
+    <position x="9" y="20"/>
+    <position x="8" y="20"/>
+    <position x="6" y="20"/>
+    <position x="5" y="20"/>
+    <position x="4" y="20"/>
+    <position x="2" y="21"/>
+    <position x="2" y="22"/>
+    <position x="3" y="22"/>
+    <position x="4" y="22"/>
+    <position x="5" y="22"/>
+    <position x="6" y="22"/>
+    <position x="7" y="22"/>
+    <position x="8" y="22"/>
+    <position x="9" y="24"/>
+    <position x="8" y="24"/>
+    <position x="7" y="24"/>
+    <position x="6" y="24"/>
+    <position x="5" y="24"/>
+    <position x="4" y="24"/>
+  </cluster>
+  <cluster>
+    <clusterKey>
+      <staticNode address="1011"/>
+      <staticNode address="1013"/>
+    </clusterKey>
+    <position x="7" y="20"/>
   </cluster>
 </radioMapClusters>

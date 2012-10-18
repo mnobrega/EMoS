@@ -5,7 +5,7 @@ simple BaseStationAppLayerHoHuT
     parameters:
         bool debug = default(false); 			
         int headerLength = default(24);
-        bool useClustering = default(true);
+        bool useClustering = default(false);
         xml radioMapXML = default(xml("<radioMap/>"));
         xml radioMapClustersXML = default(xml("<radioMapClusters/>"));
         xml normalStandardDistribXML = default(xml("<table/>"));

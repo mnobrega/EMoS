@@ -20,6 +20,7 @@
 #include "FindModule.h"
 #include "BaseNetwLayer.h"
 #include "AddressingInterface.h"
+#include "unistd.h"
 
 
 class MobileNodeAppLayerHoHuT : public BaseApplLayer
@@ -54,6 +55,8 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         bool stats;
 
         LAddress::L3Type myAppAddr;
+        double firstPosX;
+        double firstPosY;
 
         const static simsignalwrap_t mobilityStateChangedSignal;
 
@@ -77,6 +80,7 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         //radio map
         bool calibrationMode;
         unsigned int minimumStaticNodesForSample;
+        unsigned int maxPositionPDFsSize;
         typedef struct staticNodePDF
         {
             LAddress::L3Type addr;
@@ -122,13 +126,14 @@ class MobileNodeAppLayerHoHuT : public BaseApplLayer
         xmlDocPtr convertRadioMapClustersToXML();
         void clusterizeRadioMapPosition(radioMapPosition_t*);
         coordVec_t* getCoordSetByClusterKey(addressVec_t*);
+        bool hasCollectedPosition(Coord pos);
 
         //mobility
         virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
 
         //aux
-        virtual double convertTodBm(double valueInWatts);
-        virtual const char* convertNumberToString(double number);
+        double convertTodBm(double valueInWatts);
+        const xmlChar* convertNumberToXMLString(double number);
 
 
         virtual void handleUpperMsg(cMessage * m) { delete m; }

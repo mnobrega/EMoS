@@ -22,6 +22,15 @@ void MobileNodeAppLayerHoHuT::initialize(int stage)
         minimumStaticNodesForSample = par("minimumStaticNodesForSample");
         clusterKeySize = par("clusterKeySize");
         collectedDataSendingTimePeriod = par("collectedDataSendingTimePeriod");
+        maxPositionPDFsSize = par("maxPositionPDFsSize");
+
+        firstPosX = par("firstPosX");
+        firstPosY = par("firstPosY");
+
+        if (maxPositionPDFsSize<clusterKeySize)
+        {
+            error("maxPositionPDFsSize has to be equal or greater than clusterKeySize. please check your config");
+        }
     }
     else if (stage == 1) //initialize vars, subscribe signals, etc
     {
@@ -29,11 +38,15 @@ void MobileNodeAppLayerHoHuT::initialize(int stage)
 
     	rssiValSignalId = registerSignal("rssiVal");
     	findHost()->subscribe(mobilityStateChangedSignal, this);
-        previousPosition = new Coord(-1,-1,-1);
-        currentPosition = new Coord(0,0,0);
 
-        selfTimer = new cMessage("beacon-timer",SEND_COLLECTED_DATA_TIMER);
-        scheduleAt(simTime() + collectedDataSendingTimePeriod, selfTimer);
+        previousPosition = new Coord(firstPosX,firstPosY,0);
+        currentPosition = new Coord(firstPosX,firstPosY,0);
+
+        if (!calibrationMode)
+        {
+            selfTimer = new cMessage("beacon-timer",SEND_COLLECTED_DATA_TIMER);
+            scheduleAt(simTime() + collectedDataSendingTimePeriod, selfTimer);
+        }
 
         cModule *const pHost = findHost();
         const cModule* netw  = FindModule<BaseNetwLayer*>::findSubModule(pHost);
@@ -173,8 +186,12 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
             }
         }
 
-        if (radioMapPosition!=NULL)
+        if (radioMapPosition!=NULL && !hasCollectedPosition(radioMapPosition->pos))
         {
+            if (radioMapPosition->staticNodesPDFSet->size() < maxPositionPDFsSize)
+            {
+                error ("Please decrement the maxStaticNodesPDFSetXMLSize config.");
+            }
             radioMap.insert(radioMapPosition);
             clusterizeRadioMapPosition(radioMapPosition);
         }
@@ -284,6 +301,19 @@ bool MobileNodeAppLayerHoHuT::hasCollectedNode(LAddress::L3Type nodeAddr)
     }
     return false;
 }
+bool MobileNodeAppLayerHoHuT::hasCollectedPosition(Coord pos)
+{
+    radioMapSet_t::iterator radioMapIt;
+    for (radioMapIt=radioMap.begin(); radioMapIt!=radioMap.end();radioMapIt++)
+    {
+        radioMapPosition_t* radioMapPosition = *radioMapIt;
+        if (radioMapPosition->pos == pos)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 void MobileNodeAppLayerHoHuT::clusterizeRadioMapPosition(radioMapPosition_t* radioMapPosition)
 {
     staticNodesPDFSet_t::iterator it;
@@ -345,32 +375,30 @@ xmlDocPtr MobileNodeAppLayerHoHuT::convertRadioMapToXML()
 {
     radioMapSet_t::iterator it;
     staticNodesPDFSet_t::iterator it2;
-    radioMapPosition_t* position;
-    staticNodePDF_t* sig;
-    staticNodesPDFSet_t* staticNodes;
-    xmlNodePtr positionNode;
-    xmlNodePtr staticNodePDFXMLNode;
 
-    xmlDocPtr xmlDoc = xmlNewDoc(BAD_CAST "1.0");
-    xmlNodePtr xmlDocRoot = xmlNewNode(NULL,BAD_CAST "radioMap");
+    xmlDocPtr xmlDoc = xmlNewDoc((const xmlChar*) "1.0");
+    xmlNodePtr xmlDocRoot = xmlNewNode(NULL,(const xmlChar*) "radioMap");
+    xmlNewProp(xmlDocRoot,(const xmlChar*) "maxPositionPDFsSize",convertNumberToXMLString(maxPositionPDFsSize));
     xmlDocSetRootElement(xmlDoc, xmlDocRoot);
 
     for (it=radioMap.begin(); it!=radioMap.end();it++)
     {
-        position = (*it);
-        positionNode = xmlNewNode(NULL, BAD_CAST "position");
-        xmlNewProp(positionNode, BAD_CAST "x", BAD_CAST convertNumberToString(position->pos.x));
-        xmlNewProp(positionNode, BAD_CAST "y", BAD_CAST convertNumberToString(position->pos.y));
+        unsigned int addedPDFs = 0;
+        radioMapPosition_t* position = *it;
+        xmlNodePtr positionNode = xmlNewNode(NULL,(const xmlChar*) "position");
+        xmlNewProp(positionNode, (const xmlChar*) "x", convertNumberToXMLString(position->pos.x));
+        xmlNewProp(positionNode, (const xmlChar*) "y", convertNumberToXMLString(position->pos.y));
 
-        staticNodes = position->staticNodesPDFSet;
-        for (it2=staticNodes->begin(); it2!=staticNodes->end();it2++)
+        staticNodesPDFSet_t* staticNodes = position->staticNodesPDFSet;
+        for (it2=staticNodes->begin(); it2!=staticNodes->end() && addedPDFs<maxPositionPDFsSize;it2++)
         {
-            sig = (*it2);
-            staticNodePDFXMLNode = xmlNewNode(NULL,BAD_CAST "staticNodePDF");
-            xmlNewProp(staticNodePDFXMLNode,BAD_CAST "address", BAD_CAST convertNumberToString(sig->addr));
-            xmlNewProp(staticNodePDFXMLNode,BAD_CAST "mean", BAD_CAST convertNumberToString(sig->mean));
-            xmlNewProp(staticNodePDFXMLNode,BAD_CAST "stdDev", BAD_CAST convertNumberToString(sig->stdDev));
+            staticNodePDF_t* sig = *it2;
+            xmlNodePtr staticNodePDFXMLNode = xmlNewNode(NULL,(const xmlChar*) "staticNodePDF");
+            xmlNewProp(staticNodePDFXMLNode,(const xmlChar*) "address", convertNumberToXMLString(sig->addr));
+            xmlNewProp(staticNodePDFXMLNode,(const xmlChar*) "mean", convertNumberToXMLString(sig->mean));
+            xmlNewProp(staticNodePDFXMLNode,(const xmlChar*) "stdDev", convertNumberToXMLString(sig->stdDev));
             xmlAddChild(positionNode,staticNodePDFXMLNode);
+            addedPDFs++;
         }
         xmlAddChild(xmlDocRoot,positionNode);
     }
@@ -393,21 +421,21 @@ xmlDocPtr MobileNodeAppLayerHoHuT::convertRadioMapClustersToXML()
 
     LAddress::L3Type staticNodeAddress;
 
-    xmlDocPtr xmlDoc = xmlNewDoc(BAD_CAST "1.0");
-    xmlNodePtr xmlDocRoot = xmlNewNode(NULL,BAD_CAST "radioMapClusters");
-    xmlNewProp(xmlDocRoot,BAD_CAST "clusterKeySize",BAD_CAST convertNumberToString(clusterKeySize));
+    xmlDocPtr xmlDoc = xmlNewDoc((const xmlChar*) "1.0");
+    xmlNodePtr xmlDocRoot = xmlNewNode(NULL,(const xmlChar*) "radioMapClusters");
+    xmlNewProp(xmlDocRoot,(const xmlChar*) "clusterKeySize",convertNumberToXMLString(clusterKeySize));
     xmlDocSetRootElement(xmlDoc, xmlDocRoot);
 
     for(it=radioMapClusters.begin();it!=radioMapClusters.end();it++)
     {
         clusterKey = it->first;
-        clusterNode = xmlNewNode(NULL, BAD_CAST "cluster");
-        clusterKeyNode = xmlNewNode(NULL, BAD_CAST "clusterKey");
+        clusterNode = xmlNewNode(NULL, (const xmlChar*)"cluster");
+        clusterKeyNode = xmlNewNode(NULL, (const xmlChar*) "clusterKey");
         for (it4=clusterKey->begin(); it4!=clusterKey->end();it4++)
         {
             staticNodeAddress = *it4;
-            clusterKeyStaticNode = xmlNewNode(NULL, BAD_CAST "staticNode");
-            xmlNewProp(clusterKeyStaticNode, BAD_CAST "address", BAD_CAST convertNumberToString(staticNodeAddress));
+            clusterKeyStaticNode = xmlNewNode(NULL, (const xmlChar*) "staticNode");
+            xmlNewProp(clusterKeyStaticNode, (const xmlChar*) "address", convertNumberToXMLString(staticNodeAddress));
             xmlAddChild(clusterKeyNode,clusterKeyStaticNode);
         }
         xmlAddChild(clusterNode,clusterKeyNode);
@@ -416,9 +444,9 @@ xmlDocPtr MobileNodeAppLayerHoHuT::convertRadioMapClustersToXML()
         for (it2=positions->begin(); it2!=positions->end(); it2++)
         {
             Coord position = (*it2);
-            positionNode = xmlNewNode(NULL, BAD_CAST "position");
-            xmlNewProp(positionNode, BAD_CAST "x", BAD_CAST convertNumberToString(position.x));
-            xmlNewProp(positionNode, BAD_CAST "y", BAD_CAST convertNumberToString(position.y));
+            positionNode = xmlNewNode(NULL, (const xmlChar*) "position");
+            xmlNewProp(positionNode, (const xmlChar*) "x", convertNumberToXMLString(position.x));
+            xmlNewProp(positionNode, (const xmlChar*) "y", convertNumberToXMLString(position.y));
             xmlAddChild(clusterNode,positionNode);
         }
 
@@ -447,11 +475,11 @@ double MobileNodeAppLayerHoHuT::convertTodBm(double valueInWatts)
     return 10*log10(valueInWatts/0.001);
 }
 
-const char* MobileNodeAppLayerHoHuT::convertNumberToString(double number)
+const xmlChar* MobileNodeAppLayerHoHuT::convertNumberToXMLString(double number)
 {
-    std::ostringstream s;
-    s << number;
-    std::string output = s.str();
-    const char* inCharPointerFormat = output.c_str();
-    return inCharPointerFormat;
+    std::ostringstream* s = new std::ostringstream;
+    *s << number;
+    std::string str = s->str();
+    const char* string = str.c_str();
+    return (const xmlChar*)string;
 }

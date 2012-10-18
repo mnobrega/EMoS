@@ -29,10 +29,7 @@ void BaseStationAppLayerHoHuT::initialize(int stage)
 
 BaseStationAppLayerHoHuT::~BaseStationAppLayerHoHuT() {}
 
-void BaseStationAppLayerHoHuT::finish()
-{
-
-}
+void BaseStationAppLayerHoHuT::finish() {}
 
 void BaseStationAppLayerHoHuT::handleSelfMsg(cMessage * msg)
 {
@@ -89,30 +86,90 @@ void BaseStationAppLayerHoHuT::handleMobileNodeMsg(cMessage* msg)
     debugEV << "msg data:" << applPkt->getPayload() << endl;
 
     staticNodeSamplesSet_t* collectedRSSIs = getOrderedCollectedRSSIs(static_cast<addressRSSIMap_t*>(&(applPkt->getCollectedRSSIs())));
-    Coord mobileNodePosition = getNodeLocation(collectedRSSIs);
 
+    if (collectedRSSIs->size()==maxPositionPDFsSize)
+    {
+        Coord mobileNodePosition = getNodeLocation(collectedRSSIs);
+
+        debugEV << "calculated location (" << mobileNodePosition.x << ";" << mobileNodePosition.y << ") " << endl;
+        debugEV << "real location (" << applPkt->getRealPosition().x << ";" << applPkt->getRealPosition().y << ") " << endl;
+    }
+    else
+    {
+        debugEV << "collected RSSIs discard. not enough information" << endl;
+    }
     delete msg;
 }
 
 //LOCALIZATION
 Coord BaseStationAppLayerHoHuT::getNodeLocation(staticNodeSamplesSet_t* staticNodeSamples)
 {
-    radioMapSet_t::iterator position;
-    staticNodesPDFSet_t::iterator staticNodePDF;
+    radioMapSet_t::iterator positionIt;
+    staticNodesPDFSet_t::iterator staticNodePDFIt;
+    staticNodeSamplesSet_t::iterator staticNodeSampleIt;
+    double maxPositionProbability = 0;
+    Coord location;
+
     radioMapSet_t* candidatePositions = getCandidatePositions(staticNodeSamples);
 
-    for (position=candidatePositions->begin(); position!=candidatePositions->end();position++)
+    //for each candidate position
+    for (positionIt=candidatePositions->begin(); positionIt!=candidatePositions->end();positionIt++)
     {
-        radioMapPosition_t* rMapPosition = *position;
-        Coord curCoord = rMapPosition->pos;
+        radioMapPosition_t* rMapPosition = *positionIt;
         staticNodesPDFSet_t* staticNodesPDFs = rMapPosition->staticNodesPDFSet;
-        for (staticNodePDF=staticNodesPDFs->begin(); staticNodePDF!=staticNodesPDFs->end();staticNodePDF++)
-        {
-            //TODO - for each staticNodePDF calculate the P
+        staticNodePDF_t* staticNodePDF;
+        double positionProbability = 1;
 
-            //if P > max then x=l and max=p
+        //for each PDF in the candidate position
+        for (staticNodePDFIt=staticNodesPDFs->begin(); staticNodePDFIt!=staticNodesPDFs->end();staticNodePDFIt++)
+        {
+            staticNodeRSSISample_t* staticNodeSample;
+            staticNodePDF = *staticNodePDFIt;
+            for (staticNodeSampleIt=staticNodeSamples->begin(); staticNodeSampleIt!=staticNodeSamples->end();staticNodeSampleIt++)
+            {
+                staticNodeSample = *staticNodeSampleIt;
+                if (staticNodeSample->addr==staticNodePDF->addr)
+                {
+                    break;
+                }
+            }
+            if (staticNodeSampleIt!=staticNodeSamples->end()) //found a sample for this addr in the staticNodeSamples
+            {
+                double z = roundNumber((staticNodeSample->mean+0.5-staticNodePDF->mean)/staticNodePDF->stdDev,2);
+                double zProb = normalStandardTable.find(z)->second;
+                positionProbability = positionProbability*zProb;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        //this candidate position is only taken into account if all its nodes are contained in the staticNodeSamples received
+        if (staticNodePDFIt==staticNodesPDFs->end() && maxPositionProbability<positionProbability && positionProbability<1)
+        {
+            location = rMapPosition->pos;
+            maxPositionProbability = positionProbability;
         }
     }
+
+    //if maxPositionProbability=0 after cycling all the candidatePositions then display an error informing that some static node had an hardware failure
+    if (maxPositionProbability<=0)
+    {
+        error ("Some static node in the network had an hardware failure!");
+    }
+
+    if (debug)
+    {
+        for (staticNodeSampleIt=staticNodeSamples->begin(); staticNodeSampleIt!=staticNodeSamples->end();staticNodeSampleIt++)
+        {
+            staticNodeRSSISample_t* staticNodeSample = *staticNodeSampleIt;
+            debugEV << "static sample for addr: " << staticNodeSample->addr << " rssiMean: " << staticNodeSample->mean << endl;
+        }
+        debugEV << "maxPositionProbability = " << maxPositionProbability << endl;
+    }
+
+    return location;
 }
 BaseStationAppLayerHoHuT::radioMapSet_t* BaseStationAppLayerHoHuT::getCandidatePositions(staticNodeSamplesSet_t* staticNodeSamples)
 {
@@ -231,6 +288,10 @@ void BaseStationAppLayerHoHuT::loadRadioMapFromXML(cXMLElement* xml)
     ASSERT(rootTag=="radioMap");
 
     cXMLElementList positions = xml->getChildren();
+    if (positions.size()>0)
+    {
+        maxPositionPDFsSize = convertStringToNumber(xml->getAttribute("maxPositionPDFsSize"));
+    }
     for (i=positions.begin();i!=positions.end();++i)
     {
         //<position x="9.5" y="17">
@@ -272,9 +333,15 @@ void BaseStationAppLayerHoHuT::loadRadioMapClustersFromXML(cXMLElement* xml)
     std::string rootTag = xml->getTagName();
     ASSERT(rootTag=="radioMapClusters");
 
-    clusterKeySize = convertStringToNumber(xml->getAttribute("clusterKeySize"));
-
     cXMLElementList clusters = xml->getChildren();
+    if (clusters.size()>0)
+    {
+        clusterKeySize = convertStringToNumber(xml->getAttribute("clusterKeySize"));
+        if (clusterKeySize>maxPositionPDFsSize)
+        {
+            error("maxPositionPDFsSize has to be equal or greater than clusterKeySize. please check your config");
+        }
+    }
     for (i=clusters.begin();i!=clusters.end();++i)
     {
         cXMLElement* cluster = *i;
@@ -317,7 +384,9 @@ void BaseStationAppLayerHoHuT::loadRadioMapClustersFromXML(cXMLElement* xml)
 BaseStationAppLayerHoHuT::staticNodeSamplesSet_t* BaseStationAppLayerHoHuT::getOrderedCollectedRSSIs(addressRSSIMap_t* appPktCollectedRSSIs)
 {
     addressRSSIMap_t::iterator i;
+    staticNodeSamplesSet_t::iterator j;
     staticNodeSamplesSet_t* orderedCollectedRSSIs = new staticNodeSamplesSet_t;
+    staticNodeSamplesSet_t* orderedCollectedRSSIsSubSet = new staticNodeSamplesSet_t;
 
     for (i=appPktCollectedRSSIs->begin();i!=appPktCollectedRSSIs->end();i++)
     {
@@ -326,7 +395,23 @@ BaseStationAppLayerHoHuT::staticNodeSamplesSet_t* BaseStationAppLayerHoHuT::getO
         staticNodePDF->mean = i->second;
         orderedCollectedRSSIs->insert(staticNodePDF);
     }
-    return orderedCollectedRSSIs;
+
+    if (orderedCollectedRSSIs->size()>maxPositionPDFsSize)
+    {
+        //only keep the first maxStaticNodesPerSample nodes
+        unsigned int count = 0;
+        for (j=orderedCollectedRSSIs->begin();j!=orderedCollectedRSSIs->end() && count<maxPositionPDFsSize;j++)
+        {
+            orderedCollectedRSSIsSubSet->insert(*j);
+            count++;
+        }
+    }
+    else
+    {
+        orderedCollectedRSSIsSubSet = orderedCollectedRSSIs;
+    }
+
+    return orderedCollectedRSSIsSubSet;
 }
 double BaseStationAppLayerHoHuT::convertStringToNumber(const std::string& str)
 {
@@ -337,4 +422,10 @@ double BaseStationAppLayerHoHuT::convertStringToNumber(const std::string& str)
         return 0;
     }
     return x;
+}
+double BaseStationAppLayerHoHuT::roundNumber(double number, int precision)
+{
+    std::stringstream s;
+    s << std::setprecision(precision) << std::setiosflags(std::ios_base::fixed) << number;
+    return convertStringToNumber(s.str());
 }
