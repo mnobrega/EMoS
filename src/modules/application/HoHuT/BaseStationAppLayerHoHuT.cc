@@ -85,20 +85,22 @@ void BaseStationAppLayerHoHuT::handleMobileNodeMsg(cMessage* msg)
     debugEV << "Received a node msg from mobile node with appAddr: " << applPkt->getSrcAppAddress() << endl;
     debugEV << "msg data:" << applPkt->getPayload() << endl;
 
-    staticNodeSamplesSet_t* collectedRSSIs = getOrderedCollectedRSSIs(static_cast<addressRSSIMap_t*>(&(applPkt->getCollectedRSSIs())));
-
-    if (collectedRSSIs->size()==maxPositionPDFsSize)
+    switch (applPkt->getHoHuTMsgType())
     {
-        Coord mobileNodePosition = getNodeLocation(collectedRSSIs);
-
-        debugEV << "calculated location (" << mobileNodePosition.x << ";" << mobileNodePosition.y << ") " << endl;
-        debugEV << "real location (" << applPkt->getRealPosition().x << ";" << applPkt->getRealPosition().y << ") " << endl;
+        case COLLECTED_RSSI:
+        {
+            staticNodeSamplesSet_t* collectedRSSIs = getOrderedCollectedRSSIs(static_cast<addressRSSIMap_t*>(&(applPkt->getCollectedRSSIs())));
+            Coord mobileNodePosition = getNodeLocation(collectedRSSIs);
+            debugEV << "calculated location (" << mobileNodePosition.x << ";" << mobileNodePosition.y << ") " << endl;
+            debugEV << "real location (" << applPkt->getRealPosition().x << ";" << applPkt->getRealPosition().y << ") " << endl;
+            delete msg;
+        }
+            break;
+        default:
+            error("unknown HoHuT msg type");
+            delete msg;
+            break;
     }
-    else
-    {
-        debugEV << "collected RSSIs discard. not enough information" << endl;
-    }
-    delete msg;
 }
 
 //LOCALIZATION
@@ -107,56 +109,56 @@ Coord BaseStationAppLayerHoHuT::getNodeLocation(staticNodeSamplesSet_t* staticNo
     radioMapSet_t::iterator positionIt;
     staticNodesPDFSet_t::iterator staticNodePDFIt;
     staticNodeSamplesSet_t::iterator staticNodeSampleIt;
-    double maxPositionProbability = 0;
     Coord location;
+    double maxPositionProbability = 0;
 
+    unsigned int numberOfNodesToCheck = staticNodeSamples->size(); //maxPositionPDFsSize or less
     radioMapSet_t* candidatePositions = getCandidatePositions(staticNodeSamples);
 
-    //for each candidate position
-    for (positionIt=candidatePositions->begin(); positionIt!=candidatePositions->end();positionIt++)
+    while (numberOfNodesToCheck>0 && maxPositionProbability==0)
     {
-        radioMapPosition_t* rMapPosition = *positionIt;
-        staticNodesPDFSet_t* staticNodesPDFs = rMapPosition->staticNodesPDFSet;
-        staticNodePDF_t* staticNodePDF;
-        double positionProbability = 1;
-
-        //for each PDF in the candidate position
-        for (staticNodePDFIt=staticNodesPDFs->begin(); staticNodePDFIt!=staticNodesPDFs->end();staticNodePDFIt++)
+        maxPositionProbability = 0;
+        for (positionIt=candidatePositions->begin(); positionIt!=candidatePositions->end();positionIt++)
         {
-            staticNodeRSSISample_t* staticNodeSample;
-            staticNodePDF = *staticNodePDFIt;
-            for (staticNodeSampleIt=staticNodeSamples->begin(); staticNodeSampleIt!=staticNodeSamples->end();staticNodeSampleIt++)
+            radioMapPosition_t* rMapPosition = *positionIt;
+            staticNodesPDFSet_t* staticNodesPDFs = rMapPosition->staticNodesPDFSet;
+            staticNodePDF_t* staticNodePDF;
+            double positionProbability = 1;
+            unsigned int count = 0;
+            unsigned int nodesFoundInSample = 0;
+
+            //check if the n first nodes from the position exist in the sample
+            for (staticNodePDFIt=staticNodesPDFs->begin(); staticNodePDFIt!=staticNodesPDFs->end() && count<numberOfNodesToCheck; staticNodePDFIt++)
             {
-                staticNodeSample = *staticNodeSampleIt;
-                if (staticNodeSample->addr==staticNodePDF->addr)
+                staticNodePDF = *staticNodePDFIt;
+
+                staticNodeRSSISample_t* staticNodeSample;
+                for (staticNodeSampleIt=staticNodeSamples->begin(); staticNodeSampleIt!=staticNodeSamples->end();staticNodeSampleIt++)
                 {
-                    break;
+                    staticNodeSample = *staticNodeSampleIt;
+                    if (staticNodeSample->addr==staticNodePDF->addr)
+                    {
+                        double z = roundNumber((staticNodeSample->mean+0.5-staticNodePDF->mean)/staticNodePDF->stdDev,2);
+                        double zProb = normalStandardTable.find(z)->second;
+                        positionProbability = positionProbability*zProb;
+                        nodesFoundInSample++;
+                        break;
+                    }
                 }
+                if (staticNodeSampleIt==staticNodeSamples->end()) //didnt find the PDFNode in the sample so ignores this prob
+                {
+                    positionProbability = 0;
+                }
+                count++;
             }
-            if (staticNodeSampleIt!=staticNodeSamples->end()) //found a sample for this addr in the staticNodeSamples
+
+            if (nodesFoundInSample==numberOfNodesToCheck)
             {
-                double z = roundNumber((staticNodeSample->mean+0.5-staticNodePDF->mean)/staticNodePDF->stdDev,2);
-                double zProb = normalStandardTable.find(z)->second;
-                positionProbability = positionProbability*zProb;
-            }
-            else
-            {
-                break;
+                location = rMapPosition->pos;
+                maxPositionProbability = positionProbability;
             }
         }
-
-        //this candidate position is only taken into account if all its nodes are contained in the staticNodeSamples received
-        if (staticNodePDFIt==staticNodesPDFs->end() && maxPositionProbability<positionProbability && positionProbability<1)
-        {
-            location = rMapPosition->pos;
-            maxPositionProbability = positionProbability;
-        }
-    }
-
-    //if maxPositionProbability=0 after cycling all the candidatePositions then display an error informing that some static node had an hardware failure
-    if (maxPositionProbability<=0)
-    {
-        error ("Some static node in the network had an hardware failure!");
+        numberOfNodesToCheck--;
     }
 
     if (debug)
@@ -383,6 +385,8 @@ void BaseStationAppLayerHoHuT::loadRadioMapClustersFromXML(cXMLElement* xml)
 //AUX
 BaseStationAppLayerHoHuT::staticNodeSamplesSet_t* BaseStationAppLayerHoHuT::getOrderedCollectedRSSIs(addressRSSIMap_t* appPktCollectedRSSIs)
 {
+    //appPktCollectedRSSIs sorted by mean DESC
+
     addressRSSIMap_t::iterator i;
     staticNodeSamplesSet_t::iterator j;
     staticNodeSamplesSet_t* orderedCollectedRSSIs = new staticNodeSamplesSet_t;
@@ -410,7 +414,6 @@ BaseStationAppLayerHoHuT::staticNodeSamplesSet_t* BaseStationAppLayerHoHuT::getO
     {
         orderedCollectedRSSIsSubSet = orderedCollectedRSSIs;
     }
-
     return orderedCollectedRSSIsSubSet;
 }
 double BaseStationAppLayerHoHuT::convertStringToNumber(const std::string& str)
