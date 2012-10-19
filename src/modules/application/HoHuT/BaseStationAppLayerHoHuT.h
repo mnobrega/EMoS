@@ -14,6 +14,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <math.h>
 
 class BaseStationAppLayerHoHuT : public BaseApplLayer
 {
@@ -46,6 +47,11 @@ class BaseStationAppLayerHoHuT : public BaseApplLayer
         cXMLElement* normalStandardDistribXML;
 
         typedef std::vector<LAddress::L3Type> addressVec_t;
+
+        //STAT RESULTS
+        bool recordStats;
+        typedef std::map<LAddress::L3Type,cOutVector*> mobileNodesPosErrors_t;
+        mobileNodesPosErrors_t mobileNodesPosErrors;
 
         //STANDARD NORMAL DISTRIB
         typedef std::map<double,double> normalStandardTable_t;
@@ -112,14 +118,18 @@ class BaseStationAppLayerHoHuT : public BaseApplLayer
         radioMapSet_t* getCandidatePositions(staticNodeSamplesSet_t*);
         coordVec_t* getCoordSetByClusterKey(addressVec_t* clusterKey);
 
-        //not implemented
-        virtual void handleUpperMsg(cMessage * m) { delete m; }
-        virtual void handleUpperControl(cMessage * m) { delete m; }
+        //STATS
+        void recordMobileNodePosError(LAddress::L3Type, Coord, Coord);
 
         //AUX
         double convertStringToNumber(const std::string&);
         staticNodeSamplesSet_t* getOrderedCollectedRSSIs(addressRSSIMap_t*);
         double roundNumber(double, int);
+        double getDistance(Coord,Coord);
+
+        //not implemented
+        virtual void handleUpperMsg(cMessage * m) { delete m; }
+        virtual void handleUpperControl(cMessage * m) { delete m; }
 };
 
 #endif // BASE_STATION_APP_LAYER_H

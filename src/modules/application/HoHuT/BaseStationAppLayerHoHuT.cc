@@ -13,6 +13,7 @@ void BaseStationAppLayerHoHuT::initialize(int stage)
         lowerControlOut = findGate("lowerControlOut");
         lowerControlIn = findGate("lowerControlIn");
         debug = par("debug").boolValue();
+        recordStats = par("recordStats").boolValue();
         useClustering = par("useClustering").boolValue();
         radioMapXML = par("radioMapXML");
         radioMapClustersXML = par("radioMapClustersXML");
@@ -29,7 +30,18 @@ void BaseStationAppLayerHoHuT::initialize(int stage)
 
 BaseStationAppLayerHoHuT::~BaseStationAppLayerHoHuT() {}
 
-void BaseStationAppLayerHoHuT::finish() {}
+void BaseStationAppLayerHoHuT::finish()
+{
+    if (recordStats)
+    {
+        mobileNodesPosErrors_t::iterator it;
+        for (it=mobileNodesPosErrors.begin();it!=mobileNodesPosErrors.end();it++)
+        {
+            cOutVector* vec = it->second;
+            delete vec;
+        }
+    }
+}
 
 void BaseStationAppLayerHoHuT::handleSelfMsg(cMessage * msg)
 {
@@ -90,8 +102,14 @@ void BaseStationAppLayerHoHuT::handleMobileNodeMsg(cMessage* msg)
         case COLLECTED_RSSI:
         {
             staticNodeSamplesSet_t* collectedRSSIs = getOrderedCollectedRSSIs(static_cast<addressRSSIMap_t*>(&(applPkt->getCollectedRSSIs())));
-            Coord mobileNodePosition = getNodeLocation(collectedRSSIs);
-            debugEV << "calculated location (" << mobileNodePosition.x << ";" << mobileNodePosition.y << ") " << endl;
+            Coord calculatedPosition = getNodeLocation(collectedRSSIs);
+
+            if (recordStats)
+            {
+                recordMobileNodePosError(applPkt->getSrcAppAddress(),applPkt->getRealPosition(),calculatedPosition);
+            }
+
+            debugEV << "calculated location (" << calculatedPosition.x << ";" << calculatedPosition.y << ") " << endl;
             debugEV << "real location (" << applPkt->getRealPosition().x << ";" << applPkt->getRealPosition().y << ") " << endl;
             delete msg;
         }
@@ -382,6 +400,23 @@ void BaseStationAppLayerHoHuT::loadRadioMapClustersFromXML(cXMLElement* xml)
     }
 }
 
+//STATS
+void BaseStationAppLayerHoHuT::recordMobileNodePosError(LAddress::L3Type mobileNodeAddr, Coord realPos, Coord calcPos)
+{
+    mobileNodesPosErrors_t::iterator it;
+    it = mobileNodesPosErrors.find(mobileNodeAddr);
+    if (it!=mobileNodesPosErrors.end())
+    {
+        it->second->record(getDistance(realPos,calcPos));
+    }
+    else
+    {
+        cOutVector* vec = new cOutVector;
+        vec->record(getDistance(realPos,calcPos));
+        mobileNodesPosErrors.insert(std::pair<LAddress::L3Type,cOutVector*>(mobileNodeAddr,vec));
+    }
+}
+
 //AUX
 BaseStationAppLayerHoHuT::staticNodeSamplesSet_t* BaseStationAppLayerHoHuT::getOrderedCollectedRSSIs(addressRSSIMap_t* appPktCollectedRSSIs)
 {
@@ -431,4 +466,8 @@ double BaseStationAppLayerHoHuT::roundNumber(double number, int precision)
     std::stringstream s;
     s << std::setprecision(precision) << std::setiosflags(std::ios_base::fixed) << number;
     return convertStringToNumber(s.str());
+}
+double BaseStationAppLayerHoHuT::getDistance(Coord coord1, Coord coord2)
+{
+    return sqrt(pow(coord1.x - coord2.x,2) + pow(coord1.y - coord2.y,2));
 }

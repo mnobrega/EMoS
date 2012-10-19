@@ -3,7 +3,8 @@ package org.mixim.modules.application.HoHuT;
 simple BaseStationAppLayerHoHuT
 {
     parameters:
-        bool debug = default(false); 			
+        bool debug = default(false); 
+        bool recordStats = default(false);		
         int headerLength = default(24);
         bool useClustering = default(false);
         xml radioMapXML = default(xml("<radioMap/>"));
