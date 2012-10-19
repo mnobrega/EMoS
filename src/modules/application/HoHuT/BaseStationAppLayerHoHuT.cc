@@ -15,9 +15,13 @@ void BaseStationAppLayerHoHuT::initialize(int stage)
         debug = par("debug").boolValue();
         recordStats = par("recordStats").boolValue();
         useClustering = par("useClustering").boolValue();
+        useCenterOfMass = par("useCenterOfMass").boolValue();
+        usePhySpaceTimeAvg = par("usePhySpaceTimeAvg").boolValue();
         radioMapXML = par("radioMapXML");
         radioMapClustersXML = par("radioMapClustersXML");
         normalStandardDistribXML = par("normalStandardDistribXML");
+        maxCenterOfMassPositions = par("maxCenterOfMassPositions");
+        phySpaceTimeAvgWindowSize = par("phySpaceTimeAvgWindowSize");
     }
     else if (stage == 1)
     {
@@ -102,14 +106,21 @@ void BaseStationAppLayerHoHuT::handleMobileNodeMsg(cMessage* msg)
         case COLLECTED_RSSI:
         {
             staticNodeSamplesSet_t* collectedRSSIs = getOrderedCollectedRSSIs(static_cast<addressRSSIMap_t*>(&(applPkt->getCollectedRSSIs())));
-            Coord calculatedPosition = getNodeLocation(collectedRSSIs);
+            Coord estimatedPosition = getNodeLocation(collectedRSSIs);
+
+            //CONTINUOUS-SPACE ESTIMATOR
+            if (usePhySpaceTimeAvg)
+            {
+                insertIntoNodeLocationsQueue(applPkt->getSrcAppAddress(),estimatedPosition);
+                estimatedPosition = getTimeNodeAveragedLocation(applPkt->getSrcAppAddress());
+            }
 
             if (recordStats)
             {
-                recordMobileNodePosError(applPkt->getSrcAppAddress(),applPkt->getRealPosition(),calculatedPosition);
+                recordMobileNodePosError(applPkt->getSrcAppAddress(),applPkt->getRealPosition(),estimatedPosition);
             }
 
-            debugEV << "calculated location (" << calculatedPosition.x << ";" << calculatedPosition.y << ") " << endl;
+            debugEV << "calculated location (" << estimatedPosition.x << ";" << estimatedPosition.y << ") " << endl;
             debugEV << "real location (" << applPkt->getRealPosition().x << ";" << applPkt->getRealPosition().y << ") " << endl;
             delete msg;
         }
@@ -127,12 +138,16 @@ Coord BaseStationAppLayerHoHuT::getNodeLocation(staticNodeSamplesSet_t* staticNo
     radioMapSet_t::iterator positionIt;
     staticNodesPDFSet_t::iterator staticNodePDFIt;
     staticNodeSamplesSet_t::iterator staticNodeSampleIt;
+    coordProbSet_t::iterator posProbIt;
+    coordProbSet_t positionsProbabilities;
     Coord location;
     double maxPositionProbability = 0;
+    unsigned int count = 0;
 
     unsigned int numberOfNodesToCheck = staticNodeSamples->size(); //maxPositionPDFsSize or less
     radioMapSet_t* candidatePositions = getCandidatePositions(staticNodeSamples);
 
+    //DISCRETE-SPACE ESTIMATOR
     while (numberOfNodesToCheck>0 && maxPositionProbability==0)
     {
         maxPositionProbability = 0;
@@ -142,8 +157,8 @@ Coord BaseStationAppLayerHoHuT::getNodeLocation(staticNodeSamplesSet_t* staticNo
             staticNodesPDFSet_t* staticNodesPDFs = rMapPosition->staticNodesPDFSet;
             staticNodePDF_t* staticNodePDF;
             double positionProbability = 1;
-            unsigned int count = 0;
             unsigned int nodesFoundInSample = 0;
+            count = 0;
 
             //check if the n first nodes from the position exist in the sample
             for (staticNodePDFIt=staticNodesPDFs->begin(); staticNodePDFIt!=staticNodesPDFs->end() && count<numberOfNodesToCheck; staticNodePDFIt++)
@@ -174,9 +189,40 @@ Coord BaseStationAppLayerHoHuT::getNodeLocation(staticNodeSamplesSet_t* staticNo
             {
                 location = rMapPosition->pos;
                 maxPositionProbability = positionProbability;
+
+                coordProbability* positionProb = (struct coordProbability*) malloc(sizeof(struct coordProbability));
+                positionProb->pos = location;
+                positionProb->probability = positionProbability;
+                positionsProbabilities.insert(positionProb);
             }
         }
         numberOfNodesToCheck--;
+    }
+
+    //SMALL-SCALE COMPENSATOR TODO
+
+    //CONTINUOUS-SPACE ESTIMATOR
+    if (useCenterOfMass)
+    {
+        count = 0;
+        double sumXP = 0;
+        double sumYP = 0;
+        double sumP = 0;
+        for (posProbIt=positionsProbabilities.begin(); posProbIt!=positionsProbabilities.end() && count<maxCenterOfMassPositions; posProbIt++)
+        {
+            coordProbability_t* el = *posProbIt;
+            sumXP += el->pos.x*el->probability;
+            sumP += el->probability;
+            count++;
+        }
+        for (posProbIt=positionsProbabilities.begin(); posProbIt!=positionsProbabilities.end() && count<maxCenterOfMassPositions; posProbIt++)
+        {
+            coordProbability_t* el = *posProbIt;
+            sumYP += el->pos.y*el->probability;
+            count++;
+        }
+        location.x = sumXP/sumP;
+        location.y = sumYP/sumP;
     }
 
     if (debug)
@@ -190,6 +236,50 @@ Coord BaseStationAppLayerHoHuT::getNodeLocation(staticNodeSamplesSet_t* staticNo
     }
 
     return location;
+}
+void BaseStationAppLayerHoHuT::insertIntoNodeLocationsQueue(LAddress::L3Type nodeAddr,Coord estimatedLocation)
+{
+    nodeLocationsMap_t::iterator it;
+    it = estimatedNodesLocationsMap.find(nodeAddr);
+    if (it!=estimatedNodesLocationsMap.end())
+    {
+        coordQueue_t* queue = it->second;
+        if (queue->size()>=phySpaceTimeAvgWindowSize)
+        {
+            queue->pop();
+        }
+        queue->push(estimatedLocation);
+    }
+    else
+    {
+        coordQueue_t* queue = new coordQueue_t;
+        queue->push(estimatedLocation);
+        estimatedNodesLocationsMap.insert(std::pair<LAddress::L3Type,coordQueue_t*>(nodeAddr,queue));
+    }
+}
+Coord BaseStationAppLayerHoHuT::getTimeNodeAveragedLocation(LAddress::L3Type nodeAddr)
+{
+    nodeLocationsMap_t::iterator it;
+    it = estimatedNodesLocationsMap.find(nodeAddr);
+    if (it != estimatedNodesLocationsMap.end())
+    {
+        double sumX = 0;
+        double sumY = 0;
+        coordQueue_t* queue = it->second;
+        for (unsigned int i=0; i<queue->size();i++)
+        {
+            Coord el = queue->front();
+            sumX += el.x;
+            sumY += el.y;
+            queue->pop();
+            queue->push(el);
+        }
+        return new Coord(sumX/queue->size(),sumY/queue->size());
+    }
+    else
+    {
+        return NULL;
+    }
 }
 BaseStationAppLayerHoHuT::radioMapSet_t* BaseStationAppLayerHoHuT::getCandidatePositions(staticNodeSamplesSet_t* staticNodeSamples)
 {

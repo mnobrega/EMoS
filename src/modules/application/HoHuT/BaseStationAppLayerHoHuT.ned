@@ -7,6 +7,10 @@ simple BaseStationAppLayerHoHuT
         bool recordStats = default(false);		
         int headerLength = default(24);
         bool useClustering = default(false);
+        bool useCenterOfMass = default(false);
+        bool usePhySpaceTimeAvg = default(false);
+        int maxCenterOfMassPositions = default(1);
+        int phySpaceTimeAvgWindowSize = default(1);
         xml radioMapXML = default(xml("<radioMap/>"));
         xml radioMapClustersXML = default(xml("<radioMapClusters/>"));
         xml normalStandardDistribXML = default(xml("<table/>"));

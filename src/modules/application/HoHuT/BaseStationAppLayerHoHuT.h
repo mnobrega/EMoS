@@ -42,11 +42,35 @@ class BaseStationAppLayerHoHuT : public BaseApplLayer
     protected:
         bool debug;
         bool useClustering;
+        bool useCenterOfMass;
+        bool usePhySpaceTimeAvg;
         cXMLElement* radioMapXML;
         cXMLElement* radioMapClustersXML;
         cXMLElement* normalStandardDistribXML;
 
         typedef std::vector<LAddress::L3Type> addressVec_t;
+
+        //PHYSICAL SPACE TIME AVG
+        unsigned int phySpaceTimeAvgWindowSize;
+        typedef std::queue<Coord> coordQueue_t;
+        typedef std::map<LAddress::L3Type,coordQueue_t*> nodeLocationsMap_t;
+        nodeLocationsMap_t estimatedNodesLocationsMap;
+
+        //CENTER OF MASS
+        unsigned int maxCenterOfMassPositions;
+        typedef struct coordProbability
+        {
+            Coord pos;
+            double probability;
+        }coordProbability_t;
+        struct coordProbabilityCompare
+        {
+            bool operator() (coordProbability_t* lhs, coordProbability_t* rhs)
+            {
+                return lhs->probability>rhs->probability; //probability DESC
+            }
+        };
+        typedef std::set<coordProbability_t*,coordProbabilityCompare> coordProbSet_t;
 
         //STAT RESULTS
         bool recordStats;
@@ -117,6 +141,8 @@ class BaseStationAppLayerHoHuT : public BaseApplLayer
         Coord getNodeLocation(staticNodeSamplesSet_t*);
         radioMapSet_t* getCandidatePositions(staticNodeSamplesSet_t*);
         coordVec_t* getCoordSetByClusterKey(addressVec_t* clusterKey);
+        void insertIntoNodeLocationsQueue(LAddress::L3Type,Coord);
+        Coord getTimeNodeAveragedLocation(LAddress::L3Type);
 
         //STATS
         void recordMobileNodePosError(LAddress::L3Type, Coord, Coord);
