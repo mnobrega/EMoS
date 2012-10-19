@@ -108,7 +108,7 @@ void BaseStationAppLayerHoHuT::handleMobileNodeMsg(cMessage* msg)
             staticNodeSamplesSet_t* collectedRSSIs = getOrderedCollectedRSSIs(static_cast<addressRSSIMap_t*>(&(applPkt->getCollectedRSSIs())));
             Coord estimatedPosition = getNodeLocation(collectedRSSIs);
 
-            //CONTINUOUS-SPACE ESTIMATOR
+            //CONTINUOUS-SPACE ESTIMATOR (physical space time average)
             if (usePhySpaceTimeAvg)
             {
                 insertIntoNodeLocationsQueue(applPkt->getSrcAppAddress(),estimatedPosition);
@@ -201,7 +201,7 @@ Coord BaseStationAppLayerHoHuT::getNodeLocation(staticNodeSamplesSet_t* staticNo
 
     //SMALL-SCALE COMPENSATOR TODO
 
-    //CONTINUOUS-SPACE ESTIMATOR
+    //CONTINUOUS-SPACE ESTIMATOR (center of mass)
     if (useCenterOfMass)
     {
         count = 0;
