@@ -1,6 +1,6 @@
-package org.mixim.modules.application.HoHuT;
+package org.mixim.modules.application.EMoS;
 
-simple StaticNodeAppLayerHoHuT
+simple StaticNodeAppLayerEMoS
 {
     parameters:
         bool debug = default(false); 			

@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libmiximmodules
 #
 # This file was generated with the command:
-#  opp_makemake -f --deep --make-so -o miximmodules -O out -I/usr/include/libxml2 -I../base/connectionManager -I../base/messages -I../base/phyLayer -I../base/modules -I../base/utils/HoHuT -I../base/utils -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -lmiximbase
+#  opp_makemake -f --deep --make-so -o miximmodules -O out -I/usr/include/libxml2 -I../base/connectionManager -I../base/messages -I../base/phyLayer -I../base/modules -I../base/utils -I../base/utils/EMoS -L../../out/$(CONFIGNAME)/tests/power/utils -L../../out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/src/base -lmiximbase
 #
 
 # Name of target to be created (-o option)
@@ -15,26 +15,26 @@ INCLUDE_PATH = \
     -I../base/messages \
     -I../base/phyLayer \
     -I../base/modules \
-    -I../base/utils/HoHuT \
     -I../base/utils \
+    -I../base/utils/EMoS \
     -I. \
     -IanalogueModel \
     -Iapplication \
-    -Iapplication/HoHuT \
+    -Iapplication/EMoS \
     -Iapplication/ieee80211p \
     -Iapplication/traci \
     -IconnectionManager \
     -Imac \
     -Imac/ieee80211p \
     -Imessages \
-    -Imessages/HoHuT \
+    -Imessages/EMoS \
     -Imobility \
     -Imobility/traci \
     -Inetw \
-    -Inetw/HoHuT \
+    -Inetw/EMoS \
     -Inic \
     -Inode \
-    -Inode/HoHuT \
+    -Inode/EMoS \
     -Iobstacle \
     -Iphy \
     -Ipower \
@@ -72,9 +72,9 @@ OBJS = \
     $O/application/TestApplication.o \
     $O/application/TrafficGen.o \
     $O/application/BurstApplLayerBattery.o \
-    $O/application/HoHuT/BaseStationAppLayerHoHuT.o \
-    $O/application/HoHuT/StaticNodeAppLayerHoHuT.o \
-    $O/application/HoHuT/MobileNodeAppLayerHoHuT.o \
+    $O/application/EMoS/MobileNodeAppLayerEMoS.o \
+    $O/application/EMoS/StaticNodeAppLayerEMoS.o \
+    $O/application/EMoS/BaseStationAppLayerEMoS.o \
     $O/application/ieee80211p/BaseWaveApplLayer.o \
     $O/application/ieee80211p/TestWaveApplLayer.o \
     $O/application/traci/TraCIDemo11p.o \
@@ -116,7 +116,7 @@ OBJS = \
     $O/netw/DummyRoute.o \
     $O/netw/WiseRoute.o \
     $O/netw/AdaptiveProbabilisticBroadcast.o \
-    $O/netw/HoHuT/AODVRoute.o \
+    $O/netw/EMoS/AODVRoute.o \
     $O/obstacle/ObstacleControl.o \
     $O/obstacle/Obstacle.o \
     $O/phy/PhyLayerBattery.o \
@@ -149,11 +149,11 @@ OBJS = \
     $O/messages/AirFrameUWBIR_m.o \
     $O/messages/UWBIRMacPkt_m.o \
     $O/messages/ProbabilisticBroadcastPkt_m.o \
-    $O/messages/HoHuT/AODVRouteResponse_m.o \
-    $O/messages/HoHuT/AODVData_m.o \
-    $O/messages/HoHuT/HoHuTApplPkt_m.o \
-    $O/messages/HoHuT/AODVRouteRequest_m.o \
-    $O/messages/HoHuT/AODVRouteError_m.o
+    $O/messages/EMoS/AODVRouteResponse_m.o \
+    $O/messages/EMoS/AODVData_m.o \
+    $O/messages/EMoS/AODVRouteRequest_m.o \
+    $O/messages/EMoS/EMoSApplPkt_m.o \
+    $O/messages/EMoS/AODVRouteError_m.o
 
 # Message files
 MSGFILES = \
@@ -166,11 +166,11 @@ MSGFILES = \
     messages/AirFrameUWBIR.msg \
     messages/UWBIRMacPkt.msg \
     messages/ProbabilisticBroadcastPkt.msg \
-    messages/HoHuT/AODVRouteResponse.msg \
-    messages/HoHuT/AODVData.msg \
-    messages/HoHuT/HoHuTApplPkt.msg \
-    messages/HoHuT/AODVRouteRequest.msg \
-    messages/HoHuT/AODVRouteError.msg
+    messages/EMoS/AODVRouteResponse.msg \
+    messages/EMoS/AODVData.msg \
+    messages/EMoS/AODVRouteRequest.msg \
+    messages/EMoS/EMoSApplPkt.msg \
+    messages/EMoS/AODVRouteError.msg
 
 #------------------------------------------------------------------------------
 
@@ -243,21 +243,21 @@ clean:
 	-rm -f ./*_m.cc ./*_m.h
 	-rm -f analogueModel/*_m.cc analogueModel/*_m.h
 	-rm -f application/*_m.cc application/*_m.h
-	-rm -f application/HoHuT/*_m.cc application/HoHuT/*_m.h
+	-rm -f application/EMoS/*_m.cc application/EMoS/*_m.h
 	-rm -f application/ieee80211p/*_m.cc application/ieee80211p/*_m.h
 	-rm -f application/traci/*_m.cc application/traci/*_m.h
 	-rm -f connectionManager/*_m.cc connectionManager/*_m.h
 	-rm -f mac/*_m.cc mac/*_m.h
 	-rm -f mac/ieee80211p/*_m.cc mac/ieee80211p/*_m.h
 	-rm -f messages/*_m.cc messages/*_m.h
-	-rm -f messages/HoHuT/*_m.cc messages/HoHuT/*_m.h
+	-rm -f messages/EMoS/*_m.cc messages/EMoS/*_m.h
 	-rm -f mobility/*_m.cc mobility/*_m.h
 	-rm -f mobility/traci/*_m.cc mobility/traci/*_m.h
 	-rm -f netw/*_m.cc netw/*_m.h
-	-rm -f netw/HoHuT/*_m.cc netw/HoHuT/*_m.h
+	-rm -f netw/EMoS/*_m.cc netw/EMoS/*_m.h
 	-rm -f nic/*_m.cc nic/*_m.h
 	-rm -f node/*_m.cc node/*_m.h
-	-rm -f node/HoHuT/*_m.cc node/HoHuT/*_m.h
+	-rm -f node/EMoS/*_m.cc node/EMoS/*_m.h
 	-rm -f obstacle/*_m.cc obstacle/*_m.h
 	-rm -f phy/*_m.cc phy/*_m.h
 	-rm -f power/*_m.cc power/*_m.h
@@ -271,7 +271,7 @@ cleanall: clean
 	-rm -rf $(PROJECT_OUTPUT_DIR)
 
 depend:
-	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc analogueModel/*.cc application/*.cc application/HoHuT/*.cc application/ieee80211p/*.cc application/traci/*.cc connectionManager/*.cc mac/*.cc mac/ieee80211p/*.cc messages/*.cc messages/HoHuT/*.cc mobility/*.cc mobility/traci/*.cc netw/*.cc netw/HoHuT/*.cc nic/*.cc node/*.cc node/HoHuT/*.cc obstacle/*.cc phy/*.cc power/*.cc power/battery/*.cc transport/*.cc utility/*.cc world/*.cc world/annotations/*.cc
+	$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc analogueModel/*.cc application/*.cc application/EMoS/*.cc application/ieee80211p/*.cc application/traci/*.cc connectionManager/*.cc mac/*.cc mac/ieee80211p/*.cc messages/*.cc messages/EMoS/*.cc mobility/*.cc mobility/traci/*.cc netw/*.cc netw/EMoS/*.cc nic/*.cc node/*.cc node/EMoS/*.cc obstacle/*.cc phy/*.cc power/*.cc power/battery/*.cc transport/*.cc utility/*.cc world/*.cc world/annotations/*.cc
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 $O/analogueModel/BreakpointPathlossModel.o: analogueModel/BreakpointPathlossModel.cc \
@@ -496,7 +496,7 @@ $O/application/TrafficGen.o: application/TrafficGen.cc \
 	../base/utils/miximkerneldefs.h \
 	application/TrafficGen.h \
 	utility/Packet.h
-$O/application/HoHuT/BaseStationAppLayerHoHuT.o: application/HoHuT/BaseStationAppLayerHoHuT.cc \
+$O/application/EMoS/BaseStationAppLayerEMoS.o: application/EMoS/BaseStationAppLayerEMoS.cc \
 	../base/messages/ApplPkt_m.h \
 	../base/modules/BaseApplLayer.h \
 	../base/modules/BaseBattery.h \
@@ -504,17 +504,17 @@ $O/application/HoHuT/BaseStationAppLayerHoHuT.o: application/HoHuT/BaseStationAp
 	../base/modules/BaseModule.h \
 	../base/modules/BatteryAccess.h \
 	../base/utils/Coord.h \
+	../base/utils/EMoS/NetwToApplControlInfo.h \
 	../base/utils/FWMath.h \
-	../base/utils/HoHuT/NetwToApplControlInfo.h \
 	../base/utils/HostState.h \
 	../base/utils/MiXiMDefs.h \
 	../base/utils/NetwControlInfo.h \
 	../base/utils/PassedMessage.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
-	application/HoHuT/BaseStationAppLayerHoHuT.h \
-	messages/HoHuT/HoHuTApplPkt_m.h
-$O/application/HoHuT/MobileNodeAppLayerHoHuT.o: application/HoHuT/MobileNodeAppLayerHoHuT.cc \
+	application/EMoS/BaseStationAppLayerEMoS.h \
+	messages/EMoS/EMoSApplPkt_m.h
+$O/application/EMoS/MobileNodeAppLayerEMoS.o: application/EMoS/MobileNodeAppLayerEMoS.cc \
 	../base/messages/ApplPkt_m.h \
 	../base/modules/AddressingInterface.h \
 	../base/modules/BaseApplLayer.h \
@@ -526,9 +526,9 @@ $O/application/HoHuT/MobileNodeAppLayerHoHuT.o: application/HoHuT/MobileNodeAppL
 	../base/modules/BaseWorldUtility.h \
 	../base/modules/BatteryAccess.h \
 	../base/utils/Coord.h \
+	../base/utils/EMoS/NetwToApplControlInfo.h \
 	../base/utils/FWMath.h \
 	../base/utils/FindModule.h \
-	../base/utils/HoHuT/NetwToApplControlInfo.h \
 	../base/utils/HostState.h \
 	../base/utils/MiXiMDefs.h \
 	../base/utils/Move.h \
@@ -536,9 +536,9 @@ $O/application/HoHuT/MobileNodeAppLayerHoHuT.o: application/HoHuT/MobileNodeAppL
 	../base/utils/PassedMessage.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
-	application/HoHuT/MobileNodeAppLayerHoHuT.h \
-	messages/HoHuT/HoHuTApplPkt_m.h
-$O/application/HoHuT/StaticNodeAppLayerHoHuT.o: application/HoHuT/StaticNodeAppLayerHoHuT.cc \
+	application/EMoS/MobileNodeAppLayerEMoS.h \
+	messages/EMoS/EMoSApplPkt_m.h
+$O/application/EMoS/StaticNodeAppLayerEMoS.o: application/EMoS/StaticNodeAppLayerEMoS.cc \
 	../base/messages/ApplPkt_m.h \
 	../base/modules/BaseApplLayer.h \
 	../base/modules/BaseBattery.h \
@@ -546,16 +546,16 @@ $O/application/HoHuT/StaticNodeAppLayerHoHuT.o: application/HoHuT/StaticNodeAppL
 	../base/modules/BaseModule.h \
 	../base/modules/BatteryAccess.h \
 	../base/utils/Coord.h \
+	../base/utils/EMoS/NetwToApplControlInfo.h \
 	../base/utils/FWMath.h \
-	../base/utils/HoHuT/NetwToApplControlInfo.h \
 	../base/utils/HostState.h \
 	../base/utils/MiXiMDefs.h \
 	../base/utils/NetwControlInfo.h \
 	../base/utils/PassedMessage.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
-	application/HoHuT/StaticNodeAppLayerHoHuT.h \
-	messages/HoHuT/HoHuTApplPkt_m.h
+	application/EMoS/StaticNodeAppLayerEMoS.h \
+	messages/EMoS/EMoSApplPkt_m.h
 $O/application/ieee80211p/BaseWaveApplLayer.o: application/ieee80211p/BaseWaveApplLayer.cc \
 	../base/connectionManager/ChannelAccess.h \
 	../base/messages/MacPkt_m.h \
@@ -1085,38 +1085,38 @@ $O/messages/WiseRoutePkt_m.o: messages/WiseRoutePkt_m.cc \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
 	messages/WiseRoutePkt_m.h
-$O/messages/HoHuT/AODVData_m.o: messages/HoHuT/AODVData_m.cc \
+$O/messages/EMoS/AODVData_m.o: messages/EMoS/AODVData_m.cc \
 	../base/messages/NetwPkt_m.h \
 	../base/utils/MiXiMDefs.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
-	messages/HoHuT/AODVData_m.h
-$O/messages/HoHuT/AODVRouteError_m.o: messages/HoHuT/AODVRouteError_m.cc \
+	messages/EMoS/AODVData_m.h
+$O/messages/EMoS/AODVRouteError_m.o: messages/EMoS/AODVRouteError_m.cc \
 	../base/messages/NetwPkt_m.h \
 	../base/utils/MiXiMDefs.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
-	messages/HoHuT/AODVRouteError_m.h
-$O/messages/HoHuT/AODVRouteRequest_m.o: messages/HoHuT/AODVRouteRequest_m.cc \
+	messages/EMoS/AODVRouteError_m.h
+$O/messages/EMoS/AODVRouteRequest_m.o: messages/EMoS/AODVRouteRequest_m.cc \
 	../base/messages/NetwPkt_m.h \
 	../base/utils/MiXiMDefs.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
-	messages/HoHuT/AODVRouteRequest_m.h
-$O/messages/HoHuT/AODVRouteResponse_m.o: messages/HoHuT/AODVRouteResponse_m.cc \
+	messages/EMoS/AODVRouteRequest_m.h
+$O/messages/EMoS/AODVRouteResponse_m.o: messages/EMoS/AODVRouteResponse_m.cc \
 	../base/messages/NetwPkt_m.h \
 	../base/utils/MiXiMDefs.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
-	messages/HoHuT/AODVRouteResponse_m.h
-$O/messages/HoHuT/HoHuTApplPkt_m.o: messages/HoHuT/HoHuTApplPkt_m.cc \
+	messages/EMoS/AODVRouteResponse_m.h
+$O/messages/EMoS/EMoSApplPkt_m.o: messages/EMoS/EMoSApplPkt_m.cc \
 	../base/messages/ApplPkt_m.h \
 	../base/utils/Coord.h \
 	../base/utils/FWMath.h \
 	../base/utils/MiXiMDefs.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
-	messages/HoHuT/HoHuTApplPkt_m.h
+	messages/EMoS/EMoSApplPkt_m.h
 $O/mobility/ANSimMobility.o: mobility/ANSimMobility.cc \
 	../base/modules/BaseBattery.h \
 	../base/modules/BaseMobility.h \
@@ -1456,7 +1456,7 @@ $O/netw/WiseRoute.o: netw/WiseRoute.cc \
 	netw/WiseRoute.h \
 	utility/Packet.h \
 	utility/SimTracer.h
-$O/netw/HoHuT/AODVRoute.o: netw/HoHuT/AODVRoute.cc \
+$O/netw/EMoS/AODVRoute.o: netw/EMoS/AODVRoute.cc \
 	../base/messages/ApplPkt_m.h \
 	../base/messages/MacPkt_m.h \
 	../base/messages/NetwPkt_m.h \
@@ -1466,7 +1466,7 @@ $O/netw/HoHuT/AODVRoute.o: netw/HoHuT/AODVRoute.cc \
 	../base/modules/BaseModule.h \
 	../base/modules/BaseNetwLayer.h \
 	../base/modules/BatteryAccess.h \
-	../base/utils/HoHuT/NetwToApplControlInfo.h \
+	../base/utils/EMoS/NetwToApplControlInfo.h \
 	../base/utils/HostState.h \
 	../base/utils/MacToNetwControlInfo.h \
 	../base/utils/MiXiMDefs.h \
@@ -1475,11 +1475,11 @@ $O/netw/HoHuT/AODVRoute.o: netw/HoHuT/AODVRoute.cc \
 	../base/utils/PassedMessage.h \
 	../base/utils/SimpleAddress.h \
 	../base/utils/miximkerneldefs.h \
-	messages/HoHuT/AODVData_m.h \
-	messages/HoHuT/AODVRouteError_m.h \
-	messages/HoHuT/AODVRouteRequest_m.h \
-	messages/HoHuT/AODVRouteResponse_m.h \
-	netw/HoHuT/AODVRoute.h
+	messages/EMoS/AODVData_m.h \
+	messages/EMoS/AODVRouteError_m.h \
+	messages/EMoS/AODVRouteRequest_m.h \
+	messages/EMoS/AODVRouteResponse_m.h \
+	netw/EMoS/AODVRoute.h
 $O/obstacle/Obstacle.o: obstacle/Obstacle.cc \
 	../base/utils/Coord.h \
 	../base/utils/FWMath.h \

@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for mixim
 #
 # This file was generated with the command:
-#  opp_makemake -f --nolink -O out -d Mac80211 -d ieee80211p -d multiConnectionManager -d annotations -d CSMAMac -d bmac -d obstacles -d lmac -d BaseMoBANNetwork -d veins -d ieee802154a -d traci_launchd -d baseNetwork -d WSNRouting -d ieee802154Narrow -d twoRayInterference -d HoHuT -d analogueModels -I/usr/include/libxml2 -L../out/$(CONFIGNAME)/tests/power/utils -L../out/$(CONFIGNAME)/tests/testUtils -L../out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/src/modules
+#  opp_makemake -f --nolink -O out -d Mac80211 -d ieee80211p -d multiConnectionManager -d annotations -d CSMAMac -d bmac -d obstacles -d lmac -d BaseMoBANNetwork -d veins -d ieee802154a -d traci_launchd -d baseNetwork -d WSNRouting -d ieee802154Narrow -d EMoS -d twoRayInterference -d analogueModels -I/usr/include/libxml2 -L../out/$(CONFIGNAME)/tests/power/utils -L../out/$(CONFIGNAME)/tests/testUtils -L../out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/src/modules
 #
 
 # C++ include paths (with -I)
@@ -63,9 +63,9 @@ endif
 all: $(OBJS) submakedirs Makefile
 	@# Do nothing
 
-submakedirs:  Mac80211_dir ieee80211p_dir multiConnectionManager_dir annotations_dir CSMAMac_dir bmac_dir obstacles_dir lmac_dir BaseMoBANNetwork_dir veins_dir ieee802154a_dir traci_launchd_dir baseNetwork_dir WSNRouting_dir ieee802154Narrow_dir twoRayInterference_dir HoHuT_dir analogueModels_dir
+submakedirs:  Mac80211_dir ieee80211p_dir multiConnectionManager_dir annotations_dir CSMAMac_dir bmac_dir obstacles_dir lmac_dir BaseMoBANNetwork_dir veins_dir ieee802154a_dir traci_launchd_dir baseNetwork_dir WSNRouting_dir ieee802154Narrow_dir EMoS_dir twoRayInterference_dir analogueModels_dir
 
-.PHONY: all clean cleanall depend msgheaders  Mac80211 ieee80211p multiConnectionManager annotations CSMAMac bmac obstacles lmac BaseMoBANNetwork veins ieee802154a traci_launchd baseNetwork WSNRouting ieee802154Narrow twoRayInterference HoHuT analogueModels
+.PHONY: all clean cleanall depend msgheaders  Mac80211 ieee80211p multiConnectionManager annotations CSMAMac bmac obstacles lmac BaseMoBANNetwork veins ieee802154a traci_launchd baseNetwork WSNRouting ieee802154Narrow EMoS twoRayInterference analogueModels
 Mac80211: Mac80211_dir
 ieee80211p: ieee80211p_dir
 multiConnectionManager: multiConnectionManager_dir
@@ -81,8 +81,8 @@ traci_launchd: traci_launchd_dir
 baseNetwork: baseNetwork_dir
 WSNRouting: WSNRouting_dir
 ieee802154Narrow: ieee802154Narrow_dir
+EMoS: EMoS_dir
 twoRayInterference: twoRayInterference_dir
-HoHuT: HoHuT_dir
 analogueModels: analogueModels_dir
 
 Mac80211_dir:
@@ -130,11 +130,11 @@ WSNRouting_dir:
 ieee802154Narrow_dir:
 	cd ieee802154Narrow && $(MAKE) all
 
+EMoS_dir:
+	cd EMoS && $(MAKE) all
+
 twoRayInterference_dir:
 	cd twoRayInterference && $(MAKE) all
-
-HoHuT_dir:
-	cd HoHuT && $(MAKE) all
 
 analogueModels_dir:
 	cd analogueModels && $(MAKE) all
@@ -164,8 +164,8 @@ msgheaders: $(MSGFILES:.msg=_m.h)
 	cd baseNetwork && $(MAKE) msgheaders
 	cd WSNRouting && $(MAKE) msgheaders
 	cd ieee802154Narrow && $(MAKE) msgheaders
+	cd EMoS && $(MAKE) msgheaders
 	cd twoRayInterference && $(MAKE) msgheaders
-	cd HoHuT && $(MAKE) msgheaders
 	cd analogueModels && $(MAKE) msgheaders
 
 clean:
@@ -188,8 +188,8 @@ clean:
 	-cd baseNetwork && $(MAKE) clean
 	-cd WSNRouting && $(MAKE) clean
 	-cd ieee802154Narrow && $(MAKE) clean
+	-cd EMoS && $(MAKE) clean
 	-cd twoRayInterference && $(MAKE) clean
-	-cd HoHuT && $(MAKE) clean
 	-cd analogueModels && $(MAKE) clean
 
 cleanall: clean
@@ -212,8 +212,8 @@ depend:
 	-cd baseNetwork && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd WSNRouting && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd ieee802154Narrow && if [ -f Makefile ]; then $(MAKE) depend; fi
+	-cd EMoS && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd twoRayInterference && if [ -f Makefile ]; then $(MAKE) depend; fi
-	-cd HoHuT && if [ -f Makefile ]; then $(MAKE) depend; fi
 	-cd analogueModels && if [ -f Makefile ]; then $(MAKE) depend; fi
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

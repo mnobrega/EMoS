@@ -1,8 +1,8 @@
-#include "BaseStationAppLayerHoHuT.h"
+#include "BaseStationAppLayerEMoS.h"
 
-Define_Module(BaseStationAppLayerHoHuT);
+Define_Module(BaseStationAppLayerEMoS);
 
-void BaseStationAppLayerHoHuT::initialize(int stage)
+void BaseStationAppLayerEMoS::initialize(int stage)
 {
     BaseApplLayer::initialize(stage);
     if (stage == 0)
@@ -32,9 +32,9 @@ void BaseStationAppLayerHoHuT::initialize(int stage)
     }
 }
 
-BaseStationAppLayerHoHuT::~BaseStationAppLayerHoHuT() {}
+BaseStationAppLayerEMoS::~BaseStationAppLayerEMoS() {}
 
-void BaseStationAppLayerHoHuT::finish()
+void BaseStationAppLayerEMoS::finish()
 {
     if (recordStats)
     {
@@ -47,7 +47,7 @@ void BaseStationAppLayerHoHuT::finish()
     }
 }
 
-void BaseStationAppLayerHoHuT::handleSelfMsg(cMessage * msg)
+void BaseStationAppLayerEMoS::handleSelfMsg(cMessage * msg)
 {
     switch (msg->getKind())
     {
@@ -58,16 +58,16 @@ void BaseStationAppLayerHoHuT::handleSelfMsg(cMessage * msg)
     }
 }
 
-void BaseStationAppLayerHoHuT::handleLowerMsg(cMessage * msg)
+void BaseStationAppLayerEMoS::handleLowerMsg(cMessage * msg)
 {
     NetwToApplControlInfo* cInfo;
-    HoHuTApplPkt* applPkt;
+    EMoSApplPkt* applPkt;
 
     switch (msg->getKind())
     {
         case STATIC_NODE_MSG:
             cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
-            applPkt = static_cast<HoHuTApplPkt*>(msg);
+            applPkt = static_cast<EMoSApplPkt*>(msg);
             debugEV << "received rssi: " << cInfo->getRSSI() << endl;
             debugEV << "Received a node msg from static node: " << cInfo->getSrcNetwAddr() << endl;
             debugEV << "msg data:" << applPkt->getPayload() << endl;
@@ -85,23 +85,23 @@ void BaseStationAppLayerHoHuT::handleLowerMsg(cMessage * msg)
             break;
     }
 }
-void BaseStationAppLayerHoHuT::handleLowerControl(cMessage* msg)
+void BaseStationAppLayerEMoS::handleLowerControl(cMessage* msg)
 {
     delete msg; //dont do nothing for now
 }
 
 //Note: mobile node msgs are always sent through static nodes
-void BaseStationAppLayerHoHuT::handleMobileNodeMsg(cMessage* msg)
+void BaseStationAppLayerEMoS::handleMobileNodeMsg(cMessage* msg)
 {
     NetwToApplControlInfo* cInfo;
-    HoHuTApplPkt* applPkt;
+    EMoSApplPkt* applPkt;
     cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
-    applPkt = static_cast<HoHuTApplPkt*>(msg);
+    applPkt = static_cast<EMoSApplPkt*>(msg);
     debugEV << "received rssi: " << cInfo->getRSSI() << endl;
     debugEV << "Received a node msg from mobile node with appAddr: " << applPkt->getSrcAppAddress() << endl;
     debugEV << "msg data:" << applPkt->getPayload() << endl;
 
-    switch (applPkt->getHoHuTMsgType())
+    switch (applPkt->getEMoSMsgType())
     {
         case COLLECTED_RSSI:
         {
@@ -126,14 +126,14 @@ void BaseStationAppLayerHoHuT::handleMobileNodeMsg(cMessage* msg)
         }
             break;
         default:
-            error("unknown HoHuT msg type");
+            error("unknown EMoS msg type");
             delete msg;
             break;
     }
 }
 
 //LOCALIZATION
-Coord BaseStationAppLayerHoHuT::getNodeLocation(staticNodeSamplesSet_t* staticNodeSamples)
+Coord BaseStationAppLayerEMoS::getNodeLocation(staticNodeSamplesSet_t* staticNodeSamples)
 {
     radioMapSet_t::iterator positionIt;
     staticNodesPDFSet_t::iterator staticNodePDFIt;
@@ -237,7 +237,7 @@ Coord BaseStationAppLayerHoHuT::getNodeLocation(staticNodeSamplesSet_t* staticNo
 
     return location;
 }
-void BaseStationAppLayerHoHuT::insertIntoNodeLocationsQueue(LAddress::L3Type nodeAddr,Coord estimatedLocation)
+void BaseStationAppLayerEMoS::insertIntoNodeLocationsQueue(LAddress::L3Type nodeAddr,Coord estimatedLocation)
 {
     nodeLocationsMap_t::iterator it;
     it = estimatedNodesLocationsMap.find(nodeAddr);
@@ -257,7 +257,7 @@ void BaseStationAppLayerHoHuT::insertIntoNodeLocationsQueue(LAddress::L3Type nod
         estimatedNodesLocationsMap.insert(std::pair<LAddress::L3Type,coordQueue_t*>(nodeAddr,queue));
     }
 }
-Coord BaseStationAppLayerHoHuT::getTimeNodeAveragedLocation(LAddress::L3Type nodeAddr)
+Coord BaseStationAppLayerEMoS::getTimeNodeAveragedLocation(LAddress::L3Type nodeAddr)
 {
     nodeLocationsMap_t::iterator it;
     it = estimatedNodesLocationsMap.find(nodeAddr);
@@ -281,7 +281,7 @@ Coord BaseStationAppLayerHoHuT::getTimeNodeAveragedLocation(LAddress::L3Type nod
         return NULL;
     }
 }
-BaseStationAppLayerHoHuT::radioMapSet_t* BaseStationAppLayerHoHuT::getCandidatePositions(staticNodeSamplesSet_t* staticNodeSamples)
+BaseStationAppLayerEMoS::radioMapSet_t* BaseStationAppLayerEMoS::getCandidatePositions(staticNodeSamplesSet_t* staticNodeSamples)
 {
     if (useClustering)
     {
@@ -321,7 +321,7 @@ BaseStationAppLayerHoHuT::radioMapSet_t* BaseStationAppLayerHoHuT::getCandidateP
     }
     return &radioMap;
 }
-BaseStationAppLayerHoHuT::coordVec_t* BaseStationAppLayerHoHuT::getCoordSetByClusterKey(addressVec_t* clusterKey)
+BaseStationAppLayerEMoS::coordVec_t* BaseStationAppLayerEMoS::getCoordSetByClusterKey(addressVec_t* clusterKey)
 {
     radioMapCluster_t::iterator it;
     addressVec_t* cKey;
@@ -353,7 +353,7 @@ BaseStationAppLayerHoHuT::coordVec_t* BaseStationAppLayerHoHuT::getCoordSetByClu
 
 
 //XML FILES
-void BaseStationAppLayerHoHuT::loadNormalStandard(cXMLElement* xml)
+void BaseStationAppLayerEMoS::loadNormalStandard(cXMLElement* xml)
 {
     cXMLElementList::const_iterator row;
     cXMLElementList::const_iterator cell;
@@ -389,7 +389,7 @@ void BaseStationAppLayerHoHuT::loadNormalStandard(cXMLElement* xml)
         normalStandardTable.insert(std::pair<double,double>(zValue,normalDist));
     }
 }
-void BaseStationAppLayerHoHuT::loadRadioMapFromXML(cXMLElement* xml)
+void BaseStationAppLayerEMoS::loadRadioMapFromXML(cXMLElement* xml)
 {
     cXMLElementList::const_iterator i;
     cXMLElementList::const_iterator j;
@@ -434,7 +434,7 @@ void BaseStationAppLayerHoHuT::loadRadioMapFromXML(cXMLElement* xml)
     }
 }
 
-void BaseStationAppLayerHoHuT::loadRadioMapClustersFromXML(cXMLElement* xml)
+void BaseStationAppLayerEMoS::loadRadioMapClustersFromXML(cXMLElement* xml)
 {
     cXMLElementList::const_iterator i;
     cXMLElementList::const_iterator j;
@@ -491,7 +491,7 @@ void BaseStationAppLayerHoHuT::loadRadioMapClustersFromXML(cXMLElement* xml)
 }
 
 //STATS
-void BaseStationAppLayerHoHuT::recordMobileNodePosError(LAddress::L3Type mobileNodeAddr, Coord realPos, Coord calcPos)
+void BaseStationAppLayerEMoS::recordMobileNodePosError(LAddress::L3Type mobileNodeAddr, Coord realPos, Coord calcPos)
 {
     mobileNodesPosErrors_t::iterator it;
     it = mobileNodesPosErrors.find(mobileNodeAddr);
@@ -508,7 +508,7 @@ void BaseStationAppLayerHoHuT::recordMobileNodePosError(LAddress::L3Type mobileN
 }
 
 //AUX
-BaseStationAppLayerHoHuT::staticNodeSamplesSet_t* BaseStationAppLayerHoHuT::getOrderedCollectedRSSIs(addressRSSIMap_t* appPktCollectedRSSIs)
+BaseStationAppLayerEMoS::staticNodeSamplesSet_t* BaseStationAppLayerEMoS::getOrderedCollectedRSSIs(addressRSSIMap_t* appPktCollectedRSSIs)
 {
     //appPktCollectedRSSIs sorted by mean DESC
 
@@ -541,7 +541,7 @@ BaseStationAppLayerHoHuT::staticNodeSamplesSet_t* BaseStationAppLayerHoHuT::getO
     }
     return orderedCollectedRSSIsSubSet;
 }
-double BaseStationAppLayerHoHuT::convertStringToNumber(const std::string& str)
+double BaseStationAppLayerEMoS::convertStringToNumber(const std::string& str)
 {
     std::istringstream i(str);
     double x;
@@ -551,13 +551,13 @@ double BaseStationAppLayerHoHuT::convertStringToNumber(const std::string& str)
     }
     return x;
 }
-double BaseStationAppLayerHoHuT::roundNumber(double number, int precision)
+double BaseStationAppLayerEMoS::roundNumber(double number, int precision)
 {
     std::stringstream s;
     s << std::setprecision(precision) << std::setiosflags(std::ios_base::fixed) << number;
     return convertStringToNumber(s.str());
 }
-double BaseStationAppLayerHoHuT::getDistance(Coord coord1, Coord coord2)
+double BaseStationAppLayerEMoS::getDistance(Coord coord1, Coord coord2)
 {
     return sqrt(pow(coord1.x - coord2.x,2) + pow(coord1.y - coord2.y,2));
 }

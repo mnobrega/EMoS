@@ -1,5 +1,5 @@
-#ifndef STATIC_NODE_APP_LAYER_HOHUT_H
-#define STATIC_NODE_APP_LAYER_HOHUT_H
+#ifndef STATIC_NODE_APP_LAYER_EMOS_H
+#define STATIC_NODE_APP_LAYER_EMOS_H
 
 #include <omnetpp.h>
 #include <queue>
@@ -7,13 +7,13 @@
 #include "BaseApplLayer.h"
 #include "NetwControlInfo.h"
 #include "NetwToApplControlInfo.h"
-#include "HoHuTApplPkt_m.h"
+#include "EMoSApplPkt_m.h"
 #include "ApplPkt_m.h"
 
-class StaticNodeAppLayerHoHuT : public BaseApplLayer
+class StaticNodeAppLayerEMoS : public BaseApplLayer
 {
     public:
-		virtual ~StaticNodeAppLayerHoHuT();
+		virtual ~StaticNodeAppLayerEMoS();
 		virtual void initialize(int stage);
 		virtual void finish();
 
@@ -24,8 +24,8 @@ class StaticNodeAppLayerHoHuT : public BaseApplLayer
             STATIC_NODE_MSG,         //unicast - static node msg (hoven or other monitoring house devices)
             MOBILE_NODE_MSG          //unicast - mobile node msg (alarm, posTrackingReq, etc)
         };
-        //identifies the type of HoHuTAppl msg
-        enum HOHUT_MSG_TYPE
+        //identifies the type of EMoSAppl msg
+        enum EMoS_MSG_TYPE
         {
             COLLECTED_RSSI,         //msg with the means of several rssis collected from the static nodes
             HELP_REQUEST,           //msg with a help request sent by the mobile node

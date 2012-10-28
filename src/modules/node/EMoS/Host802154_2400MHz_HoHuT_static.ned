@@ -1,9 +1,9 @@
-package org.mixim.modules.node.HoHuT;
+package org.mixim.modules.node.EMoS;
 
 import org.mixim.base.modules.BaseMobility;
 import org.mixim.base.modules.BaseWorldUtility;
 import org.mixim.base.modules.IBaseNetwLayer;
-import org.mixim.modules.application.HoHuT.BaseStationAppLayerHoHuT;
+import org.mixim.modules.application.EMoS.StaticNodeAppLayerEMoS;
 import org.mixim.modules.netw.ArpHost;
 import org.mixim.modules.nic.Nic802154_TI_CC2420;
 import org.mixim.modules.power.battery.BatteryStats;
@@ -30,7 +30,7 @@ import org.mixim.modules.transport.Aggregation;
 //
 // @author Jérôme Rousselot
 //
-module Host802154_2400MHz_HoHuT_base
+module Host802154_2400MHz_EMoS_static
 {
     parameters:
         double numHosts; // total number of hosts in the network
@@ -79,7 +79,7 @@ module Host802154_2400MHz_HoHuT_base
             parameters:
                 @display("p=202,186");
         }
-        app: BaseStationAppLayerHoHuT {
+        app: StaticNodeAppLayerEMoS {
             parameters:
                 @display("p=86,38;i=block/app");
 

@@ -91,7 +91,7 @@ void ObstacleControl::addFromXml(cXMLElement* xml) {
 		double attenuationPerWall = 50; /**< in dB */
 		double attenuationPerMeter = 1; /**< in dB / m */
 		if (type == "building") { attenuationPerWall = 50; attenuationPerMeter = 1; }
-		//MOD - added new types for HoHuT
+		//MOD - added new types for EMoS
 		else if (type == "brickWall20cm") { attenuationPerWall = 0; attenuationPerMeter = 106.3; } // 13.5 dB/i = 13.5dB/2.54cm
 		else if (type == "brickWall10cm") { attenuationPerWall = 0; attenuationPerMeter = 26.575; } // 6.75 dB/i = 6.75dB/2.54cm
 		//MOD END

@@ -1,8 +1,8 @@
-#include "StaticNodeAppLayerHoHuT.h"
+#include "StaticNodeAppLayerEMoS.h"
 
-Define_Module(StaticNodeAppLayerHoHuT);
+Define_Module(StaticNodeAppLayerEMoS);
 
-void StaticNodeAppLayerHoHuT::initialize(int stage)
+void StaticNodeAppLayerEMoS::initialize(int stage)
 {
     BaseApplLayer::initialize(stage);
     if (stage == 0) //read config params
@@ -37,14 +37,14 @@ void StaticNodeAppLayerHoHuT::initialize(int stage)
     }
 }
 
-StaticNodeAppLayerHoHuT::~StaticNodeAppLayerHoHuT() {}
+StaticNodeAppLayerEMoS::~StaticNodeAppLayerEMoS() {}
 
-void StaticNodeAppLayerHoHuT::finish()
+void StaticNodeAppLayerEMoS::finish()
 {
     cancelAndDelete(selfTimer);
 }
 
-void StaticNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
+void StaticNodeAppLayerEMoS::handleSelfMsg(cMessage * msg)
 {
     switch (msg->getKind())
     {
@@ -65,16 +65,16 @@ void StaticNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
     }
 }
 
-void StaticNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
+void StaticNodeAppLayerEMoS::handleLowerMsg(cMessage * msg)
 {
     NetwToApplControlInfo* cInfo;
-    HoHuTApplPkt* applPkt;
+    EMoSApplPkt* applPkt;
 
     switch (msg->getKind())
     {
         case STATIC_NODE_MSG:
             cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
-            applPkt = static_cast<HoHuTApplPkt*>(msg);
+            applPkt = static_cast<EMoSApplPkt*>(msg);
             debugEV << "received rssi: " << cInfo->getRSSI() << endl;
             debugEV << "Received a node msg from static node: " << cInfo->getSrcNetwAddr() << endl;
             debugEV << "msg data:" << applPkt->getPayload() << endl;
@@ -92,43 +92,43 @@ void StaticNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
             break;
     }
 }
-void StaticNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
+void StaticNodeAppLayerEMoS::handleLowerControl(cMessage* msg)
 {
     delete msg; //dont do nothing for now
 }
-void StaticNodeAppLayerHoHuT::handleMobileNodeMsg(cMessage* msg)
+void StaticNodeAppLayerEMoS::handleMobileNodeMsg(cMessage* msg)
 {
-    HoHuTApplPkt* applPkt = static_cast<HoHuTApplPkt*>(msg);
+    EMoSApplPkt* applPkt = static_cast<EMoSApplPkt*>(msg);
     NetwToApplControlInfo* cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
     debugEV << "received rssi: " << cInfo->getRSSI() << endl;
     debugEV << "Received a node msg from mobile node: " << cInfo->getSrcNetwAddr() << endl;
     debugEV << "msg data:" << applPkt->getPayload() << endl;
 
-    switch (applPkt->getHoHuTMsgType())
+    switch (applPkt->getEMoSMsgType())
     {
         case COLLECTED_RSSI:
             NetwControlInfo::setControlInfo(applPkt,baseStationNetwAddr); //fwd msg to the base station
             sendDown(applPkt);
             break;
         default:
-            error("Unknown HoHuTMsgType");
+            error("Unknown EMoSMsgType");
             delete msg;
             break;
     }
 }
-void StaticNodeAppLayerHoHuT::sendStaticNodeMsg(char* msgPayload, LAddress::L3Type netwDestAddr)
+void StaticNodeAppLayerEMoS::sendStaticNodeMsg(char* msgPayload, LAddress::L3Type netwDestAddr)
 {
     debugEV << "Sending static node msg to netwDestAddr:" << netwDestAddr << endl;
 
-    HoHuTApplPkt* appPkt = new HoHuTApplPkt("static-node-app-msg",STATIC_NODE_MSG);
+    EMoSApplPkt* appPkt = new EMoSApplPkt("static-node-app-msg",STATIC_NODE_MSG);
     appPkt->setPayload(msgPayload);
     NetwControlInfo::setControlInfo(appPkt, netwDestAddr);
     sendDown(appPkt);
 }
-void StaticNodeAppLayerHoHuT::sendStaticNodeSig()
+void StaticNodeAppLayerEMoS::sendStaticNodeSig()
 {
     debugEV << "Sending SIGNATURE" << endl;
-    HoHuTApplPkt* appPkt = new HoHuTApplPkt("node-sig",STATIC_NODE_SIG);
+    EMoSApplPkt* appPkt = new EMoSApplPkt("node-sig",STATIC_NODE_SIG);
     NetwControlInfo::setControlInfo(appPkt, LAddress::L3BROADCAST);
     sendDown(appPkt);
     if (!selfTimer->isScheduled())

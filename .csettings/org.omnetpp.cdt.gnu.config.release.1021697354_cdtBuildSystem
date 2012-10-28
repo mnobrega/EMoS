@@ -28,7 +28,7 @@
 				</toolChain>
 			</folderInfo>
 			<sourceEntries>
-				<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="examples/annotations"/>
+				<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="examples/EMoS"/>
 			</sourceEntries>
 		</configuration>
 	</storageModule>

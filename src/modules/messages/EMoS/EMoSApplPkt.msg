@@ -10,11 +10,11 @@ class noncobject staticNodeSigsMap_t;
 class Coord extends void;
 class LAddress::L3Type extends void;
 
-message HoHuTApplPkt extends ApplPkt
+message EMoSApplPkt extends ApplPkt
 {
     //general data
     string payload;
-    int HoHuTMsgType;
+    int EMoSMsgType;
     
     //mobile msg data
     LAddress::L3Type srcAppAddress; //equal to the netwAddr

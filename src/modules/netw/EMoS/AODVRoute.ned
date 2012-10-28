@@ -1,4 +1,4 @@
-package org.mixim.modules.netw.HoHuT;
+package org.mixim.modules.netw.EMoS;
 
 import org.mixim.base.modules.BaseNetwLayer;
 

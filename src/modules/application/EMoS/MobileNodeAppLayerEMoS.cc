@@ -1,10 +1,10 @@
-#include "MobileNodeAppLayerHoHuT.h"
+#include "MobileNodeAppLayerEMoS.h"
 
-Define_Module(MobileNodeAppLayerHoHuT);
+Define_Module(MobileNodeAppLayerEMoS);
 
-const simsignalwrap_t MobileNodeAppLayerHoHuT::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
+const simsignalwrap_t MobileNodeAppLayerEMoS::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
 
-void MobileNodeAppLayerHoHuT::initialize(int stage)
+void MobileNodeAppLayerEMoS::initialize(int stage)
 {
     BaseApplLayer::initialize(stage);
 
@@ -70,9 +70,9 @@ void MobileNodeAppLayerHoHuT::initialize(int stage)
     }
 }
 
-MobileNodeAppLayerHoHuT::~MobileNodeAppLayerHoHuT() {}
+MobileNodeAppLayerEMoS::~MobileNodeAppLayerEMoS() {}
 
-void MobileNodeAppLayerHoHuT::finish()
+void MobileNodeAppLayerEMoS::finish()
 {
     cancelAndDelete(selfTimer);
     if(calibrationMode)
@@ -85,7 +85,7 @@ void MobileNodeAppLayerHoHuT::finish()
 }
 
 //HANDLING MSGS
-void MobileNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
+void MobileNodeAppLayerEMoS::handleSelfMsg(cMessage * msg)
 {
     switch(msg->getKind())
     {
@@ -98,16 +98,16 @@ void MobileNodeAppLayerHoHuT::handleSelfMsg(cMessage * msg)
             break;
     }
 }
-void MobileNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
+void MobileNodeAppLayerEMoS::handleLowerMsg(cMessage * msg)
 {
     NetwToApplControlInfo* cInfo;
-    HoHuTApplPkt* applPkt;
+    EMoSApplPkt* applPkt;
 
     switch (msg->getKind())
     {
         case STATIC_NODE_MSG:
             cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
-            applPkt = static_cast<HoHuTApplPkt*>(msg);
+            applPkt = static_cast<EMoSApplPkt*>(msg);
             debugEV << "received rssi: " << cInfo->getRSSI() << endl;
             debugEV << "Received a node msg from static node: " << cInfo->getSrcNetwAddr() << endl;
             debugEV << "msg data:" << applPkt->getPayload() << endl;
@@ -115,7 +115,7 @@ void MobileNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
             break;
         case MOBILE_NODE_MSG:
             cInfo = static_cast<NetwToApplControlInfo*>(msg->removeControlInfo());
-            applPkt = static_cast<HoHuTApplPkt*>(msg);
+            applPkt = static_cast<EMoSApplPkt*>(msg);
             debugEV << "received rssi: " << cInfo->getRSSI() << endl;
             debugEV << "Received a node msg from mobile node: " << cInfo->getSrcNetwAddr() << endl;
             debugEV << "msg data:" << applPkt->getPayload() << endl;
@@ -131,16 +131,16 @@ void MobileNodeAppLayerHoHuT::handleLowerMsg(cMessage * msg)
             break;
     }
 }
-void MobileNodeAppLayerHoHuT::handleLowerControl(cMessage* msg)
+void MobileNodeAppLayerEMoS::handleLowerControl(cMessage* msg)
 {
     delete msg;
 }
 
 
 /**** APP ****/
-void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
+void MobileNodeAppLayerEMoS::handleLowerStaticNodeSig(cMessage * msg)
 {
-    HoHuTApplPkt* staticNodeSig = static_cast<HoHuTApplPkt*>(msg);
+    EMoSApplPkt* staticNodeSig = static_cast<EMoSApplPkt*>(msg);
 
     NetwToApplControlInfo* cInfo = static_cast<NetwToApplControlInfo*>(staticNodeSig->removeControlInfo());
     LAddress::L3Type srcAddress = cInfo->getSrcNetwAddr();
@@ -214,7 +214,7 @@ void MobileNodeAppLayerHoHuT::handleLowerStaticNodeSig(cMessage * msg)
     delete msg;
     debugEV << "samples available for node: " << staticNodesRSSITable.count(srcAddress) << endl;
 }
-void MobileNodeAppLayerHoHuT::sendCollectedDataToClosestStaticNode()
+void MobileNodeAppLayerEMoS::sendCollectedDataToClosestStaticNode()
 {
     debugEV << "preparing to send collected data!" << endl;
 
@@ -261,10 +261,10 @@ void MobileNodeAppLayerHoHuT::sendCollectedDataToClosestStaticNode()
             }
         }
 
-        HoHuTApplPkt* appPkt = new HoHuTApplPkt("collected-rssi",MOBILE_NODE_MSG);
+        EMoSApplPkt* appPkt = new EMoSApplPkt("collected-rssi",MOBILE_NODE_MSG);
         appPkt->setSrcAppAddress(myAppAddr);
         appPkt->setPayload("test 5");
-        appPkt->setHoHuTMsgType(COLLECTED_RSSI);
+        appPkt->setEMoSMsgType(COLLECTED_RSSI);
         appPkt->setCollectedRSSIs(*collectedData);
         appPkt->setRealPosition(currentPosition);
         NetwControlInfo::setControlInfo(appPkt,maxRSSIDestAddr);
@@ -278,11 +278,11 @@ void MobileNodeAppLayerHoHuT::sendCollectedDataToClosestStaticNode()
         scheduleAt(simTime()+collectedDataSendingTimePeriod,selfTimer);
     }
 }
-void MobileNodeAppLayerHoHuT::sendMobileNodeMsg(char* msgPayload, LAddress::L3Type netwDestAddr)
+void MobileNodeAppLayerEMoS::sendMobileNodeMsg(char* msgPayload, LAddress::L3Type netwDestAddr)
 {
     debugEV << "Sending mobile node msg to netwDestAddr:" << netwDestAddr << endl;
 
-    HoHuTApplPkt* appPkt = new HoHuTApplPkt("mobile-node-app-msg",MOBILE_NODE_MSG);
+    EMoSApplPkt* appPkt = new EMoSApplPkt("mobile-node-app-msg",MOBILE_NODE_MSG);
     appPkt->setPayload(msgPayload);
     NetwControlInfo::setControlInfo(appPkt, netwDestAddr);
     sendDown(appPkt);
@@ -290,7 +290,7 @@ void MobileNodeAppLayerHoHuT::sendMobileNodeMsg(char* msgPayload, LAddress::L3Ty
 
 
 //// RADIO MAP & CLUSTERS
-bool MobileNodeAppLayerHoHuT::hasCollectedNode(LAddress::L3Type nodeAddr)
+bool MobileNodeAppLayerEMoS::hasCollectedNode(LAddress::L3Type nodeAddr)
 {
     for (unsigned int i=0; i<staticNodeAddrCollected.size();i++)
     {
@@ -301,7 +301,7 @@ bool MobileNodeAppLayerHoHuT::hasCollectedNode(LAddress::L3Type nodeAddr)
     }
     return false;
 }
-bool MobileNodeAppLayerHoHuT::hasCollectedPosition(Coord pos)
+bool MobileNodeAppLayerEMoS::hasCollectedPosition(Coord pos)
 {
     radioMapSet_t::iterator radioMapIt;
     for (radioMapIt=radioMap.begin(); radioMapIt!=radioMap.end();radioMapIt++)
@@ -314,7 +314,7 @@ bool MobileNodeAppLayerHoHuT::hasCollectedPosition(Coord pos)
     }
     return false;
 }
-void MobileNodeAppLayerHoHuT::clusterizeRadioMapPosition(radioMapPosition_t* radioMapPosition)
+void MobileNodeAppLayerEMoS::clusterizeRadioMapPosition(radioMapPosition_t* radioMapPosition)
 {
     staticNodesPDFSet_t::iterator it;
     addressVec_t* positionKey = new addressVec_t;
@@ -342,7 +342,7 @@ void MobileNodeAppLayerHoHuT::clusterizeRadioMapPosition(radioMapPosition_t* rad
         clusterCoordsSet->push_back(new Coord(radioMapPosition->pos.x,radioMapPosition->pos.y,radioMapPosition->pos.z));
     }
 }
-MobileNodeAppLayerHoHuT::coordVec_t* MobileNodeAppLayerHoHuT::getCoordSetByClusterKey(addressVec_t* clusterKey)
+MobileNodeAppLayerEMoS::coordVec_t* MobileNodeAppLayerEMoS::getCoordSetByClusterKey(addressVec_t* clusterKey)
 {
     radioMapCluster_t::iterator it;
     addressVec_t* cKey;
@@ -371,7 +371,7 @@ MobileNodeAppLayerHoHuT::coordVec_t* MobileNodeAppLayerHoHuT::getCoordSetByClust
     }
     return NULL;
 }
-xmlDocPtr MobileNodeAppLayerHoHuT::convertRadioMapToXML()
+xmlDocPtr MobileNodeAppLayerEMoS::convertRadioMapToXML()
 {
     radioMapSet_t::iterator it;
     staticNodesPDFSet_t::iterator it2;
@@ -405,7 +405,7 @@ xmlDocPtr MobileNodeAppLayerHoHuT::convertRadioMapToXML()
 
     return xmlDoc;
 }
-xmlDocPtr MobileNodeAppLayerHoHuT::convertRadioMapClustersToXML()
+xmlDocPtr MobileNodeAppLayerEMoS::convertRadioMapClustersToXML()
 {
     radioMapCluster_t::iterator it;
     coordVec_t::iterator it2;
@@ -457,7 +457,7 @@ xmlDocPtr MobileNodeAppLayerHoHuT::convertRadioMapClustersToXML()
 
 
 // MOBILITY
-void MobileNodeAppLayerHoHuT::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
+void MobileNodeAppLayerEMoS::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
 {
     Enter_Method_Silent();
     if (signalID == mobilityStateChangedSignal)
@@ -470,12 +470,12 @@ void MobileNodeAppLayerHoHuT::receiveSignal(cComponent *source, simsignal_t sign
 
 
 // AUX
-double MobileNodeAppLayerHoHuT::convertTodBm(double valueInWatts)
+double MobileNodeAppLayerEMoS::convertTodBm(double valueInWatts)
 {
     return 10*log10(valueInWatts/0.001);
 }
 
-const xmlChar* MobileNodeAppLayerHoHuT::convertNumberToXMLString(double number)
+const xmlChar* MobileNodeAppLayerEMoS::convertNumberToXMLString(double number)
 {
     std::ostringstream* s = new std::ostringstream;
     *s << number;
