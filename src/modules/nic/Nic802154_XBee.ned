@@ -30,17 +30,17 @@ package org.mixim.modules.nic;
 //"Nic802154_TI_CC2420_Decider.xml" from "modules/nic/" to your simulation directory.
 // @author Jerome Rousselot
 //
-module Nic802154_TI_CC2420 extends WirelessNicBattery
+module Nic802154_XBee extends WirelessNicBattery
 {
     parameters:
         macType = default("CSMA802154");
         
         // power consumption from boards (at 3.3V)
-        sleepCurrent         = 0.00002mA; // 0.02 µA
-        rxCurrent            = 18.8 mA;
-        txCurrent            = 17.4 mA;
-        rxTxCurrent          = 18.8 mA; // Upper bound
-        txRxCurrent          = 17.4 mA; // idem
+        sleepCurrent         = 0.00010mA; // 0.02 µA
+        rxCurrent            = 50 mA;
+        txCurrent            = 45 mA;
+        rxTxCurrent          = 45 mA; // Upper bound
+        txRxCurrent          = 50 mA; // idem
         
         decodingCurrentDelta = 0 mA;
         setupRxCurrent       = 0.6391mA; // 0.002109 W = (ESetupPower+ESetupXtal+ETxCalibrate)/TSetupTx

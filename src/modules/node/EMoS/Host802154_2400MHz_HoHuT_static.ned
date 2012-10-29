@@ -5,7 +5,7 @@ import org.mixim.base.modules.BaseWorldUtility;
 import org.mixim.base.modules.IBaseNetwLayer;
 import org.mixim.modules.application.EMoS.StaticNodeAppLayerEMoS;
 import org.mixim.modules.netw.ArpHost;
-import org.mixim.modules.nic.Nic802154_TI_CC2420;
+import org.mixim.modules.nic.Nic802154_XBee;
 import org.mixim.modules.power.battery.BatteryStats;
 import org.mixim.modules.power.battery.SimpleBattery;
 import org.mixim.modules.transport.Aggregation;
@@ -64,7 +64,7 @@ module Host802154_2400MHz_EMoS_static
             parameters:
                 @display("p=292,120;i=block/cogwheel");
         }
-        nic: Nic802154_TI_CC2420 {
+        nic: Nic802154_XBee {
             parameters:
                 @display("b=32,30;p=86,265;i=block/ifcard");
         }
