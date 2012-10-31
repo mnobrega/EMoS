@@ -1,0 +1,13 @@
+<obstacles>
+	<!--<poly id="wall#0" type="brickWall20cm" color="#F00" shape="x,y x,y x,y x,y" />-->
+   <poly id="wall#0" type="brickWall20cm" color="#F00" shape="3.29,0 3.47,0 3.47,2.81 3.29,2.81" />
+   <poly id="wall#0" type="brickWall20cm" color="#F00" shape="3.29,2.81 3.29,2.69 5.62,2.69 5.62,2.81" />
+   <poly id="wall#0" type="brickWall20cm" color="#F00" shape="6.58,0 6.7,0 6.7,2.81 6.58,2.81" />
+   <poly id="wall#0" type="brickWall20cm" color="#F00" shape="8.07,0 8.19,0 8.19,2.81 8.07,2.81" />
+   <poly id="wall#0" type="brickWall20cm" color="#F00" shape="9.51,0 9.63,0 9.63,1.73 9.51,1.73" />
+   <poly id="wall#0" type="brickWall20cm" color="#F00" shape="8,2.81 8,2.69 9.51,2.69 9.51,2.81" />
+   <poly id="wall#0" type="brickWall20cm" color="#F00" shape="5.14,3.89 5.26,3.89 5.26,7.5 5.14,7.5" />
+   <poly id="wall#0" type="brickWall20cm" color="#F00" shape="5.14,3.89 7.47,3.89 7.47,3.98 5.14,3.98" />
+   <poly id="wall#0" type="brickWall20cm" color="#F00" shape="8.37,3.89 8.49,3.89 8.49,7.5 8.37,7.5" />
+   <poly id="wall#0" type="brickWall20cm" color="#F00" shape="9.39,3.89 12.5,3.89 12.5,3.98 9.39,3.98" />
+</obstacles>

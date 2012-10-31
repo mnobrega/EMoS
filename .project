@@ -90,4 +90,10 @@
 		<nature>org.eclipse.cdt.core.cnature</nature>
 		<nature>org.omnetpp.main.omnetppnature</nature>
 	</natures>
+	<variableList>
+		<variable>
+			<name>Images</name>
+			<value>file:/home/mnobrega/workspace/mixim/images/EMoS</value>
+		</variable>
+	</variableList>
 </projectDescription>

@@ -199,7 +199,8 @@ cModule* AnnotationManager::createDummyModule(std::string displayString) {
 
 	//TODO: this trashes the vectsize member of the cModule, although nobody seems to use it
 	nodeVectorIndex++;
-	cModule* mod = nodeType->create("annotation", parentmod, nodeVectorIndex, nodeVectorIndex);
+	//cModule* mod = nodeType->create("annotation", parentmod, nodeVectorIndex, nodeVectorIndex); //i dont want the word annotation
+	cModule* mod = nodeType->create("", parentmod, nodeVectorIndex, nodeVectorIndex);
 	mod->finalizeParameters();
 	mod->getDisplayString().parse(displayString.c_str());
 	mod->buildInside();

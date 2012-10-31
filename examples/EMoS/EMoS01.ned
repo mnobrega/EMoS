@@ -10,7 +10,7 @@ import org.mixim.base.connectionManager.ConnectionManager;
 import org.mixim.base.modules.BaseWorldUtility;
 
 
-network EMoS
+network EMoS01
 {
     parameters:
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
@@ -23,40 +23,40 @@ network EMoS
         @signal[rssiVal](type="long");
         @statistic[arrivedrssi](title="Arrived RSSI"; source="rssiVal"; record=vector; interpolationmode=none);
 
-        @display("bgb=$playgroundSizeX,$playgroundSizeY,white;bgp=10,50;bgs=50,m");
+        @display("bgb=$playgroundSizeX,$playgroundSizeY,white;bgp=10,50;bgs=101,m;bgi=background/home01");
 
     submodules:
         connectionManager: ConnectionManager {
-            @display("p=30,5;b=0,0,rect,yellow;i=abstract/multicast;is=s");
+            @display("p=13.607843,4.7156863;b=0,0,rect,yellow;i=abstract/multicast;is=s");
         }
         annotations: AnnotationManager {
 
-            @display("p=30,10");
+            @display("p=13.568627,3.3039215");
         }
         obstacles: ObstacleControl {
-            @display("p=30,15");
+            @display("p=13.568627,2.0196078");
         }
         world: BaseWorldUtility {
             parameters:
                 playgroundSizeX = playgroundSizeX;
                 playgroundSizeY = playgroundSizeY;
                 playgroundSizeZ = playgroundSizeZ;
-            @display("p=30,20;i=misc/globe");
+                @display("p=13.558824,0.65686274;i=misc/globe");
         }
         staticNode[numHostsStatic]: Host802154_2400MHz_EMoS_static {
             parameters:
                 numHosts = numHostsStatic;
-            @display("i=micaz_s;p=12,12.5;b=1,1;is=n");
+                @display("i=micaz_s;p=4.038835,5.3592234;b=0,0;is=n");
         }
         mobileNode[numHostsMobile]: Host802154_2400MHz_EMoS_mobile {
             parameters:
                 numHosts = numHostsMobile;
-            @display("i=wasp_s;p=10,12.5;b=0,0;is=n");
+                @display("i=wasp_s;p=1.9805825,5.3592234;b=0,0;is=n");
         }
         baseStation[numHostsBase]: Host802154_2400MHz_EMoS_base {
             parameters:
                 numHosts = numHostsBase;
-        	@display("i=device/pc2_s;p=10,12.5;b=0,0;is=n");
+                @display("i=device/pc2_vl;p=0.4563107,0.5048544;b=0,0;is=l");
         }
 
     connections allowunconnected:
