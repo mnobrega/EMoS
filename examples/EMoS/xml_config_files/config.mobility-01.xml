@@ -18,22 +18,4 @@
 	<moveto x="11.36" y="3.29"/>
 	<moveto x="11.36" y="0.9"/>
 	<wait t="650"/>						<!-- dormir um  bocado -->	
-	
-	<set speed="0.8"/>
-	<moveto x="2.39" y="5.98"/>
-	<wait t="300"/>						<!-- ver TV -->
-	<moveto x="5.38" y="3.29"/>
-	<moveto x="7.72" y="3.29"/>
-	<moveto x="7.72"  y="1.5"/>
-	<wait t="600"/>						<!-- WC -->
-	<moveto x="7.72" y="3.29"/>
-	<moveto x="1.61" y="3.29"/>
-	<moveto x="1.44" y="1.73"/>
-	<wait t="900"/> 					<!-- jantar -->
-	<moveto x="0.6" y="3.89"/>			<!--tocaram a campainha -->
-	<wait t="60"/>						<!-- publicidade! -->
-	<moveto x="1.44" y="1.73"/>
-	<moveto x="1" y="3.29"/>
-	<moveto x="11.36" y="3.29"/>
-	<moveto x="11.36" y="0.9"/>
 </movement>
