@@ -58,119 +58,119 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-    $O/analogueModel/PERModel.o \
     $O/analogueModel/LogNormalShadowing.o \
     $O/analogueModel/TwoRayInterferenceModel.o \
-    $O/analogueModel/SimplePathlossModel.o \
     $O/analogueModel/UWBIRStochasticPathlossModel.o \
     $O/analogueModel/UWBIRIEEE802154APathlossModel.o \
-    $O/analogueModel/SimpleObstacleShadowing.o \
+    $O/analogueModel/PERModel.o \
     $O/analogueModel/JakesFading.o \
+    $O/analogueModel/SimplePathlossModel.o \
     $O/analogueModel/BreakpointPathlossModel.o \
+    $O/analogueModel/SimpleObstacleShadowing.o \
     $O/application/SensorApplLayer.o \
     $O/application/BurstApplLayer.o \
     $O/application/TestApplication.o \
     $O/application/TrafficGen.o \
     $O/application/BurstApplLayerBattery.o \
+    $O/application/EMoS/BaseStationAppLayerEMoS.o \
     $O/application/EMoS/MobileNodeAppLayerEMoS.o \
     $O/application/EMoS/StaticNodeAppLayerEMoS.o \
-    $O/application/EMoS/BaseStationAppLayerEMoS.o \
     $O/application/ieee80211p/BaseWaveApplLayer.o \
     $O/application/ieee80211p/TestWaveApplLayer.o \
-    $O/application/traci/TraCIDemo11p.o \
     $O/application/traci/TraCIDemo.o \
+    $O/application/traci/TraCIDemo11p.o \
     $O/connectionManager/UnitDisk.o \
-    $O/mac/CSMAMacLayer.o \
-    $O/mac/BMacLayer.o \
-    $O/mac/Mac80211MultiChannel.o \
-    $O/mac/LMacLayer.o \
-    $O/mac/Mac80211.o \
+    $O/mac/CSMA802154.o \
     $O/mac/UWBIRMac.o \
+    $O/mac/Mac80211MultiChannel.o \
     $O/mac/csma.o \
     $O/mac/AlohaMacLayer.o \
-    $O/mac/CSMA802154.o \
+    $O/mac/CSMAMacLayer.o \
+    $O/mac/LMacLayer.o \
+    $O/mac/Mac80211.o \
+    $O/mac/BMacLayer.o \
     $O/mac/ieee80211p/Mac1609_4.o \
-    $O/messages/UWBIRMacPkt.o \
     $O/messages/AggrPkt.o \
-    $O/mobility/BonnMotionFileCache.o \
-    $O/mobility/PostureTransition.o \
-    $O/mobility/ANSimMobility.o \
-    $O/mobility/MassMobility.o \
-    $O/mobility/ConstSpeedMobility.o \
-    $O/mobility/Posture.o \
-    $O/mobility/CircleMobility.o \
-    $O/mobility/TractorMobility.o \
-    $O/mobility/TurtleMobility.o \
-    $O/mobility/LinearMobility.o \
-    $O/mobility/MoBANCoordinator.o \
+    $O/messages/UWBIRMacPkt.o \
     $O/mobility/LineSegmentsMobilityBase.o \
-    $O/mobility/BonnMotionMobility.o \
     $O/mobility/RectangleMobility.o \
+    $O/mobility/BonnMotionMobility.o \
+    $O/mobility/LinearMobility.o \
+    $O/mobility/CircleMobility.o \
+    $O/mobility/TurtleMobility.o \
+    $O/mobility/ANSimMobility.o \
     $O/mobility/MoBANLocal.o \
+    $O/mobility/BonnMotionFileCache.o \
+    $O/mobility/Posture.o \
+    $O/mobility/MassMobility.o \
+    $O/mobility/MoBANCoordinator.o \
+    $O/mobility/TractorMobility.o \
+    $O/mobility/ConstSpeedMobility.o \
+    $O/mobility/PostureTransition.o \
     $O/mobility/traci/TraCIScenarioManagerLaunchd.o \
-    $O/mobility/traci/TraCIScenarioManager.o \
     $O/mobility/traci/TraCIMobility.o \
-    $O/netw/ProbabilisticBroadcast.o \
-    $O/netw/Flood.o \
-    $O/netw/ArpHost.o \
-    $O/netw/DummyRoute.o \
+    $O/mobility/traci/TraCIScenarioManager.o \
     $O/netw/WiseRoute.o \
+    $O/netw/ArpHost.o \
     $O/netw/AdaptiveProbabilisticBroadcast.o \
+    $O/netw/Flood.o \
+    $O/netw/ProbabilisticBroadcast.o \
+    $O/netw/DummyRoute.o \
     $O/netw/EMoS/AODVRoute.o \
     $O/obstacle/ObstacleControl.o \
     $O/obstacle/Obstacle.o \
-    $O/phy/PhyLayerBattery.o \
-    $O/phy/DeciderUWBIREDSyncOnAddress.o \
-    $O/phy/PhyLayer80211p.o \
-    $O/phy/PhyLayerUWBIR.o \
-    $O/phy/SNRThresholdDecider.o \
-    $O/phy/PhyLayer.o \
-    $O/phy/DeciderUWBIRED.o \
-    $O/phy/Decider80211p.o \
-    $O/phy/Decider80211.o \
     $O/phy/DeciderUWBIREDSync.o \
     $O/phy/Decider802154Narrow.o \
     $O/phy/Decider80211MultiChannel.o \
     $O/phy/Decider80211Battery.o \
+    $O/phy/SNRThresholdDecider.o \
+    $O/phy/Decider80211p.o \
+    $O/phy/DeciderUWBIRED.o \
+    $O/phy/Decider80211.o \
+    $O/phy/PhyLayerUWBIR.o \
+    $O/phy/PhyLayer.o \
+    $O/phy/PhyLayer80211p.o \
+    $O/phy/DeciderUWBIREDSyncOnAddress.o \
+    $O/phy/PhyLayerBattery.o \
     $O/power/battery/BatteryStats.o \
     $O/power/battery/SimpleBattery.o \
     $O/transport/Aggregation.o \
-    $O/utility/phyPER.o \
     $O/utility/SimTracer.o \
     $O/utility/IEEE802154A.o \
-    $O/world/annotations/AnnotationManager.o \
+    $O/utility/phyPER.o \
     $O/world/annotations/AnnotationDummy.o \
-    $O/messages/WaveShortMessage_m.o \
+    $O/world/annotations/AnnotationManager.o \
     $O/messages/WiseRoutePkt_m.o \
-    $O/messages/AggrPkt_m.o \
-    $O/messages/LMacPkt_m.o \
-    $O/messages/DummyRoutePkt_m.o \
     $O/messages/Mac80211Pkt_m.o \
+    $O/messages/ProbabilisticBroadcastPkt_m.o \
     $O/messages/AirFrameUWBIR_m.o \
     $O/messages/UWBIRMacPkt_m.o \
-    $O/messages/ProbabilisticBroadcastPkt_m.o \
-    $O/messages/EMoS/AODVRouteResponse_m.o \
+    $O/messages/LMacPkt_m.o \
+    $O/messages/DummyRoutePkt_m.o \
+    $O/messages/AggrPkt_m.o \
+    $O/messages/WaveShortMessage_m.o \
     $O/messages/EMoS/AODVData_m.o \
+    $O/messages/EMoS/AODVRouteError_m.o \
     $O/messages/EMoS/AODVRouteRequest_m.o \
-    $O/messages/EMoS/EMoSApplPkt_m.o \
-    $O/messages/EMoS/AODVRouteError_m.o
+    $O/messages/EMoS/AODVRouteResponse_m.o \
+    $O/messages/EMoS/EMoSApplPkt_m.o
 
 # Message files
 MSGFILES = \
-    messages/WaveShortMessage.msg \
     messages/WiseRoutePkt.msg \
-    messages/AggrPkt.msg \
-    messages/LMacPkt.msg \
-    messages/DummyRoutePkt.msg \
     messages/Mac80211Pkt.msg \
+    messages/ProbabilisticBroadcastPkt.msg \
     messages/AirFrameUWBIR.msg \
     messages/UWBIRMacPkt.msg \
-    messages/ProbabilisticBroadcastPkt.msg \
-    messages/EMoS/AODVRouteResponse.msg \
+    messages/LMacPkt.msg \
+    messages/DummyRoutePkt.msg \
+    messages/AggrPkt.msg \
+    messages/WaveShortMessage.msg \
     messages/EMoS/AODVData.msg \
+    messages/EMoS/AODVRouteError.msg \
     messages/EMoS/AODVRouteRequest.msg \
-    messages/EMoS/EMoSApplPkt.msg \
-    messages/EMoS/AODVRouteError.msg
+    messages/EMoS/AODVRouteResponse.msg \
+    messages/EMoS/EMoSApplPkt.msg
 
 #------------------------------------------------------------------------------
 

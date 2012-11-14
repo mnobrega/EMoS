@@ -34,56 +34,56 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
+    $O/connectionManager/NicEntryDirect.o \
     $O/connectionManager/ChannelAccess.o \
     $O/connectionManager/NicEntryDebug.o \
-    $O/connectionManager/ConnectionManager.o \
     $O/connectionManager/BaseConnectionManager.o \
-    $O/connectionManager/NicEntryDirect.o \
+    $O/connectionManager/ConnectionManager.o \
+    $O/modules/BaseNetwLayer.o \
+    $O/modules/TestApplLayer.o \
     $O/modules/BaseArp.o \
+    $O/modules/BaseBattery.o \
     $O/modules/BaseWorldUtility.o \
     $O/modules/BaseApplLayer.o \
-    $O/modules/TestApplLayer.o \
+    $O/modules/BatteryAccess.o \
+    $O/modules/BaseMobility.o \
+    $O/modules/BaseMacLayer.o \
     $O/modules/BaseLayer.o \
     $O/modules/BaseModule.o \
-    $O/modules/BaseMacLayer.o \
-    $O/modules/BaseBattery.o \
-    $O/modules/BaseMobility.o \
-    $O/modules/BaseNetwLayer.o \
-    $O/modules/BatteryAccess.o \
-    $O/phyLayer/MappingBase.o \
+    $O/phyLayer/BaseDecider.o \
+    $O/phyLayer/ChannelInfo.o \
     $O/phyLayer/ChannelState.o \
     $O/phyLayer/Signal.o \
-    $O/phyLayer/ChannelInfo.o \
     $O/phyLayer/BasePhyLayer.o \
-    $O/phyLayer/PhyUtils.o \
-    $O/phyLayer/BaseDecider.o \
-    $O/phyLayer/MappingUtils.o \
+    $O/phyLayer/MappingBase.o \
     $O/phyLayer/Decider.o \
-    $O/timers/FrameTimer.o \
-    $O/timers/RepeatTimer.o \
-    $O/timers/Timer.o \
-    $O/timers/FrameTimerGenerator.o \
+    $O/phyLayer/PhyUtils.o \
+    $O/phyLayer/MappingUtils.o \
+    $O/timers/GlobalTime.o \
     $O/timers/TimerCore.o \
     $O/timers/RepeatTimerCore.o \
-    $O/timers/GlobalTime.o \
+    $O/timers/FrameTimerGenerator.o \
+    $O/timers/FrameTimer.o \
+    $O/timers/Timer.o \
+    $O/timers/RepeatTimer.o \
     $O/utils/winsupport.o \
     $O/utils/NetwToMacControlInfo.o \
-    $O/utils/SimpleAddress.o \
     $O/utils/Coord.o \
-    $O/messages/AirFrame_m.o \
-    $O/messages/MacPkt_m.o \
+    $O/utils/SimpleAddress.o \
     $O/messages/ChannelSenseRequest_m.o \
-    $O/messages/NetwPkt_m.o \
     $O/messages/ApplPkt_m.o \
+    $O/messages/NetwPkt_m.o \
+    $O/messages/MacPkt_m.o \
+    $O/messages/AirFrame_m.o \
     $O/messages/BorderMsg_m.o
 
 # Message files
 MSGFILES = \
-    messages/AirFrame.msg \
-    messages/MacPkt.msg \
     messages/ChannelSenseRequest.msg \
-    messages/NetwPkt.msg \
     messages/ApplPkt.msg \
+    messages/NetwPkt.msg \
+    messages/MacPkt.msg \
+    messages/AirFrame.msg \
     messages/BorderMsg.msg
 
 #------------------------------------------------------------------------------
