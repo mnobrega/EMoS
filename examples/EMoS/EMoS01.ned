@@ -23,7 +23,7 @@ network EMoS01
         @signal[rssiVal](type="long");
         @statistic[arrivedrssi](title="Arrived RSSI"; source="rssiVal"; record=vector; interpolationmode=none);
 
-        @display("bgb=$playgroundSizeX,$playgroundSizeY,white;bgp=10,50;bgs=101,m;bgi=background/home01");
+        @display("bgb=$playgroundSizeX,$playgroundSizeY,white;bgp=10,50;bgs=101,m;bgi=home01");
 
     submodules:
         connectionManager: ConnectionManager {

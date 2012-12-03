@@ -185,17 +185,20 @@ void AODVRoute::handleLowerDATA(cMessage* msg)
         addressSet_t::iterator it;
         routeMapElement* fwdRoute = getRouteForDestination(data->getFinalDestAddr());
 
-        it=fwdRoute->precursors->find(data->getSrcAddr());
-        if (it==fwdRoute->precursors->end())
+        if (fwdRoute!=NULL)
         {
-            fwdRoute->precursors->insert(data->getSrcAddr());
+            it=fwdRoute->precursors->find(data->getSrcAddr());
+            if (it==fwdRoute->precursors->end())
+            {
+                fwdRoute->precursors->insert(data->getSrcAddr());
+            }
+
+            data->setDestAddr(fwdRoute->nextHop);
+            data->setSrcAddr(myNetwAddr);
+            NetwToMacControlInfo::setControlInfo(data,arp->getMacAddr(fwdRoute->nextHop));
+
+            sendDown(data);
         }
-
-        data->setDestAddr(fwdRoute->nextHop);
-        data->setSrcAddr(myNetwAddr);
-        NetwToMacControlInfo::setControlInfo(data,arp->getMacAddr(fwdRoute->nextHop));
-
-        sendDown(data);
     }
     else if (data->getFinalDestAddr()==myNetwAddr || LAddress::isL3Broadcast(data->getFinalDestAddr())) //DESTINATION
     {
