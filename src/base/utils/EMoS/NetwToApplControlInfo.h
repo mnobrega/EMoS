@@ -1,3 +1,15 @@
+/* -*- mode:c++ -*- *******************************************************
+ * file:        NetwToApplControlInfo.h
+ *
+ * author:      Márcio Nóbrega
+ *
+ * copyright:   (C) 2012 IST - Instituto Superior Técnico, Lisbon, Portugal
+ *
+ *              This module implements the controlinfo the flows from the
+ *              Network layer to the Application layer.
+ ***************************************************************************
+ * part of:     EMoS - Elder Monitoring System
+ ***************************************************************************/
 #ifndef NETWTOAPPLCONTROLINFO_H_
 #define NETWTOAPPLCONTROLINFO_H_
 

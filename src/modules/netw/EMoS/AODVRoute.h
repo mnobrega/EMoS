@@ -1,3 +1,19 @@
+/* -*- mode:c++ -*- ********************************************************
+ * file:        AODVRoute.h
+ *
+ * author:      Márcio Nóbrega
+ *
+ * copyright:   (C) 2012 IST - Instituto Superior Técnico, Lisbon, Portugal
+ *
+ *              Implements an AODV (Ad-hoc On-Demand Vector Routing) routing
+ *              protocol. Developed for the master thesis in Electrotechnics
+ *              and Computers Engineering, entitled "Wireless Monitoring of
+ *              People in a Home Enviroment".
+ *
+ ***************************************************************************
+ * part of:     EMoS - Elder Monitoring System
+ ***************************************************************************/
+
 #ifndef AODV_ROUTE_H
 #define AODV_ROUTE_H
 

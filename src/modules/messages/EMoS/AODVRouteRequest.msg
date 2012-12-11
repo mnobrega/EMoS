@@ -1,3 +1,17 @@
+//**************************************************************************
+// * file:        AODVRouteRequest.msg
+// *
+// * author:      Márcio Nóbrega
+// *
+// * copyright:   (C) 2012 IST - Instituto Superior Técnico, Lisbon, Portugal
+// *
+// *           	  Message sent in broadcast mode to find the path in the WSN.
+// *			  This message is very similar to the actual AODV protocol 
+// * 			  implementation.
+// **************************************************************************
+// * part of:     EMoS - Elder Monitoring System
+// **************************************************************************/
+
 cplusplus {{
 	#include "NetwPkt_m.h"
 }}

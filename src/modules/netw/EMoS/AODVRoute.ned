@@ -1,4 +1,14 @@
 package org.mixim.modules.netw.EMoS;
+//***************************************************************************
+// file:        AODVRoute.ned
+//
+// author:      Márcio Nóbrega
+// 
+// copyright:   (C) 2012 IST - Instituto Superior Técnico, Lisbon, Portugal
+//
+// description:  AODV (Ad-hoc On-demand Vector Routing)
+// 
+// **************************************************************************/
 
 import org.mixim.base.modules.BaseNetwLayer;
 

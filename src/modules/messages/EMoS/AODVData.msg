@@ -1,3 +1,16 @@
+//**************************************************************************
+// * file:        AODVData.msg
+// *
+// * author:      Márcio Nóbrega
+// *
+// * copyright:   (C) 2012 IST - Instituto Superior Técnico, Lisbon, Portugal
+// *
+// *           	  This message is used by the network layer to send/receive 
+// * 			  data to/from the MAC layer.
+// **************************************************************************
+// * part of:     EMoS - Elder Monitoring System
+// **************************************************************************/
+
 cplusplus {{
 	#include "NetwPkt_m.h"
 }}

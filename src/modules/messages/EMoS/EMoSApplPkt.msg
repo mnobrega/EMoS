@@ -1,3 +1,18 @@
+//**************************************************************************
+// * file:        EMoSApplPkt.msg
+// *
+// * author:      Márcio Nóbrega
+// *
+// * copyright:   (C) 2012 IST - Instituto Superior Técnico, Lisbon, Portugal
+// *
+// *           	  Message used to send the application layer data to the other
+// *		      layers above. In EMoS a data message can be used to carry
+// *			  the static nodes collected signatures or a message generated
+// * 			  by the application layer.
+// **************************************************************************
+// * part of:     EMoS - Elder Monitoring System
+// **************************************************************************/
+
 cplusplus {{
 	#include "ApplPkt_m.h"
 	#include "Coord.h"

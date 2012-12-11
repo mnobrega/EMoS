@@ -1,3 +1,18 @@
+/* -*- mode:c++ -*- ********************************************************
+ * file:        BaseStationAppLayerEMoS.h
+ *
+ * author:      Márcio Nóbrega
+ *
+ * copyright:   (C) 2012 IST - Instituto Superior Técnico, Lisbon, Portugal
+ *
+ *              Implements the base node application layer in EMoS. This
+ *              node loads a radioMap XML previous built in the offline mode
+ *              and estimates all the detected mobile nodes positions.
+ *
+ ***************************************************************************
+ * part of:     EMoS - Elder Monitoring System
+ ***************************************************************************/
+
 #ifndef BASE_STATION_APP_LAYER_EMOS_H
 #define BASE_STATION_APP_LAYER_EMOS_H
 

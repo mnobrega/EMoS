@@ -1,3 +1,20 @@
+/* -*- mode:c++ -*- ********************************************************
+ * file:        StaticNodeAppLayer.cc
+ *
+ * author:      Márcio Nóbrega
+ *
+ * copyright:   (C) 2012 IST - Instituto Superior Técnico, Lisbon, Portugal
+ *
+ *              Implements the static node application layer in EMoS. This
+ *              node sends periodically signature nodes in broadcast. It
+ *              has also the ability to be connected to a oven or other
+ *              appliance in the house and send messages to the base station
+ *              or any other node in the WSN.
+ *
+ ***************************************************************************
+ * part of:     EMoS - Elder Monitoring System
+ ***************************************************************************/
+
 #include "StaticNodeAppLayerEMoS.h"
 
 Define_Module(StaticNodeAppLayerEMoS);

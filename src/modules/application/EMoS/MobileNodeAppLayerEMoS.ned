@@ -1,4 +1,14 @@
 package org.mixim.modules.application.EMoS;
+//***************************************************************************
+// file:        MobileNodeAppLayerEMoS.ned
+//
+// author:      Márcio Nóbrega
+// 
+// copyright:   (C) 2012 IST - Instituto Superior Técnico, Lisbon, Portugal
+//
+// description:  EMoS Mobile node application layer.
+// 
+// **************************************************************************/
 
 simple MobileNodeAppLayerEMoS
 {

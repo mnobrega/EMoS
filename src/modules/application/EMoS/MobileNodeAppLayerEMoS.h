@@ -1,3 +1,22 @@
+/* -*- mode:c++ -*- ********************************************************
+ * file:        MobileNodeAppLayer.h
+ *
+ * author:      Márcio Nóbrega
+ *
+ * copyright:   (C) 2012 IST - Instituto Superior Técnico, Lisbon, Portugal
+ *
+ *              Implements the mobile node application layer in EMoS. This
+ *              node has the hability to build the radioMap XML file during
+ *              the offline phase. In the online phase it collects all the
+ *              static nodes signatures during a pre-configure time period
+ *              and sends it to the base station for position estimation.
+ *              It has also the ability to send messages to any node in the
+ *              WSN.
+ *
+ ***************************************************************************
+ * part of:     EMoS - Elder Monitoring System
+ ***************************************************************************/
+
 #ifndef MOBILE_NODE_APP_LAYER_EMOS_H
 #define MOBILE_NODE_APP_LAYER_EMOS_H
 
